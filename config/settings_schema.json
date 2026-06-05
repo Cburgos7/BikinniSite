@@ -1,0 +1,73 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Soleil Noir",
+    "theme_version": "1.0.0",
+    "theme_author": "Soleil Noir",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background",
+        "default": "#faf6f0"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Body text",
+        "default": "#0d0a08"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent (coral)",
+        "default": "#e85d3a"
+      },
+      {
+        "type": "color",
+        "id": "color_gold",
+        "label": "Gold",
+        "default": "#c9a84c"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "type_header_font",
+        "label": "Headings font",
+        "default": "cormorant_garamond_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Body font",
+        "default": "barlow_condensed_n4"
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_instagram_link",
+        "label": "Instagram",
+        "info": "https://instagram.com/yourhandle"
+      },
+      {
+        "type": "text",
+        "id": "social_tiktok_link",
+        "label": "TikTok",
+        "info": "https://tiktok.com/@yourhandle"
+      }
+    ]
+  }
+]

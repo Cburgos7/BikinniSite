@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d0a08">
+
+  <title>
+    {%- if page_title -%}
+      {{ page_title }}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+    {%- else -%}
+      {{ shop.name }}
+    {%- endif -%}
+  </title>
+
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
+
+  <!-- Font preloads -->
+  <link rel="preload" as="font" type="font/woff2"
+    href="{{ 'cormorant-garamond-regular.woff2' | asset_url }}"
+    crossorigin="anonymous">
+  <link rel="preload" as="font" type="font/woff2"
+    href="{{ 'barlow-condensed-regular.woff2' | asset_url }}"
+    crossorigin="anonymous">
+
+  <!-- Stylesheet -->
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  <!-- Font faces -->
+  {%- render 'font-faces' -%}
+
+  {{ content_for_header }}
+</head>
+
+<body class="bg-cream text-deep font-body">
+  <!-- Custom cursor (hidden on touch devices) -->
+  <div id="custom-cursor"
+    class="pointer-events-none fixed top-0 left-0 z-[9999] w-4 h-4 rounded-full bg-coral mix-blend-difference will-change-transform hidden md:block"
+    aria-hidden="true"></div>
+
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-deep text-cream px-4 py-2 z-50">
+    Skip to content
+  </a>
+
+  <main id="main-content" tabindex="-1">
+    {{ content_for_layout }}
+  </main>
+
+  <script type="module" src="{{ 'custom-cursor.js' | asset_url }}"></script>
+</body>
+</html>

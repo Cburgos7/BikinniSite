@@ -1,0 +1,7 @@
+[environments.staging]
+store = "[PLACEHOLDER].myshopify.com"
+theme = "[PLACEHOLDER_STAGING_THEME_ID]"
+
+[environments.production]
+store = "[PLACEHOLDER].myshopify.com"
+theme = "[PLACEHOLDER_PRODUCTION_THEME_ID]"

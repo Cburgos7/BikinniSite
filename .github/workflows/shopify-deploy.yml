@@ -1,0 +1,60 @@
+name: Deploy to Shopify
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+jobs:
+  deploy-preview:
+    name: Deploy to Staging (Preview Theme)
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CSS
+        run: npm run build
+
+      - name: Deploy to Shopify staging
+        uses: shopify/shopify-cli-action@v1
+        with:
+          shopify_flag_store: ${{ secrets.SHOPIFY_STORE_URL }}
+          shopify_cli_theme_token: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          args: theme push --environment staging --allow-live
+
+  deploy-live:
+    name: Deploy to Production (Live Theme)
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CSS
+        run: npm run build
+
+      - name: Deploy to Shopify production
+        uses: shopify/shopify-cli-action@v1
+        with:
+          shopify_flag_store: ${{ secrets.SHOPIFY_STORE_URL }}
+          shopify_cli_theme_token: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          args: theme push --environment production --allow-live
