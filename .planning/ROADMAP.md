@@ -4,7 +4,7 @@
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|-----------------|
-| 1 | Theme Foundation | Shopify repo, Dawn base, Tailwind, fonts, tokens wired | THEME-01–06 | 5 |
+| 1 | Theme Foundation | 3/3 | Complete    | 2026-06-05 |
 | 2 | Global Shell | Nav, cart drawer, metaobjects/metafields, account, CCPA | NAV-01–05, META-01–04, AUTH-01 | 5 |
 | 3 | Home Page | All 12 home sections live and editable in theme editor | HOME-01–09 | 5 |
 | 4 | Collections & PDP | Bikinis, Lingerie, catalog, product detail with all metafields | COLL-01–04, PDP-01–05 | 5 |

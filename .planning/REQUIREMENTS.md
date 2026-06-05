@@ -3,12 +3,12 @@
 ## v1 Requirements
 
 ### THEME — Theme Foundation & Design System
-- [ ] **THEME-01**: Theme is Dawn-based with all custom sections/blocks; Liquid + JSON schema; owner can edit in Shopify theme editor
-- [ ] **THEME-02**: Tailwind CSS configured via PostCSS build pipeline with design tokens mapped to CSS custom properties (`--sand`, `--deep`, `--coral`, `--gold`, `--cream`, `--mid`)
-- [ ] **THEME-03**: Cormorant Garamond + Barlow Condensed fonts self-hosted, subset, and preloaded
-- [ ] **THEME-04**: Vanilla JS only (IntersectionObserver, rAF custom cursor); no jQuery
-- [ ] **THEME-05**: Mobile-first responsive across desktop, tablet, and mobile breakpoints
-- [ ] **THEME-06**: Shopify GitHub auto-deploy wired: `staging` branch for dev, PR to `main` for production
+- [x] **THEME-01**: Theme is Dawn-based with all custom sections/blocks; Liquid + JSON schema; owner can edit in Shopify theme editor
+- [x] **THEME-02**: Tailwind CSS configured via PostCSS build pipeline with design tokens mapped to CSS custom properties (`--sand`, `--deep`, `--coral`, `--gold`, `--cream`, `--mid`)
+- [x] **THEME-03**: Cormorant Garamond + Barlow Condensed fonts self-hosted, subset, and preloaded
+- [x] **THEME-04**: Vanilla JS only (IntersectionObserver, rAF custom cursor); no jQuery
+- [x] **THEME-05**: Mobile-first responsive across desktop, tablet, and mobile breakpoints
+- [x] **THEME-06**: Shopify GitHub auto-deploy wired: `staging` branch for dev, PR to `main` for production
 
 ### NAV — Navigation & Global UI
 - [ ] **NAV-01**: Announcement bar displays free shipping threshold, weekly drops mention, US-based line
