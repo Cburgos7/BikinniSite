@@ -581,14 +581,24 @@ video {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+.text-center {
+  text-align: center;
+}
 .font-body {
   font-family: Barlow Condensed, Arial, sans-serif;
 }
 .font-display {
   font-family: Cormorant Garamond, Georgia, serif;
 }
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
 .italic {
   font-style: italic;
+}
+.tracking-wider {
+  letter-spacing: 0.05em;
 }
 .text-cream {
   --tw-text-opacity: 1;

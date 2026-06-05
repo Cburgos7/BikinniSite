@@ -1,0 +1,18 @@
+<div class="bg-deep text-cream text-center py-2 text-sm font-body tracking-wider">
+  {{ section.settings.text | default: 'Free shipping on orders over $75 &middot; New drops weekly &middot; US-based' }}
+</div>
+
+{% schema %}
+{
+  "name": "Announcement Bar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Announcement text",
+      "default": "Free shipping on orders over $75 · New drops weekly · US-based"
+    }
+  ],
+  "presets": [{ "name": "Announcement Bar" }]
+}
+{% endschema %}
