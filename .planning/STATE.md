@@ -1,3 +1,17 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: executing
+last_updated: "2026-06-05T14:37:48.098Z"
+progress:
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+---
+
 # Project State — Soleil Noir
 
 ## Project Reference
@@ -10,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 ## Current Phase
 
 **Phase 1: Theme Foundation**
-Status: NOT STARTED
+Status: Ready to execute
 Goal: Scaffold the Shopify theme repository — Dawn base, Tailwind PostCSS pipeline, design tokens, fonts, and GitHub auto-deploy.
 
 ## Phase History
