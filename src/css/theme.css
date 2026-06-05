@@ -1,3 +1,34 @@
 @tailwind base;
+
+:root {
+  --sand:  #f5ede0;
+  --deep:  #0d0a08;
+  --coral: #e85d3a;
+  --gold:  #c9a84c;
+  --cream: #faf6f0;
+  --mid:   #8a7060;
+}
+
 @tailwind components;
 @tailwind utilities;
+
+/* Responsive container */
+.site-container {
+  @apply w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-16;
+}
+
+/* Custom cursor — hide on touch/mobile */
+@media (pointer: coarse) {
+  #custom-cursor { display: none !important; }
+}
+
+/* Scroll reveal utility */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
