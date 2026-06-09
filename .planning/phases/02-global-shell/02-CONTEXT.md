@@ -8,6 +8,8 @@
 
 Build everything that wraps every page: sticky nav, mobile nav drawer, cart drawer, metaobject/metafield schema definitions, Shopify customer accounts, CCPA cookie banner, 404 page, and empty cart state. Later phases inherit this complete page frame.
 
+Also includes developer environment setup: Shopify Partner account creation, dev store provisioning, and Shopify CLI local preview (`shopify theme dev`) — so the owner can see a live preview of all Phase 2 work before it ships.
+
 </domain>
 
 <decisions>
@@ -33,6 +35,11 @@ Build everything that wraps every page: sticky nav, mobile nav drawer, cart draw
 - **D-11:** Slim fixed bottom bar — appears immediately on first visit (no delay).
 - **D-12:** Two buttons only: Accept and Decline. No manage-preferences panel.
 - **D-13:** Consent stored in `localStorage` — once a choice is made the banner never reappears (until localStorage is cleared by the user).
+
+### Dev Environment Setup
+- **D-14:** Owner does not yet have a Shopify Partner account or dev store. Phase 2 must include a setup task with step-by-step instructions: create Partner account at partners.shopify.com → create Development store → install Shopify CLI → authenticate CLI → run `shopify theme dev --store=<dev-store>.myshopify.com`.
+- **D-15:** Dev store needs placeholder content (2–3 products with variants, a "Best Sellers" collection, at least one each of Bikinis and Lingerie collection) so nav links and cart work realistically during local preview.
+- **D-16:** `shopify.theme.toml` already scaffolded in Phase 1; verify it is configured with the dev store environment so `shopify theme dev` works without extra flags.
 
 ### Claude's Discretion
 - Footer layout and link structure (links will be stubbed — actual policy pages built in Phase 5)
@@ -89,6 +96,7 @@ No external specs — requirements fully captured in decisions above.
 <specifics>
 ## Specific Ideas
 
+- Dev environment: Partner account at partners.shopify.com (free) → Development store (free, unlimited) → `npm install -g @shopify/cli` → `shopify auth login` → `shopify theme dev --store=<store>.myshopify.com`. Preview URL is shareable so owner can review work before it goes live.
 - Free shipping threshold of $75 matches announcement bar copy — keep them in sync via a single theme setting
 - Mobile drawer close on outside-click and on `Escape` key
 - Cart bag icon should show item count badge (number bubble) when cart is non-empty
