@@ -30,6 +30,16 @@
 **Goal:** Build everything that wraps every page — sticky nav, cart drawer, metaobject/metafield schema definitions, Shopify customer accounts, and the CCPA cookie banner — so later phases inherit a complete page frame.
 **Mode:** standard
 **Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, META-01, META-02, META-03, META-04, AUTH-01
+**Plans:** 6 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Dev environment setup (Shopify Partner account, dev store, shopify.theme.toml config)
+- [ ] 02-02-PLAN.md — Metafields + metaobject definitions in Shopify admin
+- [ ] 02-03-PLAN.md — Sticky nav section + mobile drawer + inline search JS modules
+- [ ] 02-04-PLAN.md — Cart drawer section + Ajax Cart API JS module
+- [ ] 02-05-PLAN.md — CCPA cookie consent banner + 404 page template
+- [ ] 02-06-PLAN.md — Footer section + customer account templates (login, register, account, addresses, order)
+
 **Success Criteria:**
 1. Announcement bar, sticky nav, and cart drawer render correctly on desktop and mobile
 2. All 4 metafields (product) and 1 metafield (collection) are defined in Shopify admin and readable in Liquid
