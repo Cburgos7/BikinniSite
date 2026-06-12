@@ -1,11 +1,53 @@
-<!-- Phase 2: Global Shell will implement this section -->
-<footer class="site-footer">
+<footer class="bg-deep text-cream py-12 mt-auto">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+
+    <!-- Column 1: Brand -->
+    <div>
+      <p class="font-display text-xl">{{ shop.name }}</p>
+      <p class="font-body text-mid text-sm mt-2">Daring swim. Inclusive sizing.</p>
+    </div>
+
+    <!-- Column 2: Shop -->
+    <div>
+      <h3 class="font-body uppercase tracking-widest text-sm mb-4">Shop</h3>
+      <a href="/collections/new-in" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">New In</a>
+      <a href="/collections/bikinis" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Bikinis</a>
+      <a href="/collections/lingerie" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Lingerie</a>
+      <a href="/collections/sale" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Sale</a>
+    </div>
+
+    <!-- Column 3: Help -->
+    <div>
+      <h3 class="font-body uppercase tracking-widest text-sm mb-4">Help</h3>
+      <a href="/pages/faq" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">FAQ</a>
+      <a href="/pages/contact" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Contact</a>
+      <a href="/pages/size-guide" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Size Guide</a>
+    </div>
+
+    <!-- Column 4: Legal -->
+    <div>
+      <h3 class="font-body uppercase tracking-widest text-sm mb-4">Legal</h3>
+      <a href="/policies/privacy-policy" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Privacy</a>
+      <a href="/policies/terms-of-service" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Terms</a>
+      <a href="/policies/refund-policy" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Returns</a>
+    </div>
+
+  </div>
+
+  <!-- Copyright -->
+  <div class="mt-10 border-t border-mid/30 pt-6 text-center font-body text-xs text-mid">
+    &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.
+  </div>
 </footer>
 
 {% schema %}
 {
   "name": "Footer",
   "settings": [],
-  "presets": [{ "name": "Footer" }]
+  "presets": [
+    {
+      "name": "Footer"
+    }
+  ]
 }
 {% endschema %}

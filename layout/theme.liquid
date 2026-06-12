@@ -52,6 +52,8 @@
     {{ content_for_layout }}
   </main>
 
+  {% section 'footer' %}
+
   <script type="module" src="{{ 'custom-cursor.js' | asset_url }}"></script>
 
   {% section 'cookie-consent' %}
