@@ -11,20 +11,20 @@
 <div id="ticker-section" class="bg-deep py-3 overflow-hidden">
   <div id="ticker-track" class="flex whitespace-nowrap" style="animation: marquee 30s linear infinite;">
 
-    {%- comment -%} First copy {%- endcomment -%}
-    {%- if section.settings.ticker_text != blank -%}
+    {%- assign ticker_content = section.settings.ticker_text | default: '' -%}
+    {%- if ticker_content != blank -%}
       <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
-        {{ section.settings.ticker_text }}
+        {{ ticker_content }}
       </span>
-      <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
-        {{ section.settings.ticker_text }}
+      <span aria-hidden="true" class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
+        {{ ticker_content }}
       </span>
     {%- else -%}
       <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
         Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing XXS–3XL<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over $75
       </span>
       {%- comment -%} Second copy for seamless loop {%- endcomment -%}
-      <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
+      <span aria-hidden="true" class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
         Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing XXS–3XL<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over $75
       </span>
     {%- endif -%}
