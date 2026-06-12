@@ -1,0 +1,28 @@
+<div id="cookie-consent-banner"
+  class="fixed bottom-0 left-0 right-0 z-[100] bg-deep text-cream transform translate-y-0 transition-transform duration-300"
+  role="complementary"
+  aria-label="Cookie consent">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between px-6 py-3 gap-3">
+    <p class="font-body text-sm text-cream">We use cookies to improve your experience and for analytics.</p>
+    <div class="flex gap-3 shrink-0">
+      <button id="cookie-accept"
+        class="bg-coral text-cream px-4 py-2 text-xs font-body uppercase tracking-wider">
+        Accept
+      </button>
+      <button id="cookie-decline"
+        class="border border-cream text-cream px-4 py-2 text-xs font-body">
+        Decline
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="{{ 'cookie-consent.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "Cookie Consent",
+  "settings": [],
+  "presets": [{ "name": "Cookie Consent" }]
+}
+{% endschema %}
