@@ -1,3 +1,7 @@
+[environments.development]
+store = "velvet-tide-2.myshopify.com"
+theme = "Soleil Noir Dev"
+
 [environments.staging]
 store = "[PLACEHOLDER].myshopify.com"
 theme = "[PLACEHOLDER_STAGING_THEME_ID]"
