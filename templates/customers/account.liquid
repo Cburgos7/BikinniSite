@@ -1,0 +1,38 @@
+<div class="max-w-2xl mx-auto px-6 py-12 min-h-screen bg-cream">
+  <h1 class="font-display text-3xl text-deep mb-8">My Account</h1>
+
+  <p class="font-body text-mid">Welcome, {{ customer.first_name }}</p>
+
+  <h2 class="font-display text-xl mt-8 mb-4">Order History</h2>
+
+  {% if customer.orders_count == 0 %}
+    <p class="font-body text-sm text-mid">No orders yet.</p>
+  {% else %}
+    <table class="w-full font-body text-sm">
+      <thead>
+        <tr>
+          <th class="text-left py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Order</th>
+          <th class="text-left py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Date</th>
+          <th class="text-left py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Payment</th>
+          <th class="text-left py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Fulfillment</th>
+          <th class="text-right py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in customer.orders %}
+          <tr>
+            <td class="py-3 border-b border-sand text-mid">
+              <a href="/account/orders/{{ order.id }}" class="text-deep hover:text-coral">{{ order.name }}</a>
+            </td>
+            <td class="py-3 border-b border-sand text-mid">{{ order.created_at | date: '%b %d, %Y' }}</td>
+            <td class="py-3 border-b border-sand text-mid">{{ order.financial_status | capitalize }}</td>
+            <td class="py-3 border-b border-sand text-mid">{{ order.fulfillment_status | capitalize }}</td>
+            <td class="py-3 border-b border-sand text-mid text-right">{{ order.total_price | money }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <a href="{{ routes.account_logout_url }}" class="font-body text-sm text-mid hover:text-deep mt-8 block">Sign out</a>
+</div>

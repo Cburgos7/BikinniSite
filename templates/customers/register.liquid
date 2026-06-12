@@ -1,0 +1,56 @@
+<div class="max-w-2xl mx-auto px-6 py-12 min-h-screen bg-cream">
+  <h1 class="font-display text-3xl text-deep mb-8">Create Account</h1>
+
+  {% form 'create_customer' %}
+    {% if form.errors %}
+      <p class="text-coral font-body text-sm mb-4">{{ form.errors | default_errors }}</p>
+    {% endif %}
+
+    <input
+      type="text"
+      name="customer[first_name]"
+      id="customer_first_name"
+      autocomplete="given-name"
+      placeholder="First Name"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <input
+      type="text"
+      name="customer[last_name]"
+      id="customer_last_name"
+      autocomplete="family-name"
+      placeholder="Last Name"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <input
+      type="email"
+      name="customer[email]"
+      id="customer_email"
+      autocomplete="email"
+      placeholder="Email"
+      required
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <input
+      type="password"
+      name="customer[password]"
+      id="customer_password"
+      autocomplete="new-password"
+      placeholder="Password"
+      required
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <button type="submit" class="w-full bg-coral text-cream font-body uppercase tracking-widest py-4 mt-2">
+      Create Account
+    </button>
+  {% endform %}
+
+  <p class="mt-6 font-body text-sm text-mid">
+    Already have an account?
+    <a href="{{ routes.account_login_url }}" class="font-body text-sm text-mid hover:text-deep underline">Sign in</a>
+  </p>
+</div>

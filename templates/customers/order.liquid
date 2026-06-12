@@ -1,0 +1,46 @@
+<div class="max-w-2xl mx-auto px-6 py-12 min-h-screen bg-cream">
+  <a href="{{ routes.account_url }}" class="font-body text-sm text-mid hover:text-deep block mb-6">&larr; Back to account</a>
+
+  <h1 class="font-display text-3xl text-deep mb-8">Order {{ order.name }}</h1>
+
+  <div class="font-body text-mid text-sm mb-8">
+    <p>Date: {{ order.created_at | date: '%B %d, %Y' }}</p>
+    <p>Payment: {{ order.financial_status | capitalize }}</p>
+    <p>Fulfillment: {{ order.fulfillment_status | capitalize }}</p>
+  </div>
+
+  <table class="w-full font-body text-sm mb-8">
+    <thead>
+      <tr>
+        <th class="text-left py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Item</th>
+        <th class="text-center py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Qty</th>
+        <th class="text-right py-2 border-b border-sand font-body uppercase tracking-widest text-xs text-mid">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line_item in order.line_items %}
+        <tr>
+          <td class="py-3 border-b border-sand text-deep">
+            {{ line_item.title }}
+            {% if line_item.variant_title != blank %}
+              <span class="text-mid text-xs"> &mdash; {{ line_item.variant_title }}</span>
+            {% endif %}
+          </td>
+          <td class="py-3 border-b border-sand text-mid text-center">{{ line_item.quantity }}</td>
+          <td class="py-3 border-b border-sand text-deep text-right">{{ line_item.final_line_price | money }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="font-body text-sm text-deep text-right space-y-1">
+    <p>Subtotal: {{ order.subtotal_price | money }}</p>
+    {% for shipping_method in order.shipping_methods %}
+      <p>Shipping ({{ shipping_method.title }}): {{ shipping_method.price | money }}</p>
+    {% endfor %}
+    {% for discount in order.discounts %}
+      <p class="text-coral">Discount ({{ discount.code }}): &minus;{{ discount.savings | money }}</p>
+    {% endfor %}
+    <p class="font-display text-lg mt-2">Total: {{ order.total_price | money }}</p>
+  </div>
+</div>

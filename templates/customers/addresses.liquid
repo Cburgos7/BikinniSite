@@ -1,0 +1,87 @@
+<div class="max-w-2xl mx-auto px-6 py-12 min-h-screen bg-cream">
+  <h1 class="font-display text-3xl text-deep mb-8">Saved Addresses</h1>
+
+  {% for address in customer.addresses %}
+    <div class="border border-sand p-4 mb-4 font-body text-sm text-deep">
+      <p>{{ address.first_name }} {{ address.last_name }}</p>
+      <p>{{ address.address1 }}</p>
+      {% if address.address2 != blank %}
+        <p>{{ address.address2 }}</p>
+      {% endif %}
+      <p>{{ address.city }}, {{ address.province }} {{ address.zip }}</p>
+      <p>{{ address.country }}</p>
+      {% if address == customer.default_address %}
+        <p class="font-body text-xs text-coral uppercase tracking-widest mt-2">Default</p>
+      {% endif %}
+      <div class="mt-3 flex gap-4">
+        <a href="{{ routes.account_addresses_url }}/{{ address.id }}/edit" class="font-body text-sm text-mid hover:text-deep">Edit</a>
+        {% form 'customer_address', address %}
+          <input type="hidden" name="_method" value="delete">
+          <button type="submit" class="font-body text-sm text-mid hover:text-deep">Remove</button>
+        {% endform %}
+      </div>
+    </div>
+  {% endfor %}
+
+  <h2 class="font-display text-xl mt-8 mb-4">Add New Address</h2>
+
+  {% form 'customer_address', customer.new_address %}
+    {% if form.errors %}
+      <p class="text-coral font-body text-sm mb-4">{{ form.errors | default_errors }}</p>
+    {% endif %}
+
+    <input
+      type="text"
+      name="address[first_name]"
+      placeholder="First Name"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[last_name]"
+      placeholder="Last Name"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[address1]"
+      placeholder="Address"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[address2]"
+      placeholder="Apartment, suite, etc. (optional)"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[city]"
+      placeholder="City"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[province]"
+      placeholder="State / Province"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[zip]"
+      placeholder="ZIP / Postal Code"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+    <input
+      type="text"
+      name="address[country]"
+      placeholder="Country"
+      value="United States"
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <button type="submit" class="w-full bg-coral text-cream font-body uppercase tracking-widest py-4 mt-2">
+      Add Address
+    </button>
+  {% endform %}
+</div>

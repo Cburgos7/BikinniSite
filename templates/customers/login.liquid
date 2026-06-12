@@ -1,0 +1,38 @@
+<div class="max-w-2xl mx-auto px-6 py-12 min-h-screen bg-cream">
+  <h1 class="font-display text-3xl text-deep mb-8">Welcome Back</h1>
+
+  {% form 'customer_login' %}
+    {% if form.errors %}
+      <p class="text-coral font-body text-sm mb-4">{{ form.errors | default_errors }}</p>
+    {% endif %}
+
+    <input
+      type="email"
+      name="customer[email]"
+      id="customer_email"
+      autocomplete="email"
+      placeholder="Email"
+      required
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <input
+      type="password"
+      name="customer[password]"
+      id="customer_password"
+      autocomplete="current-password"
+      placeholder="Password"
+      required
+      class="w-full border border-mid px-4 py-3 font-body text-sm text-deep bg-cream focus:outline-none focus:border-deep mb-4"
+    >
+
+    <button type="submit" class="w-full bg-coral text-cream font-body uppercase tracking-widest py-4 mt-2">
+      Sign In
+    </button>
+  {% endform %}
+
+  <p class="mt-6 font-body text-sm text-mid">
+    Don't have an account?
+    <a href="{{ routes.account_register_url }}" class="font-body text-sm text-mid hover:text-deep underline">Create one</a>
+  </p>
+</div>
