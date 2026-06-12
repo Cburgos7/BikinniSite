@@ -1,0 +1,79 @@
+<section class="bg-deep py-10 md:py-12">
+  <div class="max-w-screen-xl mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {%- for block in section.blocks -%}
+        <div class="flex flex-col items-center text-center gap-3 {{ block.shopify_attributes }}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gold" aria-hidden="true">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+          </svg>
+          <p class="font-body text-sm font-semibold tracking-widest uppercase text-cream">
+            {{ block.settings.heading }}
+          </p>
+          <p class="font-body text-xs text-mid">
+            {{ block.settings.descriptor }}
+          </p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Brand Promise Strip",
+  "blocks": [
+    {
+      "type": "promise",
+      "name": "Promise",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Promise heading"
+        },
+        {
+          "type": "text",
+          "id": "descriptor",
+          "label": "Short descriptor"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Brand Promise Strip",
+      "blocks": [
+        {
+          "type": "promise",
+          "settings": {
+            "heading": "Premium Fabrics",
+            "descriptor": "Carefully sourced materials"
+          }
+        },
+        {
+          "type": "promise",
+          "settings": {
+            "heading": "Sizes XXS–3XL",
+            "descriptor": "Inclusive fit for every body"
+          }
+        },
+        {
+          "type": "promise",
+          "settings": {
+            "heading": "New Drops Weekly",
+            "descriptor": "Always something fresh"
+          }
+        },
+        {
+          "type": "promise",
+          "settings": {
+            "heading": "US-Based & Proud",
+            "descriptor": "Shipped from the US"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
