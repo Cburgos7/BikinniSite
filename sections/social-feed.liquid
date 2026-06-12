@@ -17,15 +17,15 @@
           <div class="relative group w-64 h-64 flex-shrink-0 snap-start overflow-hidden">
 
             {%- if post.image != blank -%}
-              {{ post.image.value | image_url: width: 400 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy', alt: post.caption.value }}
+              {{ post.image | image_url: width: 400 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy', alt: post.caption }}
             {%- else -%}
               <div class="w-full h-full bg-sand"></div>
             {%- endif -%}
 
             <div class="absolute inset-0 bg-deep/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               {%- if post.product != blank -%}
-                <a href="{{ post.product.value.product.url }}" class="text-center px-4">
-                  <span class="font-body text-xs tracking-widest uppercase text-cream">Shop {{ post.product.value.product.title }}</span>
+                <a href="{{ post.product.url }}" class="text-center px-4">
+                  <span class="font-body text-xs tracking-widest uppercase text-cream">Shop {{ post.product.title }}</span>
                   <span class="text-coral"> &rarr;</span>
                 </a>
               {%- endif -%}
