@@ -2,7 +2,8 @@
   <div class="max-w-screen-xl mx-auto px-4">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {%- for block in section.blocks -%}
-        <a href="{{ block.settings.collection.url | default: '#' }}" class="relative group block aspect-square overflow-hidden {{ block.shopify_attributes }}">
+        {%- assign card_label = block.settings.label | default: block.settings.collection.title | default: 'Shop' -%}
+        <a href="{{ block.settings.collection.url | default: '#' }}" aria-label="{{ card_label }}" class="relative group block aspect-square overflow-hidden {{ block.shopify_attributes }}">
 
           {%- if block.settings.collection.featured_image != blank -%}
             {{ block.settings.collection.featured_image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover transition-all duration-300', loading: 'lazy', alt: block.settings.label }}
