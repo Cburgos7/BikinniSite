@@ -1,4 +1,58 @@
 {
-  "sections": {},
-  "order": []
+  "name": "Default",
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {}
+    },
+    "ticker": {
+      "type": "ticker",
+      "settings": {}
+    },
+    "category-grid": {
+      "type": "category-grid",
+      "settings": {},
+      "blocks": {},
+      "block_order": []
+    },
+    "featured-products": {
+      "type": "featured-products",
+      "settings": {}
+    },
+    "social-feed": {
+      "type": "social-feed",
+      "settings": {}
+    },
+    "brand-promise": {
+      "type": "brand-promise",
+      "settings": {},
+      "blocks": {},
+      "block_order": []
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "settings": {},
+      "blocks": {},
+      "block_order": []
+    },
+    "new-arrivals": {
+      "type": "new-arrivals",
+      "settings": {}
+    },
+    "sizing-banner": {
+      "type": "sizing-banner",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "ticker",
+    "category-grid",
+    "featured-products",
+    "social-feed",
+    "brand-promise",
+    "testimonials",
+    "new-arrivals",
+    "sizing-banner"
+  ]
 }
