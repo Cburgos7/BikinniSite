@@ -6,7 +6,7 @@
 |---|-------|------|--------------|-----------------|
 | 1 | Theme Foundation | 3/3 | Complete    | 2026-06-05 |
 | 2 | Global Shell | Nav, cart drawer, metaobjects/metafields, account, CCPA | NAV-01–05, META-01–04, AUTH-01 | 5 |
-| 3 | Home Page | 2/6 | In Progress|  |
+| 3 | Home Page | 4/6 | In Progress|  |
 | 4 | Collections & PDP | Bikinis, Lingerie, catalog, product detail with all metafields | COLL-01–04, PDP-01–05 | 5 |
 | 5 | Content Pages | About, Models, Payment, Size guide, Affiliates, Social, FAQ, Contact, Policies | PAGE-01–09 | 5 |
 | 6 | Integrations | Klaviyo, UpPromote, GA4, Cloudinary all wired and verified | INT-01–04 | 4 |
@@ -53,13 +53,13 @@ Plans:
 **Goal:** Build the complete home page with all sections from announcement bar to footer, each editable in the Shopify theme editor, including the curated social feed block.
 **Mode:** standard
 **Requirements:** HOME-01, HOME-02, HOME-03, HOME-04, HOME-05, HOME-06, HOME-07, HOME-08, HOME-09
-**Plans:** 2/6 plans executed
+**Plans:** 4/6 plans executed
 
 Plans:
 - [x] 03-01-PLAN.md — Hero section (HOME-01) + Ticker/Marquee (HOME-02)
 - [x] 03-02-PLAN.md — Brand Promise strip (HOME-06) + Sizing Banner (HOME-09)
-- [ ] 03-03-PLAN.md — Featured Products "Best Sellers" (HOME-04) + New Arrivals (HOME-08)
-- [ ] 03-04-PLAN.md — Social Feed strip (HOME-05) + Category Grid (HOME-03)
+- [x] 03-03-PLAN.md — Featured Products "Best Sellers" (HOME-04) + New Arrivals (HOME-08)
+- [x] 03-04-PLAN.md — Social Feed strip (HOME-05) + Category Grid (HOME-03)
 - [ ] 03-05-PLAN.md — Testimonials carousel section + JS module (HOME-07)
 - [ ] 03-06-PLAN.md — Wire all sections into templates/index.json + responsive QA checkpoint
 
