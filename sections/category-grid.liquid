@@ -1,0 +1,60 @@
+<section class="bg-cream py-12 md:py-16">
+  <div class="max-w-screen-xl mx-auto px-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {%- for block in section.blocks -%}
+        <a href="{{ block.settings.collection.url | default: '#' }}" class="relative group block aspect-square overflow-hidden {{ block.shopify_attributes }}">
+
+          {%- if block.settings.collection.featured_image != blank -%}
+            {{ block.settings.collection.featured_image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover transition-all duration-300', loading: 'lazy', alt: block.settings.label }}
+          {%- else -%}
+            <div class="w-full h-full bg-sand"></div>
+          {%- endif -%}
+
+          <div class="absolute inset-0 bg-deep/40 group-hover:bg-deep/60 transition-colors duration-300 flex items-center justify-center">
+            <span class="text-cream font-body text-sm font-semibold tracking-widest uppercase">
+              {{ block.settings.label | default: block.settings.collection.title }}
+            </span>
+          </div>
+
+        </a>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Category Grid",
+  "blocks": [
+    {
+      "type": "category_card",
+      "name": "Category Card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Card label override",
+          "info": "Leave blank to use collection title"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Category Grid",
+      "blocks": [
+        { "type": "category_card", "settings": { "label": "Bikinis" } },
+        { "type": "category_card", "settings": { "label": "Lingerie" } },
+        { "type": "category_card", "settings": { "label": "New In" } },
+        { "type": "category_card", "settings": { "label": "Sale" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
