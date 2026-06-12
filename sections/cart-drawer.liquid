@@ -1,0 +1,158 @@
+<!-- Cart drawer overlay -->
+<div
+  id="cart-drawer-overlay"
+  class="fixed inset-0 z-[60] bg-deep/40 hidden"
+  aria-hidden="true"
+></div>
+
+<!-- Cart drawer panel -->
+<div
+  id="cart-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Cart"
+  class="fixed inset-y-0 right-0 z-[70] w-96 max-w-full bg-cream flex flex-col transform translate-x-full transition-transform duration-300"
+>
+
+  <!-- Header row -->
+  <div class="bg-deep text-cream flex items-center justify-between px-6 py-4">
+    <h2 class="font-display text-xl">Your Cart</h2>
+    <button
+      id="cart-drawer-close"
+      class="flex items-center justify-center w-8 h-8 text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral transition-colors duration-200"
+      aria-label="Close cart"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Free shipping progress bar -->
+  <div
+    class="px-6 py-3 bg-sand"
+    data-threshold="{{ section.settings.free_shipping_threshold }}"
+  >
+    <div class="w-full bg-sand h-1.5 rounded-full overflow-hidden" style="background-color: #e5d5c0;">
+      <div
+        id="shipping-bar-fill"
+        class="bg-coral h-full rounded-full transition-all duration-500"
+        style="width: 0%;"
+      ></div>
+    </div>
+    <p id="shipping-bar-text" class="font-body text-sm text-deep mt-1">
+      {%- assign threshold = section.settings.free_shipping_threshold -%}
+      {%- assign cart_total_dollars = cart.total_price | divided_by: 100.0 -%}
+      {%- if cart_total_dollars >= threshold -%}
+        You've unlocked free shipping!
+      {%- else -%}
+        {%- assign remaining = threshold | minus: cart_total_dollars -%}
+        You're ${{ remaining | money_without_currency }} away from free shipping!
+      {%- endif -%}
+    </p>
+  </div>
+
+  <!-- Items scroll area -->
+  <div id="cart-items" class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+
+    <!-- Empty cart state -->
+    <div
+      id="cart-empty"
+      class="flex-1 flex flex-col items-center justify-center text-center px-6 py-12 {% if cart.item_count > 0 %}hidden{% endif %}"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-mid" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" />
+      </svg>
+      <p class="font-display text-xl text-deep mt-4">Your cart is empty</p>
+      <p class="font-body text-mid text-sm mt-2">Start browsing our collections</p>
+      <a
+        href="/collections/all"
+        class="mt-6 bg-coral text-cream font-body uppercase tracking-widest px-8 py-3 hover:bg-deep transition-colors duration-200"
+      >SHOP NOW</a>
+    </div>
+
+    <!-- Server-side item list (non-JS fallback) -->
+    {% for item in cart.items %}
+      <div class="flex gap-4 items-start" data-line-item="{{ item.variant_id }}">
+        <img
+          src="{{ item.image | img_url: '80x100', crop: 'center' }}"
+          alt="{{ item.title | escape }}"
+          class="w-16 h-20 object-cover flex-shrink-0"
+          loading="lazy"
+        >
+        <div class="flex-1 min-w-0">
+          <p class="font-body text-sm text-deep truncate">{{ item.title }}</p>
+          {%- if item.variant_title and item.variant_title != 'Default Title' -%}
+            <p class="text-mid text-xs mt-0.5">{{ item.variant_title }}</p>
+          {%- endif -%}
+          <!-- Quantity controls -->
+          <div class="flex items-center gap-3 mt-2">
+            <button
+              class="w-6 h-6 flex items-center justify-center border border-mid text-deep font-body text-sm hover:border-deep transition-colors duration-200{% if item.quantity <= 1 %} opacity-50 cursor-not-allowed{% endif %}"
+              data-action="decrease"
+              data-variant-id="{{ item.variant_id }}"
+              data-qty="{{ item.quantity }}"
+              aria-label="Decrease quantity"
+              {% if item.quantity <= 1 %}disabled{% endif %}
+            >−</button>
+            <span class="font-body text-sm text-deep w-4 text-center" data-qty="{{ item.quantity }}">{{ item.quantity }}</span>
+            <button
+              class="w-6 h-6 flex items-center justify-center border border-mid text-deep font-body text-sm hover:border-deep transition-colors duration-200"
+              data-action="increase"
+              data-variant-id="{{ item.variant_id }}"
+              data-qty="{{ item.quantity }}"
+              aria-label="Increase quantity"
+            >+</button>
+            <button
+              class="ml-auto text-mid hover:text-deep transition-colors duration-200"
+              data-action="remove"
+              data-variant-id="{{ item.variant_id }}"
+              data-qty="0"
+              aria-label="Remove {{ item.title | escape }} from cart"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <p class="font-body text-sm text-deep flex-shrink-0">{{ item.final_line_price | money }}</p>
+      </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- Footer -->
+  <div
+    id="cart-footer"
+    class="px-6 py-4 border-t border-sand {% if cart.item_count == 0 %}hidden{% endif %}"
+  >
+    <div class="flex items-center justify-between">
+      <span class="font-body text-sm text-mid uppercase tracking-widest">Subtotal</span>
+      <span id="cart-subtotal" class="font-body text-deep">{{ cart.total_price | money }}</span>
+    </div>
+    <p class="text-mid text-xs mt-1">Shipping &amp; taxes calculated at checkout</p>
+    <a
+      href="{{ routes.cart_url }}/checkout"
+      class="block w-full bg-coral text-cream font-body uppercase tracking-widest text-center py-4 mt-4 hover:bg-deep transition-colors duration-200"
+    >PROCEED TO CHECKOUT</a>
+  </div>
+
+</div>
+
+<script type="module" src="{{ 'cart-drawer.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "Cart Drawer",
+  "settings": [
+    {
+      "type": "number",
+      "id": "free_shipping_threshold",
+      "label": "Free shipping threshold ($)",
+      "default": 75
+    }
+  ],
+  "presets": [{ "name": "Cart Drawer" }]
+}
+{% endschema %}
