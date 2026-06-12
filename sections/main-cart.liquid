@@ -1,0 +1,49 @@
+<div class="max-w-4xl mx-auto px-6 py-12 min-h-screen">
+  <h1 class="font-display text-3xl text-deep mb-8">Your Cart</h1>
+
+  {%- if cart.item_count == 0 -%}
+    <div class="text-center py-16">
+      <p class="font-body text-deep/60 mb-6">Your cart is empty.</p>
+      <a href="/collections/all" class="inline-block bg-deep text-cream font-body text-sm tracking-widest uppercase px-8 py-3 hover:bg-coral transition-colors duration-200">
+        Shop Now
+      </a>
+    </div>
+  {%- else -%}
+    <form action="{{ routes.cart_url }}" method="post">
+      <div class="divide-y divide-deep/10">
+        {%- for item in cart.items -%}
+          <div class="py-6 flex gap-4">
+            <a href="{{ item.url }}">
+              <img src="{{ item.image | image_url: width: 120 }}" alt="{{ item.image.alt | escape }}" width="120" height="120" class="object-cover">
+            </a>
+            <div class="flex-1">
+              <p class="font-body text-deep font-medium">{{ item.product.title | escape }}</p>
+              {%- unless item.variant.title == 'Default Title' -%}
+                <p class="font-body text-deep/60 text-sm">{{ item.variant.title | escape }}</p>
+              {%- endunless -%}
+              <p class="font-body text-deep mt-1">{{ item.final_price | money }}</p>
+              <div class="flex items-center gap-2 mt-3">
+                <a href="{{ item.url_to_remove }}" class="font-body text-xs text-deep/40 underline hover:text-coral">Remove</a>
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="mt-8 border-t border-deep/10 pt-6 flex flex-col items-end gap-4">
+        <p class="font-body text-deep">Subtotal: <strong>{{ cart.total_price | money }}</strong></p>
+        <p class="font-body text-xs text-deep/60">Shipping and taxes calculated at checkout.</p>
+        <button type="submit" name="checkout" class="bg-deep text-cream font-body text-sm tracking-widest uppercase px-10 py-3 hover:bg-coral transition-colors duration-200">
+          Checkout
+        </button>
+      </div>
+    </form>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Cart",
+  "settings": []
+}
+{% endschema %}

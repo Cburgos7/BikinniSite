@@ -43,13 +43,13 @@
         "type": "font_picker",
         "id": "type_header_font",
         "label": "Headings font",
-        "default": "cormorant_garamond_n4"
+        "default": "assistant_n4"
       },
       {
         "type": "font_picker",
         "id": "type_body_font",
         "label": "Body font",
-        "default": "barlow_condensed_n4"
+        "default": "assistant_n4"
       }
     ]
   },
