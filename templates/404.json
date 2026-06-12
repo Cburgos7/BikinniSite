@@ -1,4 +1,6 @@
 {
-  "sections": {},
-  "order": []
+  "sections": {
+    "main": { "type": "not-found", "settings": {} }
+  },
+  "order": ["main"]
 }
