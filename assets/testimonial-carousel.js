@@ -60,6 +60,10 @@ export function init() {
 
   // --- showQuote: fade out → swap content → fade in ---
   function showQuote(index) {
+    // Update currentIndex immediately so next() always advances from the
+    // correct baseline, even if called rapidly before the fade completes (WR-03).
+    currentIndex = index;
+
     // Fade out
     quoteEl.classList.add('opacity-0');
     authorEl.classList.add('opacity-0');
@@ -91,8 +95,6 @@ export function init() {
 
       // Sync dots
       dots.forEach((btn, i) => applyDotState(btn, i === index));
-
-      currentIndex = index;
     }, FADE_DURATION);
   }
 
