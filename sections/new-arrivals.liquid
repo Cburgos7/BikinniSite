@@ -1,0 +1,85 @@
+<section class="bg-cream py-12 md:py-16">
+  <div class="max-w-screen-xl mx-auto px-4">
+
+    <h2 class="font-display text-3xl md:text-4xl text-deep text-center mb-8 md:mb-12">
+      {{ section.settings.heading }}
+    </h2>
+
+    {%- if section.settings.collection != blank -%}
+      {%- assign new_products = section.settings.collection.products | limit: section.settings.product_count -%}
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {%- for product in new_products -%}
+          <article class="relative group overflow-hidden bg-cream shadow-none group-hover:shadow-md transition-shadow duration-200">
+
+            <div class="relative overflow-hidden aspect-[3/4]">
+              {%- if product.featured_image != blank -%}
+                {{ product.featured_image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: product.title }}
+              {%- else -%}
+                <div class="w-full h-full bg-sand"></div>
+              {%- endif -%}
+
+              <form action="/cart/add" method="post" class="absolute bottom-0 left-0 right-0">
+                <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
+                <button type="submit" class="w-full bg-deep text-cream py-3 font-body text-xs tracking-widest uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-200 cursor-pointer">
+                  Quick Add
+                </button>
+              </form>
+            </div>
+
+            <div class="p-4">
+              <p class="font-body text-base font-semibold tracking-wide uppercase text-deep">{{ product.title }}</p>
+              <p class="font-body text-sm font-normal text-mid mt-1">{{ product.price | money }}</p>
+            </div>
+
+          </article>
+        {%- endfor -%}
+      </div>
+
+      <div class="mt-8 text-center">
+        <a href="{{ section.settings.collection.url }}" class="font-body text-sm font-semibold tracking-widest uppercase text-coral hover:text-deep transition-colors">
+          {{ section.settings.view_all_label }}
+        </a>
+      </div>
+
+    {%- else -%}
+      <p class="text-center text-mid">Configure a collection in theme editor settings.</p>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "New Arrivals",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "New Arrivals"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "product_count",
+      "label": "Number of products",
+      "min": 4,
+      "max": 8,
+      "step": 4,
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all link label",
+      "default": "View All New Arrivals →"
+    }
+  ],
+  "presets": [{ "name": "New Arrivals" }]
+}
+{% endschema %}
