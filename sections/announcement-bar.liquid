@@ -1,5 +1,9 @@
 <div class="bg-deep text-cream text-center py-2 text-sm font-body tracking-wider">
-  {{ section.settings.text | default: 'Free shipping on orders over $75 &middot; New drops weekly &middot; US-based' }}
+  {%- if section.settings.text != blank -%}
+    {{ section.settings.text }}
+  {%- else -%}
+    Free shipping on orders over ${{ section.settings.free_shipping_threshold }} &middot; New drops weekly &middot; US-based
+  {%- endif -%}
 </div>
 
 {% schema %}
@@ -10,7 +14,13 @@
       "type": "text",
       "id": "text",
       "label": "Announcement text",
-      "default": "Free shipping on orders over $75 · New drops weekly · US-based"
+      "info": "Leave blank to show the free shipping message automatically."
+    },
+    {
+      "type": "number",
+      "id": "free_shipping_threshold",
+      "label": "Free shipping threshold ($)",
+      "default": 75
     }
   ],
   "presets": [{ "name": "Announcement Bar" }]
