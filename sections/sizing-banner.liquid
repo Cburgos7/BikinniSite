@@ -1,0 +1,47 @@
+<section class="bg-deep py-10 md:py-12">
+  <div class="max-w-2xl mx-auto px-4 text-center">
+    <h2 class="font-display text-2xl md:text-3xl text-cream">
+      {{ section.settings.heading | default: 'Find Your Perfect Fit' }}
+    </h2>
+    {%- assign sizes = "XXS,XS,S,M,L,XL,1X,2X,3X" | split: "," -%}
+    <div class="flex flex-wrap justify-center gap-2 mt-6">
+      {%- for size in sizes -%}
+        <span class="border border-cream/30 px-3 py-1 font-body text-xs tracking-wide text-cream/80 hover:border-coral hover:text-coral transition-colors cursor-pointer">
+          {{ size }}
+        </span>
+      {%- endfor -%}
+    </div>
+    <a
+      href="{{ section.settings.cta_url | default: '/pages/size-guide' }}"
+      class="mt-6 inline-block text-coral hover:text-gold transition-colors font-body text-sm font-semibold tracking-widest uppercase"
+    >
+      {{ section.settings.cta_label | default: 'View Full Size Guide →' }}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Sizing Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Banner heading",
+      "default": "Find Your Perfect Fit"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA label",
+      "default": "View Full Size Guide →"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA URL"
+    }
+  ],
+  "presets": [{ "name": "Sizing Banner" }]
+}
+{% endschema %}
