@@ -1,0 +1,48 @@
+<style>
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  #ticker-section:hover #ticker-track {
+    animation-play-state: paused;
+  }
+</style>
+
+<div id="ticker-section" class="bg-deep py-3 overflow-hidden">
+  <div id="ticker-track" class="flex whitespace-nowrap" style="animation: marquee 30s linear infinite;">
+
+    {%- comment -%} First copy {%- endcomment -%}
+    {%- if section.settings.ticker_text != blank -%}
+      <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
+        {{ section.settings.ticker_text }}
+      </span>
+      <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
+        {{ section.settings.ticker_text }}
+      </span>
+    {%- else -%}
+      <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
+        Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing XXS–3XL<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over $75
+      </span>
+      {%- comment -%} Second copy for seamless loop {%- endcomment -%}
+      <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
+        Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing XXS–3XL<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over $75
+      </span>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Ticker / Marquee",
+  "settings": [
+    {
+      "type": "text",
+      "id": "ticker_text",
+      "label": "Ticker text",
+      "info": "Leave blank to use default brand promises."
+    }
+  ],
+  "presets": [{ "name": "Ticker / Marquee" }]
+}
+{% endschema %}
