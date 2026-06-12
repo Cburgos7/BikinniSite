@@ -34,7 +34,7 @@
   {{ content_for_header }}
 </head>
 
-<body class="bg-cream text-deep font-body">
+<body class="bg-cream text-deep font-body pt-16">
   <!-- Custom cursor (hidden on touch devices) -->
   <div id="custom-cursor"
     class="pointer-events-none fixed top-0 left-0 z-[9999] w-4 h-4 rounded-full bg-coral mix-blend-difference will-change-transform hidden md:block"
@@ -43,6 +43,9 @@
   <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-deep text-cream px-4 py-2 z-50">
     Skip to content
   </a>
+
+  {% section 'announcement-bar' %}
+  {% section 'header' %}
 
   <main id="main-content" tabindex="-1">
     {{ content_for_layout }}

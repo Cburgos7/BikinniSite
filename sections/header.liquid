@@ -1,11 +1,175 @@
-<!-- Phase 2: Global Shell will implement this section -->
-<header class="site-header">
+<header class="fixed top-0 left-0 right-0 z-50 bg-deep h-14 lg:h-16" role="banner">
+  <div class="max-w-screen-xl mx-auto px-4 h-full flex items-center justify-between">
+
+    <!-- Mobile: hamburger (left) -->
+    <button
+      id="nav-hamburger"
+      class="lg:hidden flex items-center justify-center w-8 h-8 text-cream focus:outline-none focus-visible:ring-2 focus-visible:ring-coral"
+      aria-label="Open navigation menu"
+      aria-expanded="false"
+      aria-controls="mobile-nav-drawer"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:left-auto">
+      {%- if section.settings.logo != blank -%}
+        <img
+          src="{{ section.settings.logo | image_url: width: 200 }}"
+          alt="{{ shop.name }}"
+          class="h-8 w-auto"
+          loading="eager"
+        >
+      {%- else -%}
+        <span class="font-display text-xl text-cream tracking-widest uppercase">{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+
+    <!-- Desktop nav links + inline search -->
+    <nav id="nav-links" class="hidden lg:flex items-center gap-8 transition-opacity duration-200" aria-label="Main navigation">
+      {%- assign nav_links = 'new-in,/collections/new-in|Bikinis,/collections/bikinis|Lingerie,/collections/lingerie|Sale,/collections/sale' | split: '|' -%}
+      {%- assign nav_items = 'New In,/collections/new-in|Bikinis,/collections/bikinis|Lingerie,/collections/lingerie|Sale,/collections/sale' | split: '|' -%}
+      {%- for item in nav_items -%}
+        {%- assign parts = item | split: ',' -%}
+        {%- assign item_label = parts[0] -%}
+        {%- assign item_url = parts[1] -%}
+        <a
+          href="{{ item_url }}"
+          class="font-body text-sm tracking-widest uppercase transition-colors duration-200 hover:text-gold
+            {%- if item_label == 'Sale' %} text-coral{%- else %} text-cream{%- endif %}
+            {%- if request.path == item_url %} border-b-2 border-coral pb-0.5{%- endif %}"
+        >{{ item_label }}</a>
+      {%- endfor -%}
+    </nav>
+
+    <!-- Inline search bar (hidden by default, shown when search toggled) -->
+    <div
+      id="nav-search-bar"
+      class="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200"
+      aria-label="Site search"
+    >
+      <input
+        id="nav-search-input"
+        type="search"
+        placeholder="Search…"
+        class="bg-transparent border-b border-cream text-cream font-body text-sm tracking-wider placeholder:text-mid focus:outline-none w-64 py-1"
+        autofocus
+        aria-label="Search products"
+      >
+      <button
+        id="nav-search-close"
+        class="text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral"
+        aria-label="Close search"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Right icons: search, account, cart -->
+    <div class="flex items-center gap-3 ml-auto lg:ml-0">
+      <!-- Search toggle -->
+      <button
+        id="nav-search-toggle"
+        class="flex items-center justify-center w-8 h-8 text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral transition-colors duration-200"
+        aria-label="Search"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+        </svg>
+      </button>
+
+      <!-- Account -->
+      <a
+        href="/account"
+        class="flex items-center justify-center w-8 h-8 text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral transition-colors duration-200"
+        aria-label="Account"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+        </svg>
+      </a>
+
+      <!-- Cart -->
+      <button
+        id="nav-cart-toggle"
+        class="relative flex items-center justify-center w-8 h-8 text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral transition-colors duration-200"
+        aria-label="Cart, {{ cart.item_count }} items"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" />
+        </svg>
+        {%- if cart.item_count > 0 -%}
+          <span
+            id="cart-count-badge"
+            class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-coral text-cream text-[10px] font-body leading-none"
+            aria-hidden="true"
+          >{{ cart.item_count }}</span>
+        {%- endif -%}
+      </button>
+    </div>
+
+  </div>
 </header>
+
+<!-- Mobile nav drawer -->
+<div
+  id="mobile-nav-drawer"
+  class="fixed inset-y-0 left-0 z-[60] w-[280px] bg-deep transform -translate-x-full transition-transform duration-300 ease-in-out"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation menu"
+>
+  <div class="flex items-center justify-between px-6 py-4 border-b border-cream/10">
+    <span class="font-display text-lg text-cream tracking-widest uppercase">Menu</span>
+    <button
+      id="mobile-nav-close"
+      class="flex items-center justify-center w-8 h-8 text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral"
+      aria-label="Close navigation menu"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <nav class="flex flex-col py-4" aria-label="Mobile navigation">
+    <a href="/collections/new-in" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">New In</a>
+    <a href="/collections/bikinis" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Bikinis</a>
+    <a href="/collections/lingerie" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Lingerie</a>
+    <a href="/collections/sale" class="font-display text-3xl text-coral py-4 px-8 hover:text-gold transition-colors duration-200">Sale</a>
+  </nav>
+</div>
+
+<!-- Mobile nav overlay -->
+<div
+  id="mobile-nav-overlay"
+  class="fixed inset-0 z-50 bg-deep/50 backdrop-blur-sm hidden"
+  aria-hidden="true"
+></div>
+
+<script type="module" src="{{ 'mobile-nav.js' | asset_url }}"></script>
+<script type="module" src="{{ 'inline-search.js' | asset_url }}"></script>
 
 {% schema %}
 {
   "name": "Header",
-  "settings": [],
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "number",
+      "id": "free_shipping_threshold",
+      "label": "Free shipping threshold ($)",
+      "default": 75
+    }
+  ],
   "presets": [{ "name": "Header" }]
 }
 {% endschema %}
