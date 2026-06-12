@@ -58,11 +58,10 @@
     {%- endif -%}
   </script>
 
-  <!-- ES module: load the carousel script then call init() -->
-  <script type="module" src="{{ 'testimonial-carousel.js' | asset_url }}" defer></script>
+  <!-- ES module: single inline module imports and calls init() (modules are deferred by default) -->
   <script type="module">
     import { init } from {{ 'testimonial-carousel.js' | asset_url | json }};
-    document.addEventListener('DOMContentLoaded', function () { init(); });
+    init();
   </script>
 
 </section>
