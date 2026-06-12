@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-06-12T16:20:38.463Z"
+status: ready_to_plan
+last_updated: 2026-06-12T23:02:53.115Z
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 15
-  completed_plans: 9
+  completed_plans: 15
   percent: 33
+stopped_at: Phase 03 complete (6/6) — ready to discuss Phase 4
 ---
 
 # Project State — Soleil Noir
@@ -19,12 +20,12 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
-**Current focus:** Phase 03 — home-page
+**Current focus:** Phase 4 — collections & product detail
 
 ## Current Phase
 
 **Phase 1: Theme Foundation**
-Status: Executing Phase 03
+Status: Ready to plan
 Goal: Scaffold the Shopify theme repository — Dawn base, Tailwind PostCSS pipeline, design tokens, fonts, and GitHub auto-deploy.
 
 ## Phase History
