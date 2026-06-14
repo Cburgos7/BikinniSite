@@ -8,7 +8,7 @@
 | 2 | Global Shell | Nav, cart drawer, metaobjects/metafields, account, CCPA | NAV-01–05, META-01–04, AUTH-01 | 5 |
 | 3 | Home Page | 6/6 | Complete   | 2026-06-12 |
 | 4 | Collections & PDP | 5/5 | Complete   | 2026-06-14 |
-| 5 | Content Pages | 2/8 | In Progress|  |
+| 5 | Content Pages | 3/8 | In Progress|  |
 | 6 | Integrations | Klaviyo, UpPromote, GA4, Cloudinary all wired and verified | INT-01–04 | 4 |
 
 ---
@@ -104,14 +104,14 @@ Cross-cutting constraints: `{% schema %}` block required on every section; all J
 **Goal:** Build all standalone content pages — About, Models, Payment info, Size guide with fit recommender, Affiliates with UpPromote embed, Social UGC gallery, Contact, FAQ, and policy pages.
 **Mode:** standard
 **Requirements:** PAGE-01, PAGE-02, PAGE-03, PAGE-04, PAGE-05, PAGE-06, PAGE-07, PAGE-08, PAGE-09
-**Plans:** 2/8 plans executed
+**Plans:** 3/8 plans executed
 
 Plans:
 
 **Wave 1** *(parallel — independent sections and JS modules)*
 - [x] 05-01-PLAN.md — About page section (page-about.liquid) + Payment info section (page-payment.liquid)
 - [x] 05-02-PLAN.md — Models grid section (page-models.liquid) — metaobject iteration, D-01
-- [ ] 05-03-PLAN.md — Size guide section (page-sizeguide.liquid) + fit recommender JS (size-guide.js)
+- [x] 05-03-PLAN.md — Size guide section (page-sizeguide.liquid) + fit recommender JS (size-guide.js)
 - [ ] 05-04-PLAN.md — Affiliates section (page-affiliates.liquid) — tier cards + UpPromote iframe
 - [ ] 05-05-PLAN.md — Social UGC gallery section (page-social.liquid) — metaobject grid, D-04
 - [ ] 05-06-PLAN.md — Contact section (page-contact.liquid) + FAQ section (page-faq.liquid) + faq.js
