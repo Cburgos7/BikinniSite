@@ -1,0 +1,276 @@
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+  <div class="lg:grid lg:grid-cols-2 lg:gap-16">
+
+    {%- comment -%} LEFT COLUMN — IMAGE GALLERY {%- endcomment -%}
+    {%- assign product_images = product.images -%}
+    <div>
+      <div class="lg:grid lg:grid-cols-[1fr_auto] lg:gap-4">
+
+        {%- comment -%} MAIN IMAGE {%- endcomment -%}
+        <div class="relative">
+          <img
+            id="pdp-main-image"
+            src="{{ product.featured_image | image_url: width: 1000 }}"
+            alt="{{ product.title | escape }}"
+            class="w-full aspect-[3/4] object-cover cursor-zoom-in"
+            data-lightbox-trigger
+          >
+        </div>
+
+        {%- comment -%} THUMBNAIL STRIP — desktop vertical, right of main {%- endcomment -%}
+        <div class="hidden lg:flex flex-col gap-2 w-16 overflow-y-auto max-h-[600px]">
+          {%- for image in product_images -%}
+            <img
+              src="{{ image | image_url: width: 120 }}"
+              alt="{{ product.title | escape }} image {{ forloop.index }} of {{ product_images.size }}"
+              class="w-14 h-14 object-cover cursor-pointer ring-0 hover:ring-2 ring-deep transition-all {% if forloop.first %}ring-2 ring-deep{% endif %}"
+              data-thumbnail
+              data-full-src="{{ image | image_url: width: 1000 }}"
+              data-index="{{ forloop.index0 }}"
+              aria-label="View image {{ forloop.index }} of {{ product_images.size }}"
+            >
+          {%- endfor -%}
+        </div>
+
+      </div>
+
+      {%- comment -%} THUMBNAIL STRIP — mobile horizontal, below main {%- endcomment -%}
+      <div class="flex gap-2 overflow-x-auto mt-3 lg:hidden">
+        {%- for image in product_images -%}
+          <img
+            src="{{ image | image_url: width: 120 }}"
+            alt="{{ product.title | escape }} image {{ forloop.index }} of {{ product_images.size }}"
+            class="w-14 h-14 object-cover cursor-pointer ring-0 hover:ring-2 ring-deep transition-all {% if forloop.first %}ring-2 ring-deep{% endif %}"
+            data-thumbnail
+            data-full-src="{{ image | image_url: width: 1000 }}"
+            data-index="{{ forloop.index0 }}"
+            aria-label="View image {{ forloop.index }} of {{ product_images.size }}"
+          >
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- comment -%} RIGHT COLUMN — PRODUCT INFO {%- endcomment -%}
+    <div class="mt-8 lg:mt-0">
+
+      {%- comment -%} PRODUCT NAME {%- endcomment -%}
+      <h1 class="font-display text-3xl font-normal leading-tight text-deep">{{ product.title | escape }}</h1>
+
+      {%- comment -%} PRICE {%- endcomment -%}
+      <div class="mt-3">
+        <span class="font-body text-sm font-semibold tracking-wide text-deep">{{ product.price | money }}</span>
+        {%- if product.compare_at_price > product.price -%}
+          <span class="font-body text-xs text-mid line-through ml-2">{{ product.compare_at_price | money }}</span>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} PRODUCT DESCRIPTION {%- endcomment -%}
+      {%- if product.description != blank -%}
+        <div class="mt-4 font-body text-sm text-mid leading-relaxed">{{ product.description }}</div>
+      {%- endif -%}
+
+      {%- comment -%} COLOR SELECTOR {%- endcomment -%}
+      {%- assign color_option = nil -%}
+      {%- for option in product.options_with_values -%}
+        {%- if option.name == 'Color' -%}
+          {%- assign color_option = option -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if color_option -%}
+        <div class="mt-6">
+          <p class="font-body text-xs uppercase tracking-widest text-deep mb-2">
+            Color: <span id="selected-color-label">{{ color_option.selected_value | escape }}</span>
+          </p>
+          <div class="flex gap-2" id="color-swatches">
+            {%- for value in color_option.values -%}
+              <button
+                type="button"
+                class="w-4 h-4 rounded-full border border-deep/20 cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-deep {% if value == color_option.selected_value %}ring-2 ring-offset-1 ring-deep{% endif %}"
+                style="background-color: {{ value | downcase | replace: ' ', '-' }}"
+                aria-label="{{ value | escape }}"
+                data-color-value="{{ value | escape }}"
+                data-color-swatch
+              ></button>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} SIZE SELECTOR {%- endcomment -%}
+      {%- assign size_option = nil -%}
+      {%- for option in product.options_with_values -%}
+        {%- if option.name == 'Size' -%}
+          {%- assign size_option = option -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if size_option -%}
+        <div class="mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <p class="font-body text-xs uppercase tracking-widest text-deep">Size</p>
+            <a href="/pages/size-guide" class="font-body text-xs text-mid underline hover:text-deep">Size Guide</a>
+          </div>
+          <div class="flex flex-wrap gap-2" id="size-options">
+            {%- for size_value in size_option.values -%}
+              {%- assign size_available = false -%}
+              {%- for variant in product.variants -%}
+                {%- if variant.option2 == size_value or variant.option1 == size_value -%}
+                  {%- if variant.available -%}
+                    {%- assign size_available = true -%}
+                  {%- endif -%}
+                  {%- assign size_variant_id = variant.id -%}
+                {%- endif -%}
+              {%- endfor -%}
+              <button
+                type="button"
+                class="border px-3 py-2 font-body text-xs uppercase cursor-pointer transition-colors {% if size_available %}border-deep/30 text-deep hover:border-deep hover:bg-deep hover:text-cream{% else %}border-deep/20 text-mid line-through opacity-40 cursor-not-allowed{% endif %}"
+                {% unless size_available %}disabled aria-disabled="true"{% endunless %}
+                data-size-value="{{ size_value | escape }}"
+                data-size-available="{{ size_available }}"
+                data-size-swatch
+              >{{ size_value | escape }}</button>
+            {%- endfor -%}
+          </div>
+          <p id="size-unavailable-msg" class="hidden mt-2 font-body text-xs text-mid" aria-live="polite"></p>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} ADD-TO-CART BUTTON {%- endcomment -%}
+      <div class="mt-6">
+        <button
+          id="pdp-add-to-cart"
+          type="button"
+          disabled
+          class="w-full bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 cursor-not-allowed opacity-60 transition-all"
+          data-variant-id=""
+          aria-label="Add to cart"
+        >Select a Size</button>
+        <p id="pdp-cart-error" class="hidden mt-2 font-body text-xs text-coral text-center" aria-live="polite">Something went wrong. Please try again.</p>
+      </div>
+
+      {%- comment -%} METAFIELD ACCORDIONS {%- endcomment -%}
+      <div class="mt-8 border-t border-deep/10" id="pdp-accordions">
+
+        {%- assign care = product.metafields.custom.care_instructions -%}
+        {%- if care != blank -%}
+          <div class="border-b border-deep/10" data-accordion>
+            <button
+              type="button"
+              class="w-full flex items-center justify-between py-4 font-body text-lg font-normal text-deep text-left"
+              aria-expanded="false"
+              data-accordion-trigger
+              aria-label="Expand Care Instructions"
+            >
+              Care Instructions
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform" data-accordion-icon>
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="overflow-hidden" style="max-height: 0; transition: max-height 300ms ease;" data-accordion-body>
+              <div class="pb-4 font-body text-sm text-mid leading-relaxed">{{ care | escape }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- assign fabric = product.metafields.custom.fabric_composition -%}
+        {%- if fabric != blank -%}
+          <div class="border-b border-deep/10" data-accordion>
+            <button
+              type="button"
+              class="w-full flex items-center justify-between py-4 font-body text-lg font-normal text-deep text-left"
+              aria-expanded="false"
+              data-accordion-trigger
+              aria-label="Expand Fabric Composition"
+            >
+              Fabric Composition
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform" data-accordion-icon>
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="overflow-hidden" style="max-height: 0; transition: max-height 300ms ease;" data-accordion-body>
+              <div class="pb-4 font-body text-sm text-mid leading-relaxed">{{ fabric | escape }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- assign coverage = product.metafields.custom.coverage_level -%}
+        {%- if coverage != blank -%}
+          <div class="border-b border-deep/10" data-accordion>
+            <button
+              type="button"
+              class="w-full flex items-center justify-between py-4 font-body text-lg font-normal text-deep text-left"
+              aria-expanded="false"
+              data-accordion-trigger
+              aria-label="Expand Coverage Level"
+            >
+              Coverage Level
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform" data-accordion-icon>
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="overflow-hidden" style="max-height: 0; transition: max-height 300ms ease;" data-accordion-body>
+              <div class="pb-4 font-body text-sm text-mid leading-relaxed">{{ coverage | escape }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- assign model_sizing = product.metafields.custom.model_sizing -%}
+        {%- if model_sizing != blank -%}
+          <div class="border-b border-deep/10" data-accordion>
+            <button
+              type="button"
+              class="w-full flex items-center justify-between py-4 font-body text-lg font-normal text-deep text-left"
+              aria-expanded="false"
+              data-accordion-trigger
+              aria-label="Expand Model Sizing"
+            >
+              Model Sizing
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform" data-accordion-icon>
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="overflow-hidden" style="max-height: 0; transition: max-height 300ms ease;" data-accordion-body>
+              <div class="pb-4 font-body text-sm text-mid leading-relaxed">{{ model_sizing | escape }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{%- comment -%} LIGHTBOX {%- endcomment -%}
+<style>
+  #pdp-lightbox::backdrop {
+    background: rgba(13, 10, 8, 0.85);
+  }
+</style>
+<dialog id="pdp-lightbox" class="p-0 max-w-[90vw] max-h-[90vh] overflow-hidden bg-transparent border-0">
+  <div class="relative">
+    <img id="pdp-lightbox-img" src="" alt="" class="max-w-[90vw] max-h-[90vh] object-contain block">
+    <button
+      id="pdp-lightbox-close"
+      class="absolute top-3 right-3 text-cream bg-deep/60 rounded-full w-8 h-8 flex items-center justify-center"
+      aria-label="Close image"
+    >&times;</button>
+  </div>
+</dialog>
+
+{%- comment -%} PRODUCT VARIANTS JSON for pdp.js {%- endcomment -%}
+<script id="product-variants-json" type="application/json">
+  {{ product.variants | json }}
+</script>
+
+<script type="module" src="{{ 'pdp.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "Product Main",
+  "presets": [
+    {
+      "name": "Product Main"
+    }
+  ]
+}
+{% endschema %}
