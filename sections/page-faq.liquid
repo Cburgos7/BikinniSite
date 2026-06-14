@@ -1,0 +1,85 @@
+<!-- D-06 FAQ Accordion + D-10 Page Hero -->
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">
+      {{ section.settings.heading | escape }}
+    </h1>
+  </div>
+</section>
+
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+  <div class="max-w-2xl mx-auto">
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="divide-y divide-deep/10 border-t border-deep/10">
+
+        {%- for block in section.blocks -%}
+          <div data-accordion {{ block.shopify_attributes }}>
+            <button
+              data-accordion-trigger
+              type="button"
+              class="w-full flex items-center justify-between py-4 font-body text-lg font-normal text-deep text-left"
+              aria-expanded="false"
+            >
+              {{ block.settings.question | escape }}
+              <svg data-accordion-icon class="w-4 h-4 flex-shrink-0 transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div
+              data-accordion-body
+              class="overflow-hidden font-body text-sm text-mid leading-relaxed pb-4"
+              style="max-height: 0; transition: max-height 300ms ease;"
+            >
+              {{ block.settings.answer }}
+            </div>
+          </div>
+        {%- endfor -%}
+
+      </div>
+    {%- else -%}
+      <p class="font-body text-sm text-mid py-8 text-center">FAQ items coming soon.</p>
+    {%- endif -%}
+
+  </div>
+</section>
+
+<script type="module" src="{{ 'faq.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ Item",
+      "limit": 20,
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ"
+    }
+  ]
+}
+{% endschema %}
