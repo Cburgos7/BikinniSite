@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-06-14T15:40:56.180Z"
+last_updated: "2026-06-14T15:45:36.362Z"
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 20
-  completed_plans: 17
-  percent: 50
+  completed_plans: 18
+  percent: 55
 ---
 
 # Project State — Soleil Noir
@@ -20,6 +20,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** Phase 4 — collections & product detail
+**Last session:** 2026-06-14 — Completed 04-04-PLAN.md (PDP section + JS module)
 
 ## Current Phase
 
@@ -42,3 +43,5 @@ Goal: Build the core shopping flow from browse to add-to-cart.
 | 2026-06-02 | UpPromote-hosted affiliates form | Init | No custom DB liability |
 | 2026-06-02 | Models page metaobject-driven, hard cap 10 | Init | Owner-editable |
 | 2026-06-02 | YOLO mode, Standard granularity | Init | Workflow config |
+| 2026-06-14 | Native dialog.showModal() for PDP lightbox | 04-04 | No library dependency; browser handles focus trap and Escape |
+| 2026-06-14 | pdp.js variant lookup uses title string includes() | 04-04 | Works for standard Shopify variant title format (size/color) |

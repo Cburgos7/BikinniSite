@@ -35,11 +35,11 @@
 - [x] **COLL-04**: Product cards include quick-add, wishlist toggle, color swatches/dots
 
 ### PDP — Product Detail Page (`templates/product.json`)
-- [ ] **PDP-01**: Image gallery with zoom/lightbox
-- [ ] **PDP-02**: Size selector and color option picker
-- [ ] **PDP-03**: Add-to-cart with variant validation
-- [ ] **PDP-04**: Metafield accordions: care_instructions, fabric_composition, coverage_level
-- [ ] **PDP-05**: Model sizing note pulled from model_sizing metafield
+- [x] **PDP-01**: Image gallery with zoom/lightbox
+- [x] **PDP-02**: Size selector and color option picker
+- [x] **PDP-03**: Add-to-cart with variant validation
+- [x] **PDP-04**: Metafield accordions: care_instructions, fabric_composition, coverage_level
+- [x] **PDP-05**: Model sizing note pulled from model_sizing metafield
 
 ### META — Metafields & Metaobjects
 - [ ] **META-01**: Product metafields defined: care_instructions, model_sizing, fabric_composition, coverage_level
