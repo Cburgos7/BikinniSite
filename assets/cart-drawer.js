@@ -297,6 +297,22 @@ export default function init() {
 
     // Initial event binding
     bindCartItemEvents();
+
+    /**
+     * Listen for cart:updated dispatched by pdp.js (and other add-to-cart modules).
+     * Fetch the current cart state, re-render drawer, and open it.
+     */
+    document.addEventListener('cart:updated', () => {
+      fetch('/cart.js', {
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then((res) => res.json())
+        .then((cart) => {
+          renderCart(cart);
+          openDrawer();
+        })
+        .catch((err) => console.error('[cart-drawer] cart:updated fetch failed', err));
+    });
   });
 }
 
