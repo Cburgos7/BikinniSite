@@ -54,8 +54,8 @@
 - [x] **PAGE-04**: Size guide page (`templates/page.sizeguide.json`): XXS–3XL chart, measuring instructions, interactive fit recommender (enter measurements → recommended size)
 - [x] **PAGE-05**: Affiliates page (`templates/page.affiliates.json`): commission tiers (10%/12%/15%), perks, how it works, embedded UpPromote registration portal
 - [x] **PAGE-06**: Social page (`templates/page.social.json`): UGC gallery of social_post metaobjects, shoppable where product tags present
-- [ ] **PAGE-07**: Contact page with form
-- [ ] **PAGE-08**: FAQ page
+- [x] **PAGE-07**: Contact page with form
+- [x] **PAGE-08**: FAQ page
 - [ ] **PAGE-09**: Policy pages: Shipping & Returns, Privacy Policy, Terms of Service, Care Instructions (footer links)
 
 ### AUTH — Account & Auth

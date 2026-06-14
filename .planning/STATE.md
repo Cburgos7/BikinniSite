@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-06-14T19:00:05.548Z"
+last_updated: "2026-06-14T19:02:39.851Z"
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 28
-  completed_plans: 25
+  completed_plans: 26
   percent: 67
 ---
 
@@ -20,13 +20,13 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** Phase 5 — content pages
-**Last session:** 2026-06-14T19:00:05.539Z
+**Last session:** 2026-06-14T19:02:39.842Z
 
 ## Current Phase
 
 **Phase 5: Content Pages**
-Status: In progress (Plan 04 complete)
-Plans: 05-01 complete, 05-02 complete, 05-03 complete, 05-04 complete
+Status: In progress (Plan 06 complete)
+Plans: 05-01 complete, 05-02 complete, 05-03 complete, 05-04 complete, 05-06 complete
 Goal: Build all standalone content pages — About, Models, Payment info, Size guide, Affiliates, Social UGC gallery, Contact, FAQ, and policy pages.
 
 ## Phase History
@@ -50,3 +50,5 @@ Goal: Build all standalone content pages — About, Models, Payment info, Size g
 | 2026-06-02 | YOLO mode, Standard granularity | Init | Workflow config |
 | 2026-06-14 | Native dialog.showModal() for PDP lightbox | 04-04 | No library dependency; browser handles focus trap and Escape |
 | 2026-06-14 | pdp.js variant lookup uses title string includes() | 04-04 | Works for standard Shopify variant title format (size/color) |
+| 2026-06-14 | FAQ richtext answers rendered without escape | 05-06 | Shopify richtext schema type sanitized by platform (same trust as product.description) |
+| 2026-06-14 | faq.js standalone ES module, no import from pdp.js | 05-06 | Avoid coupling between page sections |
