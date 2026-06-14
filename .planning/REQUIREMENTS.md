@@ -32,7 +32,7 @@
 - [ ] **COLL-01**: Bikinis collection page (`templates/collection.json`) with product grid, filter sidebar (style, color, size, price), sort options
 - [ ] **COLL-02**: Lingerie collection page using same collection template
 - [ ] **COLL-03**: All-products catalog page showing full cross-collection catalog with unified filtering
-- [ ] **COLL-04**: Product cards include quick-add, wishlist toggle, color swatches/dots
+- [x] **COLL-04**: Product cards include quick-add, wishlist toggle, color swatches/dots
 
 ### PDP — Product Detail Page (`templates/product.json`)
 - [ ] **PDP-01**: Image gallery with zoom/lightbox
