@@ -7,7 +7,7 @@
 | 1 | Theme Foundation | 3/3 | Complete    | 2026-06-05 |
 | 2 | Global Shell | Nav, cart drawer, metaobjects/metafields, account, CCPA | NAV-01–05, META-01–04, AUTH-01 | 5 |
 | 3 | Home Page | 6/6 | Complete   | 2026-06-12 |
-| 4 | Collections & PDP | 1/5 | In Progress|  |
+| 4 | Collections & PDP | 2/5 | In Progress|  |
 | 5 | Content Pages | About, Models, Payment, Size guide, Affiliates, Social, FAQ, Contact, Policies | PAGE-01–09 | 5 |
 | 6 | Integrations | Klaviyo, UpPromote, GA4, Cloudinary all wired and verified | INT-01–04 | 4 |
 
@@ -76,13 +76,13 @@ Plans:
 **Goal:** Build the Bikinis collection, Lingerie collection, all-products catalog, and product detail page — the core shopping flow from browse to add-to-cart.
 **Mode:** standard
 **Requirements:** COLL-01, COLL-02, COLL-03, COLL-04, PDP-01, PDP-02, PDP-03, PDP-04, PDP-05
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 Plans:
 
 **Wave 1** *(parallel — independent)*
 - [x] 04-01-PLAN.md — Shared product-card snippet (swatches, wishlist, quick-add) + migrate home sections
-- [ ] 04-02-PLAN.md — Collection grid section + AJAX filter JS module
+- [x] 04-02-PLAN.md — Collection grid section + AJAX filter JS module
 - [ ] 04-04-PLAN.md — Product main section (gallery, lightbox, selectors, add-to-cart, accordions) + pdp.js
 
 **Wave 2** *(blocked on Wave 1 completion)*

@@ -29,9 +29,9 @@
 - [ ] **HOME-09**: Sizing banner with size pills and link to sizing page
 
 ### COLL — Collection Pages
-- [ ] **COLL-01**: Bikinis collection page (`templates/collection.json`) with product grid, filter sidebar (style, color, size, price), sort options
-- [ ] **COLL-02**: Lingerie collection page using same collection template
-- [ ] **COLL-03**: All-products catalog page showing full cross-collection catalog with unified filtering
+- [x] **COLL-01**: Bikinis collection page (`templates/collection.json`) with product grid, filter sidebar (style, color, size, price), sort options
+- [x] **COLL-02**: Lingerie collection page using same collection template
+- [x] **COLL-03**: All-products catalog page showing full cross-collection catalog with unified filtering
 - [x] **COLL-04**: Product cards include quick-add, wishlist toggle, color swatches/dots
 
 ### PDP — Product Detail Page (`templates/product.json`)
