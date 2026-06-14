@@ -79,11 +79,17 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
+
+**Wave 1** *(parallel — independent)*
 - [ ] 04-01-PLAN.md — Shared product-card snippet (swatches, wishlist, quick-add) + migrate home sections
 - [ ] 04-02-PLAN.md — Collection grid section + AJAX filter JS module
-- [ ] 04-03-PLAN.md — Wire templates/collection.json
 - [ ] 04-04-PLAN.md — Product main section (gallery, lightbox, selectors, add-to-cart, accordions) + pdp.js
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 04-03-PLAN.md — Wire templates/collection.json
 - [ ] 04-05-PLAN.md — Wire templates/product.json
+
+Cross-cutting constraints: `{% schema %}` block required on every section; all JS as ES modules in `assets/`; all Tailwind utilities inline in Liquid (no custom CSS classes)
 
 **Success Criteria:**
 1. Bikinis and Lingerie collection pages display products with working filters (style, color, size, price) and sort

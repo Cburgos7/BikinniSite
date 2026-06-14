@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-last_updated: "2026-06-14T15:01:45.144Z"
+last_updated: "2026-06-14T00:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 15
+  total_plans: 20
   completed_plans: 15
   percent: 50
 ---
@@ -23,9 +23,10 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 ## Current Phase
 
-**Phase 1: Theme Foundation**
-Status: Ready to plan
-Goal: Scaffold the Shopify theme repository — Dawn base, Tailwind PostCSS pipeline, design tokens, fonts, and GitHub auto-deploy.
+**Phase 4: Collections & Product Detail**
+Status: Ready to execute
+Plans: 5 (2 waves) — 04-01 through 04-05
+Goal: Build the core shopping flow from browse to add-to-cart.
 
 ## Phase History
 
