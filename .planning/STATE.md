@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-06-14T15:49:08.812Z"
+status: idle
+last_updated: "2026-06-14T00:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 4
@@ -19,19 +19,24 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
-**Current focus:** Phase 4 — collections & product detail
-**Last session:** 2026-06-14T15:49:08.804Z
+**Current focus:** Phase 5 — content pages
+**Last session:** 2026-06-14
 
 ## Current Phase
 
-**Phase 4: Collections & Product Detail**
-Status: Ready to execute
-Plans: 5 (2 waves) — 04-01 through 04-05
-Goal: Build the core shopping flow from browse to add-to-cart.
+**Phase 5: Content Pages**
+Status: Not started
+Plans: TBD
+Goal: Build all standalone content pages — About, Models, Payment info, Size guide, Affiliates, Social UGC gallery, Contact, FAQ, and policy pages.
 
 ## Phase History
 
-(None yet)
+| Phase | Completed | Notes |
+|-------|-----------|-------|
+| 1 — Theme Foundation | 2026-06-05 | |
+| 2 — Global Shell | 2026-06-09 | |
+| 3 — Home Page | 2026-06-12 | |
+| 4 — Collections & PDP | 2026-06-14 | 3 critical bugs fixed in review gate |
 
 ## Decisions Log
 
