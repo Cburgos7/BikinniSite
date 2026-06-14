@@ -76,6 +76,15 @@ Plans:
 **Goal:** Build the Bikinis collection, Lingerie collection, all-products catalog, and product detail page — the core shopping flow from browse to add-to-cart.
 **Mode:** standard
 **Requirements:** COLL-01, COLL-02, COLL-03, COLL-04, PDP-01, PDP-02, PDP-03, PDP-04, PDP-05
+**Plans:** 5 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Shared product-card snippet (swatches, wishlist, quick-add) + migrate home sections
+- [ ] 04-02-PLAN.md — Collection grid section + AJAX filter JS module
+- [ ] 04-03-PLAN.md — Wire templates/collection.json
+- [ ] 04-04-PLAN.md — Product main section (gallery, lightbox, selectors, add-to-cart, accordions) + pdp.js
+- [ ] 04-05-PLAN.md — Wire templates/product.json
+
 **Success Criteria:**
 1. Bikinis and Lingerie collection pages display products with working filters (style, color, size, price) and sort
 2. All-products catalog aggregates all collections with unified filtering
