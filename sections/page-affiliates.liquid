@@ -1,0 +1,107 @@
+<!-- D-10 Hero -->
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight">
+      {{ section.settings.heading | escape }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-4">
+        {{ section.settings.subtitle | escape }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+<!-- D-03 Tier Cards + UpPromote Embed -->
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+
+  <p class="font-body text-xs uppercase tracking-widest text-deep text-center mb-8">Join Our Creator Community</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+
+    <!-- Standard (10%) -->
+    <div class="bg-sand border border-deep/10 p-6">
+      <p class="font-display text-5xl font-normal text-coral">10%</p>
+      <p class="font-body text-xs uppercase tracking-widest text-mid mt-1">Standard</p>
+      <ul class="mt-4 space-y-2 font-body text-sm text-mid">
+        <li>— Commission on every sale</li>
+        <li>— Unique referral link</li>
+        <li>— Monthly payouts</li>
+      </ul>
+    </div>
+
+    <!-- Silver (12%) -->
+    <div class="bg-sand border border-deep/20 p-6 ring-1 ring-mid">
+      <p class="font-display text-5xl font-normal text-coral">12%</p>
+      <p class="font-body text-xs uppercase tracking-widest text-mid mt-1">Silver</p>
+      <ul class="mt-4 space-y-2 font-body text-sm text-mid">
+        <li>— Boosted commission rate</li>
+        <li>— Priority support</li>
+        <li>— Early access to drops</li>
+      </ul>
+    </div>
+
+    <!-- Gold (15%) — inverted -->
+    <div class="bg-deep text-cream p-6">
+      <p class="font-display text-5xl font-normal text-coral">15%</p>
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-1">Gold</p>
+      <ul class="mt-4 space-y-2 font-body text-sm text-cream/80">
+        <li>— Top-tier commission</li>
+        <li>— Dedicated account manager</li>
+        <li>— Co-branded content opportunities</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- UpPromote embed / fallback -->
+  {%- if section.settings.upromote_url != blank -%}
+    <iframe
+      src="{{ section.settings.upromote_url | escape }}"
+      class="w-full min-h-[600px] border-0 mt-12"
+      loading="lazy"
+      title="Affiliate Registration"
+    ></iframe>
+  {%- else -%}
+    <div class="mt-12 text-center">
+      <a
+        href="{{ section.settings.upromote_url | default: '#' | escape }}"
+        class="inline-block bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 px-8 hover:opacity-90 transition-opacity"
+      >
+        Apply Now
+      </a>
+    </div>
+  {%- endif -%}
+
+</section>
+
+{% schema %}
+{
+  "name": "Affiliates Page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Partner With Us"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Earn commissions sharing styles you love."
+    },
+    {
+      "type": "text",
+      "id": "upromote_url",
+      "label": "UpPromote registration URL",
+      "info": "Paste the UpPromote hosted registration page URL — it will embed as an iframe"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Affiliates Page"
+    }
+  ]
+}
+{% endschema %}
