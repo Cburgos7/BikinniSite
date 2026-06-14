@@ -10,36 +10,7 @@
 
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {%- for product in featured_products -%}
-          <article class="relative group overflow-hidden bg-cream shadow-none group-hover:shadow-md transition-shadow duration-200">
-
-            <div class="relative overflow-hidden aspect-[3/4]">
-              {%- if product.featured_image != blank -%}
-                {{ product.featured_image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: product.title }}
-              {%- else -%}
-                <div class="w-full h-full bg-sand"></div>
-              {%- endif -%}
-
-              <form action="/cart/add" method="post" class="absolute bottom-0 left-0 right-0">
-                {%- assign first_variant = product.first_available_variant -%}
-                {%- if first_variant -%}
-                  <input type="hidden" name="id" value="{{ first_variant.id }}">
-                  <button type="submit" class="w-full bg-deep text-cream py-3 font-body text-xs tracking-widest uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-200 cursor-pointer">
-                    Quick Add
-                  </button>
-                {%- else -%}
-                  <span class="w-full bg-mid text-cream py-3 font-body text-xs tracking-widest uppercase flex items-center justify-center translate-y-full group-hover:translate-y-0 transition-transform duration-200">
-                    Sold Out
-                  </span>
-                {%- endif -%}
-              </form>
-            </div>
-
-            <div class="p-4">
-              <p class="font-body text-base font-semibold tracking-wide uppercase text-deep">{{ product.title | escape }}</p>
-              <p class="font-body text-sm font-normal text-mid mt-1">{{ product.price | money }}</p>
-            </div>
-
-          </article>
+          {%- render 'product-card', product: product -%}
         {%- endfor -%}
       </div>
 
