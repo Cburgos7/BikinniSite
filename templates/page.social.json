@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "page-social",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
