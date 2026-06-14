@@ -1,0 +1,152 @@
+{% comment %}
+  page-sizeguide.liquid
+  Size Guide page — D-10 hero + D-02 fit recommender + static size chart table.
+{% endcomment %}
+
+{%- comment %} D-10 Hero {% endcomment %}
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">
+      {{ section.settings.heading | escape }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-4 text-center">
+        {{ section.settings.subtitle | escape }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- comment %} Recommender + Size Chart {% endcomment %}
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
+    {%- comment %} Left column — Fit recommender {% endcomment %}
+    <div>
+      <h2 class="font-display text-3xl font-normal text-deep mb-6">Find Your Fit</h2>
+      <p class="font-body text-sm text-mid leading-relaxed mb-6">Enter your bust, waist, and hip measurements</p>
+
+      <div class="flex gap-4 flex-wrap">
+        <div class="flex-1 min-w-[120px]">
+          <label class="font-body text-xs uppercase tracking-widest text-deep mb-1 block" for="sg-bust">Bust</label>
+          <input id="sg-bust" type="number" min="1" max="100" step="0.5" class="w-full border border-deep/30 bg-cream px-4 py-3 font-body text-sm focus:outline-none focus:border-deep transition-colors" />
+          <p class="font-body text-xs text-mid mt-1">inches</p>
+        </div>
+        <div class="flex-1 min-w-[120px]">
+          <label class="font-body text-xs uppercase tracking-widest text-deep mb-1 block" for="sg-waist">Waist</label>
+          <input id="sg-waist" type="number" min="1" max="100" step="0.5" class="w-full border border-deep/30 bg-cream px-4 py-3 font-body text-sm focus:outline-none focus:border-deep transition-colors" />
+          <p class="font-body text-xs text-mid mt-1">inches</p>
+        </div>
+        <div class="flex-1 min-w-[120px]">
+          <label class="font-body text-xs uppercase tracking-widest text-deep mb-1 block" for="sg-hips">Hips</label>
+          <input id="sg-hips" type="number" min="1" max="100" step="0.5" class="w-full border border-deep/30 bg-cream px-4 py-3 font-body text-sm focus:outline-none focus:border-deep transition-colors" />
+          <p class="font-body text-xs text-mid mt-1">inches</p>
+        </div>
+      </div>
+
+      <button id="sg-submit" type="button" class="mt-6 bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 px-8 hover:opacity-90 transition-opacity cursor-pointer">Find My Size</button>
+
+      <div id="sg-result" class="mt-4 hidden">
+        <p class="font-body text-sm text-mid">We recommend</p>
+        <span id="sg-size-pill" class="inline-block bg-coral text-cream font-body text-sm tracking-widest uppercase py-2 px-6 mt-2"></span>
+      </div>
+
+      <p id="sg-no-match" class="hidden mt-4 font-body text-sm text-mid">We suggest sizing up — or contact us for help.</p>
+    </div>
+
+    {%- comment %} Right column — Static size chart {% endcomment %}
+    <div>
+      <h2 class="font-display text-3xl font-normal text-deep mb-6">Size Chart</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full font-body text-sm text-mid border-collapse">
+          <thead>
+            <tr class="border-b border-deep/10">
+              <th class="text-left py-3 font-body text-xs uppercase tracking-widest text-deep">Size</th>
+              <th class="text-left py-3 font-body text-xs uppercase tracking-widest text-deep">Bust (in)</th>
+              <th class="text-left py-3 font-body text-xs uppercase tracking-widest text-deep">Waist (in)</th>
+              <th class="text-left py-3 font-body text-xs uppercase tracking-widest text-deep">Hips (in)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-deep/10">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">XXS</td>
+              <td class="py-3">28–31</td>
+              <td class="py-3">22–24</td>
+              <td class="py-3">30–33</td>
+            </tr>
+            <tr class="border-b border-deep/10 even:bg-sand/40">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">XS</td>
+              <td class="py-3">32–34</td>
+              <td class="py-3">25–27</td>
+              <td class="py-3">34–36</td>
+            </tr>
+            <tr class="border-b border-deep/10">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">S</td>
+              <td class="py-3">34–36</td>
+              <td class="py-3">27–29</td>
+              <td class="py-3">36–38</td>
+            </tr>
+            <tr class="border-b border-deep/10 even:bg-sand/40">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">M</td>
+              <td class="py-3">36–38</td>
+              <td class="py-3">29–31</td>
+              <td class="py-3">38–40</td>
+            </tr>
+            <tr class="border-b border-deep/10">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">L</td>
+              <td class="py-3">38–41</td>
+              <td class="py-3">31–34</td>
+              <td class="py-3">40–43</td>
+            </tr>
+            <tr class="border-b border-deep/10 even:bg-sand/40">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">XL</td>
+              <td class="py-3">41–44</td>
+              <td class="py-3">34–37</td>
+              <td class="py-3">43–46</td>
+            </tr>
+            <tr class="border-b border-deep/10">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">2XL</td>
+              <td class="py-3">44–48</td>
+              <td class="py-3">37–41</td>
+              <td class="py-3">46–50</td>
+            </tr>
+            <tr class="border-b border-deep/10 even:bg-sand/40">
+              <td class="py-3 font-body text-xs uppercase tracking-widest text-deep">3XL</td>
+              <td class="py-3">48–52</td>
+              <td class="py-3">41–45</td>
+              <td class="py-3">50–54</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script type="module" src="{{ 'size-guide.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "Size Guide",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Find Your Fit"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Measure in inches — we'll do the math."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Size Guide"
+    }
+  ]
+}
+{% endschema %}
