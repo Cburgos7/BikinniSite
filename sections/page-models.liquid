@@ -1,0 +1,66 @@
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">{{ section.settings.heading | escape }}</h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-4 text-center">{{ section.settings.subtitle | escape }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+  {%- assign models = shop.metaobjects.model.values -%}
+
+  {%- if models.size > 0 -%}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {%- for model in models limit: 10 -%}
+        <div class="bg-cream group">
+          <div class="aspect-[2/3] overflow-hidden">
+            {%- if model.portrait != blank -%}
+              {{ model.portrait | image_url: width: 600 | image_tag: class: 'object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: model.name }}
+            {%- else -%}
+              <div class="w-full h-full bg-sand"></div>
+            {%- endif -%}
+          </div>
+          <div class="p-4">
+            <h2 class="font-display text-2xl font-normal text-deep">{{ model.name | escape }}</h2>
+            <p class="font-body text-xs uppercase tracking-widest text-mid mt-1">{{ model.height | escape }}{% if model.height != blank and model.size_worn != blank %} &mdash; {% endif %}{{ model.size_worn | escape }}</p>
+            <p class="font-body text-sm text-mid leading-relaxed mt-2 line-clamp-3">{{ model.bio | escape }}</p>
+            {%- if model.instagram_handle != blank -%}
+              <a href="https://instagram.com/{{ model.instagram_handle | remove: '@' | escape }}" class="font-body text-xs uppercase tracking-widest text-coral hover:text-deep transition-colors mt-2 inline-block" rel="noopener noreferrer" target="_blank">@{{ model.instagram_handle | remove: '@' | escape }}</a>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="py-24 text-center">
+      <h2 class="font-display text-3xl font-normal text-deep">New faces coming soon.</h2>
+      <p class="font-body text-sm text-mid leading-relaxed mt-4">Check back after our next drop.</p>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Models Page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Hero heading",
+      "default": "The Faces of Soleil Noir"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Hero subtitle (optional)",
+      "default": ""
+    }
+  ],
+  "presets": [
+    {
+      "name": "Models Page"
+    }
+  ]
+}
+{% endschema %}
