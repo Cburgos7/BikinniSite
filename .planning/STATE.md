@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Not started
-last_updated: "2026-06-14T18:51:16.654Z"
+status: executing
+last_updated: "2026-06-14T18:53:40.051Z"
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 28
   completed_plans: 22
-  percent: 69
+  percent: 67
 ---
 
 # Project State — Soleil Noir
@@ -20,13 +20,13 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** Phase 5 — content pages
-**Last session:** 2026-06-14T18:51:16.646Z
+**Last session:** 2026-06-14T18:53:40.041Z
 
 ## Current Phase
 
 **Phase 5: Content Pages**
-Status: In progress (Plan 01 complete)
-Plans: 05-01 complete
+Status: In progress (Plan 02 complete)
+Plans: 05-01 complete, 05-02 complete
 Goal: Build all standalone content pages — About, Models, Payment info, Size guide, Affiliates, Social UGC gallery, Contact, FAQ, and policy pages.
 
 ## Phase History
