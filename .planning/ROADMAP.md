@@ -8,7 +8,7 @@
 | 2 | Global Shell | Nav, cart drawer, metaobjects/metafields, account, CCPA | NAV-01–05, META-01–04, AUTH-01 | 5 |
 | 3 | Home Page | 6/6 | Complete   | 2026-06-12 |
 | 4 | Collections & PDP | 5/5 | Complete   | 2026-06-14 |
-| 5 | Content Pages | 7/8 | In Progress|  |
+| 5 | Content Pages | 8/8 | Complete   | 2026-06-14 |
 | 6 | Integrations | Klaviyo, UpPromote, GA4, Cloudinary all wired and verified | INT-01–04 | 4 |
 
 ---
@@ -104,7 +104,7 @@ Cross-cutting constraints: `{% schema %}` block required on every section; all J
 **Goal:** Build all standalone content pages — About, Models, Payment info, Size guide with fit recommender, Affiliates with UpPromote embed, Social UGC gallery, Contact, FAQ, and policy pages.
 **Mode:** standard
 **Requirements:** PAGE-01, PAGE-02, PAGE-03, PAGE-04, PAGE-05, PAGE-06, PAGE-07, PAGE-08, PAGE-09
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 
 Plans:
 
@@ -118,7 +118,7 @@ Plans:
 - [x] 05-07-PLAN.md — Shared policy section (page-content.liquid)
 
 **Wave 2** *(blocked on Wave 1 — all sections must exist before templates)*
-- [ ] 05-08-PLAN.md — Wire all 12 JSON page templates (8 unique + 4 policy)
+- [x] 05-08-PLAN.md — Wire all 12 JSON page templates (8 unique + 4 policy)
 
 **Success Criteria:**
 1. Models page renders all model metaobject entries in a grid (up to 10), each with portrait, bio, height, and size worn
