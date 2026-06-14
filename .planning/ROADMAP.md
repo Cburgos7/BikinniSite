@@ -104,6 +104,22 @@ Cross-cutting constraints: `{% schema %}` block required on every section; all J
 **Goal:** Build all standalone content pages — About, Models, Payment info, Size guide with fit recommender, Affiliates with UpPromote embed, Social UGC gallery, Contact, FAQ, and policy pages.
 **Mode:** standard
 **Requirements:** PAGE-01, PAGE-02, PAGE-03, PAGE-04, PAGE-05, PAGE-06, PAGE-07, PAGE-08, PAGE-09
+**Plans:** 8 plans
+
+Plans:
+
+**Wave 1** *(parallel — independent sections and JS modules)*
+- [ ] 05-01-PLAN.md — About page section (page-about.liquid) + Payment info section (page-payment.liquid)
+- [ ] 05-02-PLAN.md — Models grid section (page-models.liquid) — metaobject iteration, D-01
+- [ ] 05-03-PLAN.md — Size guide section (page-sizeguide.liquid) + fit recommender JS (size-guide.js)
+- [ ] 05-04-PLAN.md — Affiliates section (page-affiliates.liquid) — tier cards + UpPromote iframe
+- [ ] 05-05-PLAN.md — Social UGC gallery section (page-social.liquid) — metaobject grid, D-04
+- [ ] 05-06-PLAN.md — Contact section (page-contact.liquid) + FAQ section (page-faq.liquid) + faq.js
+- [ ] 05-07-PLAN.md — Shared policy section (page-content.liquid)
+
+**Wave 2** *(blocked on Wave 1 — all sections must exist before templates)*
+- [ ] 05-08-PLAN.md — Wire all 12 JSON page templates (8 unique + 4 policy)
+
 **Success Criteria:**
 1. Models page renders all model metaobject entries in a grid (up to 10), each with portrait, bio, height, and size worn
 2. Size guide fit recommender accepts bust/waist/hip measurements and returns a recommended size
