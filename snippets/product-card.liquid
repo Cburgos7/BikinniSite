@@ -1,0 +1,129 @@
+{%- comment -%}
+  Snippet: product-card
+  Receives: product (Shopify product object)
+  Renders: portrait card with image, badges, wishlist toggle, quick-add, color swatches, title, price
+{%- endcomment -%}
+
+<article class="relative group overflow-hidden bg-cream">
+  <a href="{{ product.url }}" class="block">
+
+    {{- comment -}} IMAGE BLOCK {{- endcomment -}}
+    <div class="relative overflow-hidden aspect-[3/4]">
+      {%- if product.featured_image != blank -%}
+        <img
+          id="card-img-{{ product.id }}"
+          src="{{ product.featured_image | image_url: width: 600 }}"
+          alt="{{ product.title | escape }}"
+          class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          width="600"
+        >
+      {%- else -%}
+        <div class="w-full h-full bg-sand"></div>
+      {%- endif -%}
+
+      {{- comment -}} BADGES {{- endcomment -}}
+      <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
+        {%- if product.compare_at_price > product.price -%}
+          <span class="bg-coral text-cream text-xs font-body px-2 py-0.5">Sale</span>
+        {%- endif -%}
+        {%- if product.tags contains 'new' -%}
+          <span class="bg-deep text-cream text-xs font-body px-2 py-0.5">New</span>
+        {%- endif -%}
+      </div>
+
+      {{- comment -}} WISHLIST TOGGLE {{- endcomment -}}
+      <div class="absolute top-3 right-3 z-10">
+        {%- if customer != blank -%}
+          <button
+            type="button"
+            class="text-deep/40 hover:text-coral transition-colors"
+            aria-label="Add {{ product.title | escape }} to wishlist"
+            data-product-id="{{ product.id }}"
+            data-wishlist-toggle
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
+        {%- else -%}
+          <a
+            href="/account/login?return_url={{ product.url | url_encode }}"
+            class="text-deep/40 hover:text-coral transition-colors"
+            aria-label="Add {{ product.title | escape }} to wishlist"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+
+      {{- comment -}} QUICK-ADD FORM {{- endcomment -}}
+      {%- assign first_variant = product.first_available_variant -%}
+      {%- if first_variant -%}
+        <form action="/cart/add" method="post" class="absolute bottom-0 left-0 right-0">
+          <input type="hidden" name="id" value="{{ first_variant.id }}">
+          <button
+            type="submit"
+            class="w-full bg-deep text-cream py-3 font-body text-xs tracking-widest uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer"
+            data-quick-add
+            data-variant-id="{{ first_variant.id }}"
+          >
+            Quick Add
+          </button>
+        </form>
+      {%- else -%}
+        <div class="absolute bottom-0 left-0 right-0">
+          <span class="w-full bg-mid text-cream py-3 font-body text-xs tracking-widest uppercase flex items-center justify-center translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+            Sold Out
+          </span>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </a>
+
+  {{- comment -}} CARD BODY {{- endcomment -}}
+  <div class="p-4">
+
+    {{- comment -}} COLOR SWATCHES {{- endcomment -}}
+    {%- assign color_option_index = nil -%}
+    {%- for option in product.options_with_values -%}
+      {%- if option.name == 'Color' -%}
+        {%- assign color_option_index = forloop.index0 -%}
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if color_option_index != nil -%}
+      {%- assign seen_colors = '' -%}
+      <div class="flex gap-1 mt-2 mb-2">
+        {%- for variant in product.variants -%}
+          {%- assign variant_color = variant.options[color_option_index] -%}
+          {%- unless seen_colors contains variant_color -%}
+            {%- assign seen_colors = seen_colors | append: variant_color | append: '|' -%}
+            <button
+              type="button"
+              class="w-3.5 h-3.5 rounded-full border border-deep/20 cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-deep"
+              style="background-color: {{ variant_color | downcase | replace: ' ', '-' }}"
+              aria-label="{{ variant_color | escape }}"
+              data-swatch-color="{{ variant_color | escape }}"
+              data-variant-id="{{ variant.id }}"
+              data-variant-image="{{ variant.featured_image | image_url: width: 600 }}"
+              data-card-id="{{ product.id }}"
+            ></button>
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <p class="font-body text-lg font-normal text-deep">{{ product.title | escape }}</p>
+    <p class="font-body text-sm font-semibold tracking-wide text-deep mt-1">
+      {{ product.price | money }}
+      {%- if product.compare_at_price > product.price -%}
+        <span class="text-xs font-body text-mid line-through ml-2">{{ product.compare_at_price | money }}</span>
+      {%- endif -%}
+    </p>
+
+  </div>
+</article>
