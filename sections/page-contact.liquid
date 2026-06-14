@@ -1,0 +1,93 @@
+<!-- D-05 Contact Page + D-10 Page Hero -->
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">
+      {{ section.settings.heading | escape }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-4 text-center">
+        {{ section.settings.subtitle | escape }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+<section class="max-w-2xl mx-auto px-4 py-16">
+  {%- form 'contact' -%}
+
+    {%- if form.posted_successfully -%}
+      <p class="font-body text-sm text-coral mb-6">Your message is on its way. We'll get back to you within 24 hours.</p>
+    {%- endif -%}
+
+    {%- if form.errors -%}
+      <ul class="font-body text-xs text-coral space-y-1 mt-2 mb-4">{{ form.errors | default_errors }}</ul>
+    {%- endif -%}
+
+    <div class="space-y-4">
+
+      <div>
+        <label class="font-body text-xs uppercase tracking-widest text-deep mb-1 block" for="contact-name">Name</label>
+        <input
+          id="contact-name"
+          type="text"
+          name="contact[name]"
+          value="{{ form.name | escape }}"
+          required
+          class="w-full border border-deep/30 bg-cream px-4 py-3 font-body text-sm focus:outline-none focus:border-deep transition-colors"
+        />
+      </div>
+
+      <div>
+        <label class="font-body text-xs uppercase tracking-widest text-deep mb-1 block" for="contact-email">Email</label>
+        <input
+          id="contact-email"
+          type="email"
+          name="contact[email]"
+          value="{{ form.email | escape }}"
+          required
+          class="w-full border border-deep/30 bg-cream px-4 py-3 font-body text-sm focus:outline-none focus:border-deep transition-colors"
+        />
+      </div>
+
+      <div>
+        <label class="font-body text-xs uppercase tracking-widest text-deep mb-1 block" for="contact-body">Message</label>
+        <textarea
+          id="contact-body"
+          name="contact[body]"
+          rows="5"
+          required
+          class="w-full border border-deep/30 bg-cream px-4 py-3 font-body text-sm focus:outline-none focus:border-deep transition-colors resize-none"
+        >{{ form.body | escape }}</textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 cursor-pointer hover:opacity-90 transition-opacity mt-2">Send Message</button>
+
+    </div>
+
+  {%- endform -%}
+</section>
+
+{% schema %}
+{
+  "name": "Contact Page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Get in Touch"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "We'd love to hear from you."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact"
+    }
+  ]
+}
+{% endschema %}
