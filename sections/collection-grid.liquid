@@ -1,0 +1,190 @@
+{%- comment -%}
+  collection-grid.liquid
+  Renders the full collection browsing UI: hero banner, sticky desktop filter sidebar,
+  mobile filter drawer, sort dropdown, active filter chips, product grid, and empty state.
+  Used by templates/collection.json for Bikinis, Lingerie, and All-Products collections.
+{%- endcomment -%}
+
+{%- comment -%} ===== COLLECTION HERO BANNER ===== {%- endcomment -%}
+<div class="relative bg-deep text-cream py-24 overflow-hidden">
+  {%- if collection.image != blank -%}
+    <img
+      src="{{ collection.image | image_url: width: 1600 }}"
+      alt="{{ collection.title | escape }}"
+      class="absolute inset-0 w-full h-full object-cover opacity-30"
+      loading="eager"
+      width="1600"
+      height="900"
+    >
+  {%- endif -%}
+  <div class="relative z-10 max-w-screen-xl mx-auto px-6 lg:px-8">
+    <h1 class="font-display text-5xl font-light leading-none">{{ collection.title | escape }}</h1>
+    {%- if collection.metafields.custom.hero_subtitle != blank -%}
+      <p class="font-body text-lg text-cream/80 mt-3">{{ collection.metafields.custom.hero_subtitle | escape }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- comment -%} ===== FILTER GROUPS (captured once, output in both sidebar and drawer) ===== {%- endcomment -%}
+{%- capture filter_groups_html -%}
+  {%- for filter in collection.filters -%}
+    <div class="mb-6" data-filter-group="{{ filter.label | escape }}">
+      <p class="font-body text-lg font-normal text-deep mb-3">{{ filter.label | escape }}</p>
+      {%- if filter.type == 'list' -%}
+        {%- for value in filter.values -%}
+          <label class="flex items-center gap-2 mb-2 cursor-pointer">
+            <input
+              type="checkbox"
+              class="accent-coral"
+              name="{{ value.param_name | escape }}"
+              value="{{ value.value | escape }}"
+              {%- if value.active %} checked{%- endif %}
+              data-filter-input
+            >
+            <span class="font-body text-sm text-deep">{{ value.label | escape }}</span>
+            {%- if value.count > 0 -%}
+              <span class="ml-auto font-body text-xs text-mid">({{ value.count }})</span>
+            {%- endif -%}
+          </label>
+        {%- endfor -%}
+      {%- elsif filter.type == 'price_range' -%}
+        <div class="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Min"
+            data-filter-price-min
+            class="w-24 border border-deep/30 px-2 py-1 font-body text-sm text-deep bg-transparent"
+            {%- if filter.min_value.value != blank %} value="{{ filter.min_value.value | divided_by: 100.0 | floor }}"{% endif %}
+            min="0"
+          >
+          <span class="font-body text-sm text-mid">—</span>
+          <input
+            type="number"
+            placeholder="Max"
+            data-filter-price-max
+            class="w-24 border border-deep/30 px-2 py-1 font-body text-sm text-deep bg-transparent"
+            {%- if filter.max_value.value != blank %} value="{{ filter.max_value.value | divided_by: 100.0 | ceil }}"{% endif %}
+            min="0"
+          >
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- comment -%} ===== MOBILE FILTER DRAWER ===== {%- endcomment -%}
+<div
+  id="filter-drawer"
+  class="fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] bg-sand -translate-x-full transition-transform duration-300 overflow-y-auto p-6 lg:hidden"
+  aria-label="Filter products"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="flex items-center justify-between mb-6">
+    <span class="font-body text-lg text-deep">Filter</span>
+    <button id="filter-drawer-close" aria-label="Close filter drawer" class="text-deep/60 hover:text-deep">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  {{ filter_groups_html }}
+  <button id="filter-drawer-apply" class="w-full mt-6 bg-deep text-cream font-body text-xs tracking-widest uppercase py-3">
+    Show Results
+  </button>
+</div>
+
+{%- comment -%} ===== DRAWER OVERLAY ===== {%- endcomment -%}
+<div id="filter-drawer-overlay" class="fixed inset-0 z-40 bg-deep/40 hidden lg:hidden"></div>
+
+{%- comment -%} ===== MAIN LAYOUT ===== {%- endcomment -%}
+<div class="max-w-screen-xl mx-auto px-4 lg:px-8 py-8">
+  <div class="flex gap-8">
+
+    {%- comment -%} ===== FILTER SIDEBAR (desktop only) ===== {%- endcomment -%}
+    <aside
+      id="filter-sidebar"
+      class="hidden lg:block w-60 flex-shrink-0 sticky top-20 self-start bg-sand border-r border-deep/10 p-6 h-fit"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <span class="font-body text-lg font-normal text-deep">Filter</span>
+        <button
+          id="filter-clear-all"
+          class="font-body text-xs text-mid hover:text-deep underline"
+          aria-label="Clear all filters"
+        >Clear all</button>
+      </div>
+      {{ filter_groups_html }}
+    </aside>
+
+    {%- comment -%} ===== MAIN CONTENT COLUMN ===== {%- endcomment -%}
+    <div class="flex-1 min-w-0">
+
+      {%- comment -%} TOOLBAR ROW {%- endcomment -%}
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+          <button
+            id="filter-drawer-open"
+            class="lg:hidden font-body text-sm border border-deep px-4 py-2 uppercase tracking-widest"
+            aria-label="Open filter drawer"
+            aria-expanded="false"
+            aria-controls="filter-drawer"
+          >Filter</button>
+          <div id="active-filter-chips" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="flex items-center gap-4">
+          <select
+            id="sort-by"
+            class="font-body text-sm border border-deep/30 px-3 py-2 bg-cream text-deep"
+            aria-label="Sort by"
+          >
+            <option value="manual">Featured</option>
+            <option value="best-selling">Best selling</option>
+            <option value="title-ascending">A–Z</option>
+            <option value="title-descending">Z–A</option>
+            <option value="price-ascending">Price: low to high</option>
+            <option value="price-descending">Price: high to low</option>
+            <option value="created-descending">Newest</option>
+          </select>
+          <span id="product-count" class="font-body text-sm text-mid">
+            {%- if collection.products_count == 1 -%}
+              1 product
+            {%- else -%}
+              {{ collection.products_count }} products
+            {%- endif -%}
+          </span>
+        </div>
+      </div>
+
+      {%- comment -%} PRODUCT GRID {%- endcomment -%}
+      {%- paginate collection.products by 24 -%}
+        <div id="product-grid-inner" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+          {%- for product in collection.products -%}
+            {%- render 'product-card', product: product -%}
+          {%- endfor -%}
+
+          {%- if collection.products_count == 0 -%}
+            <div class="col-span-full py-24 text-center">
+              <p class="font-display text-3xl text-deep mb-4">Nothing here yet</p>
+              <p class="font-body text-sm text-mid">New drops land every week — check back soon.</p>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endpaginate -%}
+
+    </div>{%- comment -%} end main content column {%- endcomment -%}
+  </div>{%- comment -%} end flex row {%- endcomment -%}
+</div>{%- comment -%} end max-w wrapper {%- endcomment -%}
+
+<script type="module" src="{{ 'collection-filter.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "Collection Grid",
+  "presets": [
+    {
+      "name": "Collection Grid"
+    }
+  ]
+}
+{% endschema %}
