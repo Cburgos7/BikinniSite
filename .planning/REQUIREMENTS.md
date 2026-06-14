@@ -56,7 +56,7 @@
 - [x] **PAGE-06**: Social page (`templates/page.social.json`): UGC gallery of social_post metaobjects, shoppable where product tags present
 - [x] **PAGE-07**: Contact page with form
 - [x] **PAGE-08**: FAQ page
-- [ ] **PAGE-09**: Policy pages: Shipping & Returns, Privacy Policy, Terms of Service, Care Instructions (footer links)
+- [x] **PAGE-09**: Policy pages: Shipping & Returns, Privacy Policy, Terms of Service, Care Instructions (footer links)
 
 ### AUTH — Account & Auth
 - [ ] **AUTH-01**: Shopify customer accounts (login, register, order history, address book)
