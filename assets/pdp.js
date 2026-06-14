@@ -26,9 +26,9 @@ const variantsData = JSON.parse(
  */
 const findVariant = (size, color) => {
   return variantsData.find((v) => {
-    const titleLower = v.title ? v.title.toLowerCase() : '';
-    const sizeMatch = size ? titleLower.includes(size.toLowerCase()) : true;
-    const colorMatch = color ? titleLower.includes(color.toLowerCase()) : true;
+    const opts = v.options || [];
+    const sizeMatch = size ? opts.some((o) => o === size) : true;
+    const colorMatch = color ? opts.some((o) => o === color) : true;
     return sizeMatch && colorMatch;
   });
 };

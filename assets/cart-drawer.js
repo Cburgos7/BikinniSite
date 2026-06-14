@@ -38,6 +38,15 @@ const formatPrice = (cents) => {
   return '$' + (cents / 100).toFixed(2);
 };
 
+const escapeHtml = (str) => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 const buildItemHTML = (item) => {
   const imgSrc = item.image || '';
   const variantTitle =
@@ -83,15 +92,6 @@ const buildItemHTML = (item) => {
     </div>
     <p class="font-body text-sm text-deep flex-shrink-0">${formatPrice(item.final_line_price)}</p>
   </div>`;
-};
-
-const escapeHtml = (str) => {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 };
 
 export default function init() {
@@ -155,7 +155,7 @@ export default function init() {
     const updateQuantity = (variantId, newQty) => {
       fetch('/cart/change.js', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         body: JSON.stringify({ id: variantId, quantity: newQty }),
       })
         .then((res) => {
