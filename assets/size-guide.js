@@ -8,12 +8,12 @@
 /** @type {{ size: string, bustMin: number, bustMax: number, waistMin: number, waistMax: number, hipMin: number, hipMax: number }[]} */
 const SIZE_TABLE = [
   { size: 'XXS', bustMin: 28, bustMax: 31, waistMin: 22, waistMax: 24, hipMin: 30, hipMax: 33 },
-  { size: 'XS',  bustMin: 32, bustMax: 34, waistMin: 25, waistMax: 27, hipMin: 34, hipMax: 36 },
-  { size: 'S',   bustMin: 34, bustMax: 36, waistMin: 27, waistMax: 29, hipMin: 36, hipMax: 38 },
-  { size: 'M',   bustMin: 36, bustMax: 38, waistMin: 29, waistMax: 31, hipMin: 38, hipMax: 40 },
-  { size: 'L',   bustMin: 38, bustMax: 41, waistMin: 31, waistMax: 34, hipMin: 40, hipMax: 43 },
-  { size: 'XL',  bustMin: 41, bustMax: 44, waistMin: 34, waistMax: 37, hipMin: 43, hipMax: 46 },
-  { size: '2XL', bustMin: 44, bustMax: 48, waistMin: 37, waistMax: 41, hipMin: 46, hipMax: 50 },
+  { size: 'XS',  bustMin: 32, bustMax: 33, waistMin: 25, waistMax: 26, hipMin: 34, hipMax: 35 },
+  { size: 'S',   bustMin: 34, bustMax: 35, waistMin: 27, waistMax: 28, hipMin: 36, hipMax: 37 },
+  { size: 'M',   bustMin: 36, bustMax: 37, waistMin: 29, waistMax: 30, hipMin: 38, hipMax: 39 },
+  { size: 'L',   bustMin: 38, bustMax: 40, waistMin: 31, waistMax: 33, hipMin: 40, hipMax: 42 },
+  { size: 'XL',  bustMin: 41, bustMax: 43, waistMin: 34, waistMax: 36, hipMin: 43, hipMax: 45 },
+  { size: '2XL', bustMin: 44, bustMax: 47, waistMin: 37, waistMax: 40, hipMin: 46, hipMax: 49 },
   { size: '3XL', bustMin: 48, bustMax: 52, waistMin: 41, waistMax: 45, hipMin: 50, hipMax: 54 },
 ];
 
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const noMatch    = document.getElementById('sg-no-match');
 
   // Guard: section not present on this page
-  if (!submitBtn) return;
+  if (!submitBtn || !bustInput || !waistInput || !hipInput) return;
 
   submitBtn.addEventListener('click', () => {
     const bust  = parseFloat(bustInput.value);

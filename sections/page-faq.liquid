@@ -31,7 +31,11 @@
               class="overflow-hidden font-body text-sm text-mid leading-relaxed pb-4"
               style="max-height: 0; transition: max-height 300ms ease;"
             >
-              {{ block.settings.answer }}
+              {{- block.settings.answer -}}
+              {%- comment -%}
+                richtext schema type — Shopify sanitizes output at save time.
+                Same trust boundary as product.description and page.content.
+              {%- endcomment -%}
             </div>
           </div>
         {%- endfor -%}

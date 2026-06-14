@@ -16,7 +16,7 @@
         <div class="relative group aspect-square overflow-hidden bg-sand">
 
           {%- if post.image != blank -%}
-            {{ post.image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: post.caption }}
+            {{ post.image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: post.caption | escape }}
           {%- else -%}
             <div class="w-full h-full bg-sand"></div>
           {%- endif -%}

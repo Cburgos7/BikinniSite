@@ -20,7 +20,7 @@
     {%- endif -%}
 
     {%- if form.errors -%}
-      <ul class="font-body text-xs text-coral space-y-1 mt-2 mb-4">{{ form.errors | default_errors }}</ul>
+      <div class="font-body text-xs text-coral space-y-1 mt-2 mb-4">{{ form.errors | default_errors }}</div>
     {%- endif -%}
 
     <div class="space-y-4">

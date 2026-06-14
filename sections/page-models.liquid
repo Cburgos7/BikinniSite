@@ -16,7 +16,7 @@
         <div class="bg-cream group">
           <div class="aspect-[2/3] overflow-hidden">
             {%- if model.portrait != blank -%}
-              {{ model.portrait | image_url: width: 600 | image_tag: class: 'object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: model.name }}
+              {{ model.portrait | image_url: width: 600 | image_tag: class: 'object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: model.name | escape }}
             {%- else -%}
               <div class="w-full h-full bg-sand"></div>
             {%- endif -%}
