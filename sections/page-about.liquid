@@ -1,0 +1,112 @@
+<!-- Page Hero (D-10) -->
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">
+      {{ section.settings.heading | escape }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-4 text-center">
+        {{ section.settings.subtitle | escape }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+<!-- Story Section (D-08) -->
+<section class="max-w-3xl mx-auto px-4 py-16">
+  {%- if section.settings.story != blank -%}
+    <p class="font-body text-sm text-mid leading-relaxed">{{ section.settings.story | escape }}</p>
+  {%- endif -%}
+  {%- if section.settings.cta_url != blank -%}
+    <a
+      href="{{ section.settings.cta_url | escape }}"
+      class="inline-block mt-8 bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 px-8 hover:opacity-90 transition-opacity"
+    >
+      {{ section.settings.cta_label | escape }}
+    </a>
+  {%- endif -%}
+</section>
+
+<!-- Team Blocks (D-08) -->
+{%- if section.blocks.size > 0 -%}
+  <section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'team_member' -%}
+          <div class="bg-cream" {{ block.shopify_attributes }}>
+            <div class="aspect-[2/3] overflow-hidden">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 600 | image_tag: class: 'object-cover w-full h-full', loading: 'lazy', alt: block.settings.name | escape }}
+              {%- else -%}
+                <div class="w-full h-full bg-sand"></div>
+              {%- endif -%}
+            </div>
+            <p class="font-display text-2xl font-normal text-deep p-4">{{ block.settings.name | escape }}</p>
+            <p class="font-body text-xs uppercase tracking-widest text-mid mt-1 px-4 pb-4">{{ block.settings.role | escape }}</p>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "About Page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our Story"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Built in the US. Designed for every body."
+    },
+    {
+      "type": "textarea",
+      "id": "story",
+      "label": "Brand story copy"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA label",
+      "default": "Meet Our Models"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "team_member",
+      "name": "Team Member",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Portrait image"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [{ "name": "About Page" }]
+}
+{% endschema %}
