@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Not started
-last_updated: "2026-06-18T02:04:28.199Z"
+status: complete
+last_updated: "2026-06-17T00:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -19,14 +19,14 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
-**Current focus:** Phase 6 — Integrations
-**Last session:** 2026-06-18T02:04:28.190Z
+**Current focus:** v1.0 milestone complete — all 6 phases shipped
+**Last session:** 2026-06-17
 
 ## Current Phase
 
-**Phase 6: Integrations**
-Status: Not started
-Goal: Wire all third-party services — Klaviyo flows, UpPromote affiliate tracking, GA4 enhanced e-commerce, and Cloudinary image transforms — and verify end-to-end data flow.
+**All phases complete — v1.0 milestone reached**
+Status: Complete
+Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy to production.
 
 ## Phase History
 
@@ -37,6 +37,7 @@ Goal: Wire all third-party services — Klaviyo flows, UpPromote affiliate track
 | 3 — Home Page | 2026-06-12 | |
 | 4 — Collections & PDP | 2026-06-14 | 3 critical bugs fixed in review gate |
 | 5 — Content Pages | 2026-06-17 | 6 findings fixed in review gate; CR-01 accepted (richtext trust boundary) |
+| 6 — Integrations | 2026-06-17 | 2 critical XSS + 5 warnings fixed in review gate; INT-02 requires human checkout test with real credentials |
 
 ## Decisions Log
 
