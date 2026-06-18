@@ -84,6 +84,13 @@
       }
     </script>
   {%- endif -%}
+
+  {%- if settings.upromote_merchant_id != blank -%}
+    <script async
+      src="https://cdn.upromote.me/js/affiliate.min.js"
+      data-merchant-id="{{ settings.upromote_merchant_id }}">
+    </script>
+  {%- endif -%}
 </head>
 
 <body
@@ -121,6 +128,13 @@
   {%- if settings.ga4_measurement_id != blank -%}
     <script type="module" src="{{ 'ref-capture.js' | asset_url }}"></script>
     <script type="module" src="{{ 'ga4.js' | asset_url }}"></script>
+  {%- endif -%}
+
+  {%- if settings.upromote_merchant_id != blank -%}
+    {%- unless settings.ga4_measurement_id != blank -%}
+      <script type="module" src="{{ 'ref-capture.js' | asset_url }}"></script>
+    {%- endunless -%}
+    <script type="module" src="{{ 'upromote.js' | asset_url }}"></script>
   {%- endif -%}
 
   {% section 'cookie-consent' %}
