@@ -9,6 +9,7 @@
  */
 
 import { trackAddedToCart } from './klaviyo-flows.js';
+import { trackAddToCart } from './ga4.js';
 
 // Module-level variant selection state
 let selectedSize = null;
@@ -256,6 +257,9 @@ const addToCart = async (variantId) => {
 
     // Fire Klaviyo abandoned-cart tracking event
     trackAddedToCart(cartItem);
+
+    // Fire GA4 add_to_cart event
+    trackAddToCart(cartItem);
 
     if (errorEl) errorEl.classList.add('hidden');
 

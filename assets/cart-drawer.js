@@ -4,6 +4,8 @@
  * free shipping progress bar, and nav badge update.
  */
 
+import { trackBeginCheckout } from './ga4.js';
+
 const getFocusableElements = (container) => {
   return Array.from(
     container.querySelectorAll(
@@ -33,6 +35,10 @@ const trapFocus = (e, container) => {
 };
 
 let isOpen = false;
+
+// Most recent cart state — updated on every cart:updated event and quantity change.
+// Used by the checkout button handler to fire begin_checkout with accurate cart data.
+let _lastCartData = null;
 
 const formatPrice = (cents) => {
   return '$' + (cents / 100).toFixed(2);
@@ -204,6 +210,8 @@ export default function init() {
      * @param {Object} cart - Shopify cart JSON
      */
     const renderCart = (cart) => {
+      // Keep module-level snapshot for begin_checkout tracking
+      _lastCartData = cart;
       // Update badge
       if (badge) {
         badge.textContent = cart.item_count;
@@ -297,6 +305,19 @@ export default function init() {
 
     // Initial event binding
     bindCartItemEvents();
+
+    /**
+     * Fire GA4 begin_checkout when the checkout button inside the cart drawer is clicked.
+     * Uses event delegation so it survives innerHTML re-renders of the cart footer.
+     * The button must have data-action="checkout" or href="/checkout".
+     */
+    if (drawer) {
+      drawer.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="checkout"], a[href="/checkout"]');
+        if (!btn) return;
+        trackBeginCheckout(_lastCartData);
+      });
+    }
 
     /**
      * Listen for cart:updated dispatched by pdp.js (and other add-to-cart modules).
