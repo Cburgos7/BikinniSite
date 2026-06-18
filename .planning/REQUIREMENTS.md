@@ -64,7 +64,7 @@
 ### INT — Third-Party Integrations
 - [ ] **INT-01**: Klaviyo: embed signup form, wire abandoned cart, welcome series, post-purchase, win-back, VIP early access, back-in-stock flows; TCPA SMS opt-in at checkout + signup forms
 - [ ] **INT-02**: UpPromote: affiliate signup embed, tracking links + discount codes wired, 3-tier commission structure (Standard 10% / Silver 12% / Gold 15%) + Ambassador + Customer Referral 5%; fraud rules (self-referral block, IP clustering, 14-day hold)
-- [ ] **INT-03**: GA4: enhanced e-commerce events (view_item, add_to_cart, begin_checkout, purchase, view_item_list, select_item); custom dimension `influencer_code`; UTM convention documented
+- [x] **INT-03**: GA4: enhanced e-commerce events (view_item, add_to_cart, begin_checkout, purchase, view_item_list, select_item); custom dimension `influencer_code`; UTM convention documented
 - [ ] **INT-04**: Cloudinary: image pipeline via fetch-URL transforms (`f_auto,q_auto`) over Shopify CDN URLs
 
 ---
