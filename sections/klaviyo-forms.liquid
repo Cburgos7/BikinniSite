@@ -1,0 +1,51 @@
+{%- if section.settings.show_heading and section.settings.section_heading != blank -%}
+  <h2 class="text-center font-display text-2xl mb-4">
+    {{- section.settings.section_heading | escape -}}
+  </h2>
+{%- endif -%}
+
+{%- if section.settings.form_id != blank -%}
+  {{-
+    /*
+      TCPA SMS opt-in: The SMS checkbox is rendered by Klaviyo's own form builder
+      when SMS is enabled on this form in the Klaviyo dashboard. No custom theme
+      code pre-checks or injects the checkbox — compliance is configured entirely
+      within the Klaviyo form. Checkout SMS opt-in is handled in Klaviyo's checkout
+      integration settings, not via Shopify Additional Scripts.
+    */
+  -}}
+  <div class="klaviyo-form-{{ section.settings.form_id }}"></div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Klaviyo Signup Form",
+  "tag": "section",
+  "class": "klaviyo-signup-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "form_id",
+      "label": "Klaviyo Form ID",
+      "info": "Paste the form ID from your Klaviyo form embed code (e.g. AbCd12)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show heading",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section heading",
+      "default": "Join the Club"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Klaviyo Signup Form"
+    }
+  ]
+}
+{% endschema %}
