@@ -38,6 +38,52 @@
       src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id={{ settings.klaviyo_company_id }}">
     </script>
   {%- endif -%}
+
+  {%- if settings.ga4_measurement_id != blank -%}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.ga4_measurement_id }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ settings.ga4_measurement_id }}', { send_page_view: true });
+    </script>
+
+    <script id="ga4-page-data" type="application/json">
+      {
+        "pageType": {{ request.page_type | json }},
+        "currency": "USD"
+        {%- if product -%}
+        ,"product": {
+          "id": {{ product.id | json }},
+          "name": {{ product.title | json }},
+          "brand": {{ shop.name | json }},
+          "category": {{ product.type | json }},
+          "variant": {{ product.selected_or_first_available_variant.id | json }},
+          "price": {{ product.selected_or_first_available_variant.price | money_without_currency | json }},
+          "sku": {{ product.selected_or_first_available_variant.sku | json }},
+          "imageUrl": {{ product.featured_image | img_url: '600x' | json }}
+        }
+        {%- endif -%}
+        {%- if collection -%}
+        ,"collection": {
+          "id": {{ collection.id | json }},
+          "name": {{ collection.title | json }},
+          "products": [
+            {%- for p in collection.products limit: 50 -%}
+              {
+                "id": {{ p.id | json }},
+                "name": {{ p.title | json }},
+                "price": {{ p.price | money_without_currency | json }},
+                "position": {{ forloop.index }},
+                "category": {{ p.type | json }}
+              }{%- unless forloop.last -%},{%- endunless -%}
+            {%- endfor -%}
+          ]
+        }
+        {%- endif -%}
+      }
+    </script>
+  {%- endif -%}
 </head>
 
 <body
@@ -45,6 +91,7 @@
   data-customer-email="{{ customer.email | escape }}"
   data-customer-id="{{ customer.id }}"
   data-klaviyo-company-id="{{ settings.klaviyo_company_id | escape }}"
+  data-ga4-id="{{ settings.ga4_measurement_id | escape }}"
 >
   <!-- Custom cursor (hidden on touch devices) -->
   <div id="custom-cursor"
@@ -69,6 +116,11 @@
 
   {%- if settings.klaviyo_company_id != blank -%}
     <script type="module" src="{{ 'klaviyo.js' | asset_url }}"></script>
+  {%- endif -%}
+
+  {%- if settings.ga4_measurement_id != blank -%}
+    <script type="module" src="{{ 'ref-capture.js' | asset_url }}"></script>
+    <script type="module" src="{{ 'ga4.js' | asset_url }}"></script>
   {%- endif -%}
 
   {% section 'cookie-consent' %}
