@@ -9,7 +9,7 @@
 | 3 | Home Page | 6/6 | Complete   | 2026-06-12 |
 | 4 | Collections & PDP | 5/5 | Complete   | 2026-06-14 |
 | 5 | Content Pages | 8/8 | Complete   | 2026-06-14 |
-| 6 | Integrations | Klaviyo, UpPromote, GA4, Cloudinary all wired and verified | INT-01–04 | 4 |
+| 6 | Integrations | 6/6 | Complete   | 2026-06-18 |
 
 ---
 
