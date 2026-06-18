@@ -8,6 +8,8 @@
  * - One-open-at-a-time accordion logic
  */
 
+import { trackAddedToCart } from './klaviyo-flows.js';
+
 // Module-level variant selection state
 let selectedSize = null;
 let selectedColor = null;
@@ -191,6 +193,25 @@ const initSizeSwatches = () => {
           addToCartBtn.classList.remove('cursor-pointer', 'hover:opacity-90');
           addToCartBtn.dataset.variantId = '';
         }
+
+        // Show back-in-stock form for this variant (if rendered in template)
+        const variant = findVariant(selectedSize, selectedColor);
+        if (variant) {
+          // Hide all BIS forms first
+          document.querySelectorAll('[data-bis-variant]').forEach((el) => {
+            el.classList.add('hidden');
+          });
+          const bisEl = document.getElementById(`bis-${variant.id}`);
+          if (bisEl) bisEl.classList.remove('hidden');
+        }
+      }
+
+      // If variant is available, ensure all BIS forms are hidden
+      const resolvedVariant = findVariant(selectedSize, selectedColor);
+      if (resolvedVariant && resolvedVariant.available) {
+        document.querySelectorAll('[data-bis-variant]').forEach((el) => {
+          el.classList.add('hidden');
+        });
       }
     });
   });
@@ -231,7 +252,10 @@ const addToCart = async (variantId) => {
     });
 
     if (!res.ok) throw new Error('add failed');
-    await res.json();
+    const cartItem = await res.json();
+
+    // Fire Klaviyo abandoned-cart tracking event
+    trackAddedToCart(cartItem);
 
     if (errorEl) errorEl.classList.add('hidden');
 

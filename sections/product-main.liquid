@@ -147,6 +147,41 @@
         <p id="pdp-cart-error" class="hidden mt-2 font-body text-xs text-coral text-center" aria-live="polite">Something went wrong. Please try again.</p>
       </div>
 
+      {%- comment -%} BACK-IN-STOCK — rendered per out-of-stock variant {%- endcomment -%}
+      {%- for variant in product.variants -%}
+        {%- unless variant.available -%}
+          <div
+            id="bis-{{ variant.id }}"
+            data-bis-variant="{{ variant.id }}"
+            class="mt-4 hidden"
+            aria-live="polite"
+          >
+            <form data-bis-form data-bis-variant="{{ variant.id }}" novalidate>
+              <p class="font-body text-xs uppercase tracking-widest text-deep mb-2">
+                Notify me when {{ variant.title | escape }} is back in stock
+              </p>
+              <div class="flex gap-2">
+                <input
+                  type="email"
+                  data-bis-email
+                  placeholder="Your email"
+                  autocomplete="email"
+                  class="flex-1 border border-deep/30 px-3 py-2 font-body text-xs text-deep bg-transparent placeholder-mid focus:outline-none focus:border-deep"
+                  aria-label="Email address for back-in-stock notification"
+                  required
+                >
+                <button
+                  type="submit"
+                  data-bis-submit
+                  class="bg-deep text-cream font-body text-xs uppercase tracking-widest px-4 py-2 cursor-pointer hover:opacity-90 transition-opacity"
+                >Notify Me</button>
+              </div>
+              <p data-bis-msg class="mt-2 font-body text-xs text-mid" aria-live="polite"></p>
+            </form>
+          </div>
+        {%- endunless -%}
+      {%- endfor -%}
+
       {%- comment -%} METAFIELD ACCORDIONS {%- endcomment -%}
       <div class="mt-8 border-t border-deep/10" id="pdp-accordions">
 
@@ -263,6 +298,7 @@
 </script>
 
 <script type="module" src="{{ 'pdp.js' | asset_url }}"></script>
+<script type="module" src="{{ 'klaviyo-flows.js' | asset_url }}"></script>
 
 {% schema %}
 {
