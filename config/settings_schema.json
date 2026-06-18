@@ -69,5 +69,34 @@
         "info": "https://tiktok.com/@yourhandle"
       }
     ]
+  },
+  {
+    "name": "Integrations",
+    "settings": [
+      {
+        "type": "text",
+        "id": "klaviyo_company_id",
+        "label": "Klaviyo Company ID",
+        "info": "Found in Klaviyo → Account → API Keys"
+      },
+      {
+        "type": "text",
+        "id": "ga4_measurement_id",
+        "label": "GA4 Measurement ID",
+        "info": "Format: G-XXXXXXXXXX"
+      },
+      {
+        "type": "text",
+        "id": "cloudinary_cloud_name",
+        "label": "Cloudinary Cloud Name",
+        "info": "Your Cloudinary account cloud name"
+      },
+      {
+        "type": "text",
+        "id": "upromote_merchant_id",
+        "label": "UpPromote Merchant ID",
+        "info": "Found in UpPromote dashboard → Settings"
+      }
+    ]
   }
 ]
