@@ -57,13 +57,13 @@ const buildItemHTML = (item) => {
   const imgSrc = item.image || '';
   const variantTitle =
     item.variant_title && item.variant_title !== 'Default Title'
-      ? `<p class="text-mid text-xs mt-0.5">${item.variant_title}</p>`
+      ? `<p class="text-mid text-xs mt-0.5">${escapeHtml(item.variant_title)}</p>`
       : '';
   const disabledAttrs =
     item.quantity <= 1 ? 'disabled class="w-6 h-6 flex items-center justify-center border border-mid text-deep font-body text-sm hover:border-deep transition-colors duration-200 opacity-50 cursor-not-allowed"' : 'class="w-6 h-6 flex items-center justify-center border border-mid text-deep font-body text-sm hover:border-deep transition-colors duration-200"';
 
   return `<div class="flex gap-4 items-start" data-line-item="${item.id}">
-    <img src="${imgSrc}" alt="${escapeHtml(item.title)}" class="w-16 h-20 object-cover flex-shrink-0" loading="lazy">
+    <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(item.title)}" class="w-16 h-20 object-cover flex-shrink-0" loading="lazy">
     <div class="flex-1 min-w-0">
       <p class="font-body text-sm text-deep truncate">${escapeHtml(item.title)}</p>
       ${variantTitle}

@@ -14,7 +14,7 @@
       integration settings, not via Shopify Additional Scripts.
     */
   -}}
-  <div class="klaviyo-form-{{ section.settings.form_id }}"></div>
+  <div class="klaviyo-form-{{ section.settings.form_id | escape }}"></div>
 {%- endif -%}
 
 {% schema %}

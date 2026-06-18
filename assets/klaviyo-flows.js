@@ -118,7 +118,7 @@ function initBackInStockForms() {
 
       // Basic email validation (T-06-05 mitigate)
       const email = emailInput.value.trim();
-      if (!email || !email.includes('@')) {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         if (msgEl) {
           msgEl.textContent = 'Please enter a valid email address.';
           msgEl.dataset.bisStatus = 'error';

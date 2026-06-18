@@ -24,8 +24,9 @@
 {%- endcomment -%}
 {%- assign shopify_url = image | image_url: width: width -%}
 {%- if settings.cloudinary_cloud_name != blank -%}
+  {%- assign cloud_name_encoded = settings.cloudinary_cloud_name | url_encode -%}
   {%- assign src = 'https://res.cloudinary.com/'
-    | append: settings.cloudinary_cloud_name
+    | append: cloud_name_encoded
     | append: '/image/fetch/f_auto,q_auto,w_'
     | append: width
     | append: '/'
@@ -38,5 +39,5 @@
   alt="{{ alt | escape }}"
   width="{{ width }}"
   loading="{{ loading | default: 'lazy' }}"
-  {%- if class != blank %} class="{{ class }}"{% endif %}
+  {%- if class != blank %} class="{{ class | escape }}"{% endif %}
 >

@@ -16,10 +16,9 @@ let selectedSize = null;
 let selectedColor = null;
 let selectedVariantId = null;
 
-// Parse product variants from JSON script tag
-const variantsData = JSON.parse(
-  document.getElementById('product-variants-json')?.textContent || '[]'
-);
+// variantsData is populated inside init() after DOMContentLoaded to guarantee
+// the #product-variants-json script tag exists when it is read (WR-05).
+let variantsData = [];
 
 /**
  * Find a variant matching current size and/or color selection.
@@ -338,6 +337,10 @@ const initAccordions = () => {
  */
 export default function init() {
   document.addEventListener('DOMContentLoaded', () => {
+    // Parse variants JSON now that the DOM is guaranteed ready (WR-05)
+    variantsData = JSON.parse(
+      document.getElementById('product-variants-json')?.textContent || '[]'
+    );
     initGallery();
     initLightbox();
     initColorSwatches();
