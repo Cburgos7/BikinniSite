@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-06-14T19:06:33.674Z"
+last_updated: "2026-06-17T00:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 5
@@ -19,15 +19,14 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
-**Current focus:** Phase 5 — content pages
-**Last session:** 2026-06-14T19:06:33.665Z
+**Current focus:** Phase 6 — Integrations
+**Last session:** 2026-06-17
 
 ## Current Phase
 
-**Phase 5: Content Pages**
-Status: In progress (Plan 06 complete)
-Plans: 05-01 complete, 05-02 complete, 05-03 complete, 05-04 complete, 05-06 complete
-Goal: Build all standalone content pages — About, Models, Payment info, Size guide, Affiliates, Social UGC gallery, Contact, FAQ, and policy pages.
+**Phase 6: Integrations**
+Status: Not started
+Goal: Wire all third-party services — Klaviyo flows, UpPromote affiliate tracking, GA4 enhanced e-commerce, and Cloudinary image transforms — and verify end-to-end data flow.
 
 ## Phase History
 
@@ -37,6 +36,7 @@ Goal: Build all standalone content pages — About, Models, Payment info, Size g
 | 2 — Global Shell | 2026-06-09 | |
 | 3 — Home Page | 2026-06-12 | |
 | 4 — Collections & PDP | 2026-06-14 | 3 critical bugs fixed in review gate |
+| 5 — Content Pages | 2026-06-17 | 6 findings fixed in review gate; CR-01 accepted (richtext trust boundary) |
 
 ## Decisions Log
 
