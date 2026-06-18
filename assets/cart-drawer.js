@@ -320,6 +320,24 @@ export default function init() {
     }
 
     /**
+     * Listen for upromote:ref-captured dispatched by upromote.js.
+     * Applies the affiliate discount code to the cart drawer checkout button href.
+     * This covers the case where upromote.js fires before or after the drawer renders.
+     */
+    document.addEventListener('upromote:ref-captured', (e) => {
+      const code = e.detail && e.detail.code;
+      if (!code) return;
+      const checkoutBtn = document.getElementById('cart-checkout-btn');
+      if (!checkoutBtn) return;
+      const href = checkoutBtn.getAttribute('href') || '';
+      const separator = href.includes('?') ? '&' : '?';
+      // Remove any existing discount param before appending to avoid duplicates
+      const clean = href.replace(/[?&]discount=[^&]*/g, '').replace(/[?&]$/, '');
+      const newSeparator = clean.includes('?') ? '&' : '?';
+      checkoutBtn.href = clean + newSeparator + 'discount=' + encodeURIComponent(code);
+    });
+
+    /**
      * Listen for cart:updated dispatched by pdp.js (and other add-to-cart modules).
      * Fetch the current cart state, re-render drawer, and open it.
      */
