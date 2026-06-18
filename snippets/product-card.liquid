@@ -10,14 +10,15 @@
     {{- comment -}} IMAGE BLOCK {{- endcomment -}}
     <div class="relative overflow-hidden aspect-[3/4]">
       {%- if product.featured_image != blank -%}
-        <img
-          id="card-img-{{ product.id }}"
-          src="{{ product.featured_image | image_url: width: 600 }}"
-          alt="{{ product.title | escape }}"
-          class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-          width="600"
-        >
+        <span id="card-img-{{ product.id }}" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500 block">
+          {%- render 'cloudinary-img',
+            image: product.featured_image,
+            width: 600,
+            alt: product.featured_image.alt | default: product.title,
+            class: 'w-full h-full object-cover',
+            loading: 'lazy'
+          -%}
+        </span>
       {%- else -%}
         <div class="w-full h-full bg-sand"></div>
       {%- endif -%}

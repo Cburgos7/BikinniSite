@@ -40,14 +40,16 @@ const findVariant = (size, color) => {
  * THUMBNAIL GALLERY SWAP
  */
 const initGallery = () => {
-  const mainImage = document.getElementById('pdp-main-image');
-  if (!mainImage) return;
+  const mainImageWrap = document.getElementById('pdp-main-image');
+  if (!mainImageWrap) return;
+  // mainImageWrap is a <div>; the actual <img> is inside (rendered by cloudinary-img snippet)
+  const mainImg = mainImageWrap.querySelector('img');
 
   const thumbnails = document.querySelectorAll('[data-thumbnail]');
   thumbnails.forEach((thumb) => {
     thumb.addEventListener('click', () => {
       // Swap main image src
-      mainImage.src = thumb.dataset.fullSrc;
+      if (mainImg) mainImg.src = thumb.dataset.fullSrc;
 
       // Update active ring state on all thumbnails
       thumbnails.forEach((t) => {
@@ -64,17 +66,22 @@ const initGallery = () => {
 const initLightbox = () => {
   const dialog = document.getElementById('pdp-lightbox');
   const lightboxImg = document.getElementById('pdp-lightbox-img');
-  const mainImage = document.getElementById('pdp-main-image');
+  const mainImageWrap = document.getElementById('pdp-main-image');
   const closeBtn = document.getElementById('pdp-lightbox-close');
 
-  if (!dialog || !lightboxImg || !mainImage) return;
+  if (!dialog || !lightboxImg || !mainImageWrap) return;
+  // mainImageWrap is a <div>; the actual <img> is inside (rendered by cloudinary-img snippet)
+  const getMainImg = () => mainImageWrap.querySelector('img');
 
-  // Open lightbox when main image is clicked
+  // Open lightbox when main image wrapper is clicked
   const trigger = document.querySelector('[data-lightbox-trigger]');
   if (trigger) {
     trigger.addEventListener('click', () => {
-      lightboxImg.src = mainImage.src;
-      lightboxImg.alt = mainImage.alt;
+      const mainImg = getMainImg();
+      if (mainImg) {
+        lightboxImg.src = mainImg.src;
+        lightboxImg.alt = mainImg.alt;
+      }
       dialog.showModal();
     });
   }
@@ -101,7 +108,7 @@ const initLightbox = () => {
 const initColorSwatches = () => {
   const swatches = document.querySelectorAll('[data-color-swatch]');
   const colorLabel = document.getElementById('selected-color-label');
-  const mainImage = document.getElementById('pdp-main-image');
+  const mainImageWrap = document.getElementById('pdp-main-image');
   const addToCartBtn = document.getElementById('pdp-add-to-cart');
 
   swatches.forEach((btn) => {
@@ -124,8 +131,9 @@ const initColorSwatches = () => {
         if (addToCartBtn) addToCartBtn.dataset.variantId = selectedVariantId;
 
         // Update main gallery image to first image of matching variant
-        if (mainImage && variant.featured_image?.src) {
-          mainImage.src = variant.featured_image.src;
+        if (mainImageWrap && variant.featured_image?.src) {
+          const mainImg = mainImageWrap.querySelector('img');
+          if (mainImg) mainImg.src = variant.featured_image.src;
         }
       }
     });

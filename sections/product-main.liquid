@@ -7,28 +7,34 @@
       <div class="lg:grid lg:grid-cols-[1fr_auto] lg:gap-4">
 
         {%- comment -%} MAIN IMAGE {%- endcomment -%}
-        <div class="relative">
-          <img
-            id="pdp-main-image"
-            src="{{ product.featured_image | image_url: width: 1000 }}"
-            alt="{{ product.title | escape }}"
-            class="w-full aspect-[3/4] object-cover cursor-zoom-in"
-            data-lightbox-trigger
-          >
+        <div class="relative" id="pdp-main-image" data-lightbox-trigger>
+          {%- render 'cloudinary-img',
+            image: product.featured_image,
+            width: 1200,
+            alt: product.title,
+            class: 'w-full aspect-[3/4] object-cover cursor-zoom-in',
+            loading: 'eager'
+          -%}
         </div>
 
         {%- comment -%} THUMBNAIL STRIP — desktop vertical, right of main {%- endcomment -%}
         <div class="hidden lg:flex flex-col gap-2 w-16 overflow-y-auto max-h-[600px]">
           {%- for image in product_images -%}
-            <img
-              src="{{ image | image_url: width: 120 }}"
-              alt="{{ product.title | escape }} image {{ forloop.index }} of {{ product_images.size }}"
-              class="w-14 h-14 object-cover cursor-pointer ring-0 hover:ring-2 ring-deep transition-all {% if forloop.first %}ring-2 ring-deep{% endif %}"
+            <span
+              class="w-14 h-14 block cursor-pointer ring-0 hover:ring-2 ring-deep transition-all {% if forloop.first %}ring-2 ring-deep{% endif %}"
               data-thumbnail
               data-full-src="{{ image | image_url: width: 1000 }}"
               data-index="{{ forloop.index0 }}"
               aria-label="View image {{ forloop.index }} of {{ product_images.size }}"
             >
+              {%- render 'cloudinary-img',
+                image: image,
+                width: 150,
+                alt: product.title,
+                class: 'w-14 h-14 object-cover',
+                loading: 'lazy'
+              -%}
+            </span>
           {%- endfor -%}
         </div>
 
@@ -37,15 +43,21 @@
       {%- comment -%} THUMBNAIL STRIP — mobile horizontal, below main {%- endcomment -%}
       <div class="flex gap-2 overflow-x-auto mt-3 lg:hidden">
         {%- for image in product_images -%}
-          <img
-            src="{{ image | image_url: width: 120 }}"
-            alt="{{ product.title | escape }} image {{ forloop.index }} of {{ product_images.size }}"
-            class="w-14 h-14 object-cover cursor-pointer ring-0 hover:ring-2 ring-deep transition-all {% if forloop.first %}ring-2 ring-deep{% endif %}"
+          <span
+            class="w-14 h-14 block cursor-pointer ring-0 hover:ring-2 ring-deep transition-all {% if forloop.first %}ring-2 ring-deep{% endif %}"
             data-thumbnail
             data-full-src="{{ image | image_url: width: 1000 }}"
             data-index="{{ forloop.index0 }}"
             aria-label="View image {{ forloop.index }} of {{ product_images.size }}"
           >
+            {%- render 'cloudinary-img',
+              image: image,
+              width: 150,
+              alt: product.title,
+              class: 'w-14 h-14 object-cover',
+              loading: 'lazy'
+            -%}
+          </span>
         {%- endfor -%}
       </div>
     </div>

@@ -1,0 +1,42 @@
+{%- comment -%}
+  Snippet: cloudinary-img
+  Usage:
+    {% render 'cloudinary-img',
+      image: product.featured_image,
+      width: 800,
+      alt: product.title,
+      class: 'w-full h-full object-cover',
+      loading: 'lazy'
+    %}
+
+  Parameters:
+    image   — Shopify image object (required)
+    width   — integer, output width in px (required, e.g. 600)
+    alt     — string, alt text (required)
+    class   — string, Tailwind classes (optional)
+    loading — string, "lazy" or "eager" (optional, default "lazy")
+
+  Behavior:
+    When settings.cloudinary_cloud_name is set, serves the image via
+    Cloudinary fetch-URL with f_auto,q_auto,w_ transforms (30–60% payload
+    reduction via WebP/AVIF auto-format and perceptual quality compression).
+    When cloudinary_cloud_name is blank, falls back to the raw Shopify CDN URL.
+{%- endcomment -%}
+{%- assign shopify_url = image | image_url: width: width -%}
+{%- if settings.cloudinary_cloud_name != blank -%}
+  {%- assign src = 'https://res.cloudinary.com/'
+    | append: settings.cloudinary_cloud_name
+    | append: '/image/fetch/f_auto,q_auto,w_'
+    | append: width
+    | append: '/'
+    | append: shopify_url -%}
+{%- else -%}
+  {%- assign src = shopify_url -%}
+{%- endif -%}
+<img
+  src="{{ src }}"
+  alt="{{ alt | escape }}"
+  width="{{ width }}"
+  loading="{{ loading | default: 'lazy' }}"
+  {%- if class != blank %} class="{{ class }}"{% endif %}
+>
