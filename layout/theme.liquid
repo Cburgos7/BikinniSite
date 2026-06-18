@@ -40,7 +40,11 @@
   {%- endif -%}
 </head>
 
-<body class="bg-cream text-deep font-body pt-16">
+<body
+  class="bg-cream text-deep font-body pt-16"
+  data-customer-email="{{ customer.email | escape }}"
+  data-customer-id="{{ customer.id }}"
+>
   <!-- Custom cursor (hidden on touch devices) -->
   <div id="custom-cursor"
     class="pointer-events-none fixed top-0 left-0 z-[9999] w-4 h-4 rounded-full bg-coral mix-blend-difference will-change-transform hidden md:block"
@@ -61,6 +65,10 @@
   {% section 'footer' %}
 
   <script type="module" src="{{ 'custom-cursor.js' | asset_url }}"></script>
+
+  {%- if settings.klaviyo_company_id != blank -%}
+    <script type="module" src="{{ 'klaviyo.js' | asset_url }}"></script>
+  {%- endif -%}
 
   {% section 'cookie-consent' %}
 </body>
