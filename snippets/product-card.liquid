@@ -7,7 +7,7 @@
 <article class="relative group overflow-hidden bg-cream">
   <a href="{{ product.url }}" class="block">
 
-    {{- comment -}} IMAGE BLOCK {{- endcomment -}}
+    {%- comment -%} IMAGE BLOCK {%- endcomment -%}
     <div class="relative overflow-hidden aspect-[3/4]">
       {%- if product.featured_image != blank -%}
         <span id="card-img-{{ product.id }}" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500 block">
@@ -23,7 +23,7 @@
         <div class="w-full h-full bg-sand"></div>
       {%- endif -%}
 
-      {{- comment -}} BADGES {{- endcomment -}}
+      {%- comment -%} BADGES {%- endcomment -%}
       <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
         {%- if product.compare_at_price > product.price -%}
           <span class="bg-coral text-cream text-xs font-body px-2 py-0.5">Sale</span>
@@ -33,7 +33,7 @@
         {%- endif -%}
       </div>
 
-      {{- comment -}} WISHLIST TOGGLE {{- endcomment -}}
+      {%- comment -%} WISHLIST TOGGLE {%- endcomment -%}
       <div class="absolute top-3 right-3 z-10">
         {%- if customer != blank -%}
           <button
@@ -60,7 +60,7 @@
         {%- endif -%}
       </div>
 
-      {{- comment -}} QUICK-ADD FORM {{- endcomment -}}
+      {%- comment -%} QUICK-ADD FORM {%- endcomment -%}
       {%- assign first_variant = product.first_available_variant -%}
       {%- if first_variant -%}
         <form action="/cart/add" method="post" class="absolute bottom-0 left-0 right-0">
@@ -85,10 +85,10 @@
     </div>
   </a>
 
-  {{- comment -}} CARD BODY {{- endcomment -}}
+  {%- comment -%} CARD BODY {%- endcomment -%}
   <div class="p-4">
 
-    {{- comment -}} COLOR SWATCHES {{- endcomment -}}
+    {%- comment -%} COLOR SWATCHES {%- endcomment -%}
     {%- assign color_option_index = nil -%}
     {%- for option in product.options_with_values -%}
       {%- if option.name == 'Color' -%}
