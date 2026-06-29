@@ -1,0 +1,96 @@
+{%- comment -%}
+  main-search.liquid
+  Search results page. Renders the D-10 page hero, a re-submittable search form,
+  a result count, and a product grid (reusing the product-card snippet).
+  Used by templates/search.json. Search is wired from the header nav (inline-search.js → /search?q=).
+{%- endcomment -%}
+
+{%- comment -%} ===== PAGE HERO (D-10) ===== {%- endcomment -%}
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">Search</h1>
+  </div>
+</section>
+
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+
+  {%- comment -%} ===== SEARCH FORM ===== {%- endcomment -%}
+  <form action="{{ routes.search_url }}" method="get" role="search" class="max-w-xl mx-auto mb-12">
+    <div class="flex items-center border-b border-deep/30 focus-within:border-deep transition-colors">
+      <input
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="Search products…"
+        aria-label="Search products"
+        class="w-full bg-transparent py-3 font-body text-base text-deep placeholder:text-mid focus:outline-none"
+      >
+      <input type="hidden" name="type" value="product">
+      <button type="submit" class="font-body text-xs tracking-widest uppercase text-deep px-4 py-2 hover:text-coral transition-colors">
+        Search
+      </button>
+    </div>
+  </form>
+
+  {%- if search.performed -%}
+
+    {%- comment -%} ===== RESULT COUNT ===== {%- endcomment -%}
+    <p class="font-body text-sm text-mid text-center mb-8">
+      {%- if search.results_count == 0 -%}
+        No results for &ldquo;{{ search.terms | escape }}&rdquo;
+      {%- elsif search.results_count == 1 -%}
+        1 result for &ldquo;{{ search.terms | escape }}&rdquo;
+      {%- else -%}
+        {{ search.results_count }} results for &ldquo;{{ search.terms | escape }}&rdquo;
+      {%- endif -%}
+    </p>
+
+    {%- if search.results_count > 0 -%}
+      {%- paginate search.results by 24 -%}
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {%- render 'product-card', product: item -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- comment -%} ===== PAGINATION ===== {%- endcomment -%}
+        {%- if paginate.pages > 1 -%}
+          <nav class="flex items-center justify-center gap-2 mt-12" aria-label="Search results pages">
+            {%- for part in paginate.parts -%}
+              {%- if part.is_link -%}
+                <a href="{{ part.url }}" class="font-body text-sm text-deep border border-deep/20 px-3 py-1 hover:border-deep transition-colors">{{ part.title }}</a>
+              {%- else -%}
+                <span class="font-body text-sm text-cream bg-deep border border-deep px-3 py-1">{{ part.title }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+          </nav>
+        {%- endif -%}
+      {%- endpaginate -%}
+    {%- else -%}
+      <div class="py-12 text-center">
+        <p class="font-body text-sm text-mid">Try a different search term, or browse our collections.</p>
+        <a href="{{ routes.all_products_collection_url }}" class="inline-block mt-6 bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 px-8 hover:opacity-90 transition-opacity">
+          Shop All
+        </a>
+      </div>
+    {%- endif -%}
+
+  {%- else -%}
+    <p class="font-body text-sm text-mid text-center py-12">Enter a search term above to find products.</p>
+  {%- endif -%}
+
+</section>
+
+{% schema %}
+{
+  "name": "Search Results",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Search Results"
+    }
+  ]
+}
+{% endschema %}

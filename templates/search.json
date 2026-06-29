@@ -1,7 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "page-content",
+      "type": "main-search",
       "settings": {}
     }
   },

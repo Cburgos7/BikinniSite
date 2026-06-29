@@ -1,0 +1,77 @@
+{%- comment -%}
+  list-collections.liquid
+  All-collections index. Renders the D-10 page hero and a grid of collection cards,
+  each linking to its collection page. Used by templates/list-collections.json (/collections).
+{%- endcomment -%}
+
+{%- comment -%} ===== PAGE HERO (D-10) ===== {%- endcomment -%}
+<section class="bg-deep text-cream py-16 lg:py-24">
+  <div class="max-w-screen-xl mx-auto px-4 lg:px-8 text-center">
+    <h1 class="font-display text-4xl lg:text-6xl font-normal leading-tight text-center">
+      {{ section.settings.heading | escape }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p class="font-body text-xs uppercase tracking-widest text-cream/60 mt-4 text-center">
+        {{ section.settings.subtitle | escape }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+<section class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+  {%- if collections.size > 0 -%}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+      {%- for collection in collections -%}
+        <a href="{{ collection.url }}" class="relative group aspect-[4/5] overflow-hidden bg-sand block">
+          {%- if collection.featured_image != blank -%}
+            {%- render 'cloudinary-img',
+              image: collection.featured_image,
+              width: 800,
+              alt: collection.title,
+              class: 'w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500',
+              loading: 'lazy'
+            -%}
+          {%- else -%}
+            <div class="w-full h-full bg-sand"></div>
+          {%- endif -%}
+          <div class="absolute inset-0 bg-deep/30 group-hover:bg-deep/50 transition-colors duration-300 flex flex-col items-center justify-center text-center px-4">
+            <h2 class="font-display text-3xl lg:text-4xl font-normal text-cream">{{ collection.title | escape }}</h2>
+            <span class="font-body text-xs uppercase tracking-widest text-cream/80 mt-2">
+              {%- if collection.all_products_count == 1 -%}1 item{%- else -%}{{ collection.all_products_count }} items{%- endif -%}
+            </span>
+          </div>
+        </a>
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="py-24 text-center">
+      <p class="font-display text-3xl text-deep mb-4">No collections yet</p>
+      <p class="font-body text-sm text-mid">Check back soon — new drops land every week.</p>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Collections List",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop All Collections"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": ""
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collections List"
+    }
+  ]
+}
+{% endschema %}
