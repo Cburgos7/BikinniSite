@@ -10,18 +10,32 @@
     <!-- Column 2: Shop -->
     <div>
       <h3 class="font-body uppercase tracking-widest text-sm mb-4">Shop</h3>
-      <a href="/collections/new-in" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">New In</a>
-      <a href="/collections/bikinis" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Bikinis</a>
-      <a href="/collections/lingerie" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Lingerie</a>
-      <a href="/collections/sale" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Sale</a>
+      {%- if collections['new-in'].id -%}
+        <a href="{{ collections['new-in'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">New In</a>
+      {%- endif -%}
+      {%- if collections['bikinis'].id -%}
+        <a href="{{ collections['bikinis'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Bikinis</a>
+      {%- endif -%}
+      {%- if collections['lingerie'].id -%}
+        <a href="{{ collections['lingerie'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Lingerie</a>
+      {%- endif -%}
+      {%- if collections['sale'].id -%}
+        <a href="{{ collections['sale'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Sale</a>
+      {%- endif -%}
     </div>
 
     <!-- Column 3: Help -->
     <div>
       <h3 class="font-body uppercase tracking-widest text-sm mb-4">Help</h3>
-      <a href="/pages/faq" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">FAQ</a>
-      <a href="/pages/contact" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Contact</a>
-      <a href="/pages/size-guide" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Size Guide</a>
+      {%- if pages['faq'].id -%}
+        <a href="{{ pages['faq'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">FAQ</a>
+      {%- endif -%}
+      {%- if pages['contact'].id -%}
+        <a href="{{ pages['contact'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Contact</a>
+      {%- endif -%}
+      {%- if pages['size-guide'].id -%}
+        <a href="{{ pages['size-guide'].url }}" class="block font-body text-sm text-mid hover:text-cream transition-colors py-1">Size Guide</a>
+      {%- endif -%}
     </div>
 
     <!-- Column 4: Legal -->

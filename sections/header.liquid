@@ -137,10 +137,18 @@
     </button>
   </div>
   <nav class="flex flex-col py-4" aria-label="Mobile navigation">
-    <a href="/collections/new-in" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">New In</a>
-    <a href="/collections/bikinis" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Bikinis</a>
-    <a href="/collections/lingerie" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Lingerie</a>
-    <a href="/collections/sale" class="font-display text-3xl text-coral py-4 px-8 hover:text-gold transition-colors duration-200">Sale</a>
+    {%- if collections['new-in'].id -%}
+      <a href="{{ collections['new-in'].url }}" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">New In</a>
+    {%- endif -%}
+    {%- if collections['bikinis'].id -%}
+      <a href="{{ collections['bikinis'].url }}" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Bikinis</a>
+    {%- endif -%}
+    {%- if collections['lingerie'].id -%}
+      <a href="{{ collections['lingerie'].url }}" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Lingerie</a>
+    {%- endif -%}
+    {%- if collections['sale'].id -%}
+      <a href="{{ collections['sale'].url }}" class="font-display text-3xl text-coral py-4 px-8 hover:text-gold transition-colors duration-200">Sale</a>
+    {%- endif -%}
   </nav>
 </div>
 
