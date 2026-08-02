@@ -19,8 +19,9 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-02)
 
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
-**Current focus:** v1.0 milestone complete — all 6 phases shipped
-**Last session:** 2026-06-17
+**Current focus:** v1.0 milestone complete — all 6 phases shipped; store data setup (collections, pages, products) in progress
+**Last session:** 2026-08-02
+Last activity: 2026-08-02 - Completed quick task 260802-lvy: Re-trigger Shopify GitHub sync for sections/page-models.liquid to fix /pages/models 404
 
 ## Current Phase
 
@@ -38,6 +39,12 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 | 4 — Collections & PDP | 2026-06-14 | 3 critical bugs fixed in review gate |
 | 5 — Content Pages | 2026-06-17 | 6 findings fixed in review gate; CR-01 accepted (richtext trust boundary) |
 | 6 — Integrations | 2026-06-17 | 2 critical XSS + 5 warnings fixed in review gate; INT-02 requires human checkout test with real credentials |
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260802-lvy | Re-trigger Shopify GitHub sync for sections/page-models.liquid to fix /pages/models 404 | 2026-08-02 | e86c094 | [260802-lvy-re-trigger-shopify-github-sync-for-secti](./quick/260802-lvy-re-trigger-shopify-github-sync-for-secti/) |
 
 ## Decisions Log
 
