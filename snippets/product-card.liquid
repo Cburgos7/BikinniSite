@@ -106,7 +106,7 @@
             <button
               type="button"
               class="w-3.5 h-3.5 rounded-full border border-deep/20 cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-deep"
-              style="background-color: {{ variant_color | downcase | replace: ' ', '-' }}"
+              style="background-color: {%- render 'swatch-color', color: variant_color -%}"
               aria-label="{{ variant_color | escape }}"
               data-swatch-color="{{ variant_color | escape }}"
               data-variant-id="{{ variant.id }}"

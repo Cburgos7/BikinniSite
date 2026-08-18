@@ -33,6 +33,17 @@
         "id": "color_gold",
         "label": "Gold",
         "default": "#c9a84c"
+      },
+      {
+        "type": "header",
+        "content": "Product color swatches"
+      },
+      {
+        "type": "textarea",
+        "id": "swatch_color_map",
+        "label": "Color swatch hex codes",
+        "info": "One per line: Color Name: #hex. Matched case-insensitively against the product Color option value. Colors not listed fall back to the CSS color name.",
+        "default": "Noir: #0d0a08\nIvory: #faf6f0\nCoral: #e85d3a\nSand: #f5ede0\nGold: #c9a84c\nMidnight: #0F1E3D"
       }
     ]
   },
