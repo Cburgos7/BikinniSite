@@ -1,0 +1,45 @@
+{%- comment -%}
+  Snippet: swatch-color
+  Usage:
+    style="background-color: {%- render 'swatch-color', color: variant_color -%}"
+
+  Parameters:
+    color — string, the raw product Color option value (required)
+
+  Behavior:
+    Looks up `color` (trimmed, case-insensitive) against the owner-editable
+    `settings.swatch_color_map` theme setting, a newline-separated list of
+    `Color Name: #hex` lines. The hex is always taken from the segment after
+    the LAST colon in a line, so color names may contain their own colon
+    (e.g. "Noir: Limited: #abcdef"). When the map is blank, or the color is
+    not found in it, falls back to the legacy behavior of downcasing the
+    color and replacing spaces with hyphens, so any color that renders
+    correctly today keeps rendering correctly. The single output is escaped,
+    closing the attribute-breakout / CSS-injection boundary for both
+    merchant-authored map text and raw product option values.
+{%- endcomment -%}
+{%- assign swatch_lookup = color | strip | downcase -%}
+{%- assign swatch_result = '' -%}
+{%- if settings.swatch_color_map != blank -%}
+  {%- assign swatch_lines = settings.swatch_color_map | newline_to_br | split: '<br />' -%}
+  {%- for swatch_line in swatch_lines -%}
+    {%- assign swatch_line_clean = swatch_line | strip -%}
+    {%- assign swatch_pair = swatch_line_clean | split: ':' -%}
+    {%- if swatch_pair.size < 2 -%}
+      {%- continue -%}
+    {%- endif -%}
+    {%- assign swatch_hex = swatch_pair | last | strip -%}
+    {%- assign swatch_name = swatch_line_clean | remove_last: swatch_hex | strip | remove_last: ':' | strip | downcase -%}
+    {%- if swatch_hex == blank -%}
+      {%- continue -%}
+    {%- endif -%}
+    {%- if swatch_name == swatch_lookup -%}
+      {%- assign swatch_result = swatch_hex -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+{%- if swatch_result == blank -%}
+  {%- assign swatch_result = color | downcase | replace: ' ', '-' -%}
+{%- endif -%}
+{{- swatch_result | escape -}}
