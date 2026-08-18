@@ -21,7 +21,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** v1.0 milestone complete — all 6 phases shipped; store data setup (collections, pages, products) in progress
 **Last session:** 2026-08-02
-Last activity: 2026-08-17 - Completed quick task 260817-res: fixed Shopify validation errors blocking 3 theme files; live theme now at full file parity with repo, all storefront URLs returning 200
+Last activity: 2026-08-17 - Completed quick task 260817-s0a: swatch color mapping deployed; reference product created to validate PDP rendering (selectors, swatches, 4 metafield accordions, sale price)
 
 ## Current Phase
 
@@ -46,6 +46,7 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 |---|-------------|------|--------|-----------|
 | 260802-lvy | Re-trigger Shopify GitHub sync for sections/page-models.liquid to fix /pages/models 404 | 2026-08-02 | e86c094 | [260802-lvy-re-trigger-shopify-github-sync-for-secti](./quick/260802-lvy-re-trigger-shopify-github-sync-for-secti/) |
 | 260817-res | Fix Shopify validation errors blocking 3 theme files from syncing (schema defaults + invalid Liquid comment) | 2026-08-17 | 43e46db, da88af3 | [260817-res-fix-invalid-schema-default-in-sections-p](./quick/260817-res-fix-invalid-schema-default-in-sections-p/) |
+| 260817-s0a | Add data-driven color→hex swatch mapping so colors can use brand names instead of CSS keywords | 2026-08-17 | b8a291a | [260817-s0a-add-data-driven-color-to-hex-swatch-mapp](./quick/260817-s0a-add-data-driven-color-to-hex-swatch-mapp/) |
 
 ## Decisions Log
 

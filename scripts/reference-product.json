@@ -1,0 +1,13 @@
+{
+  "title": "Reference Product — Delete Before Launch",
+  "handle": "reference-product",
+  "descriptionHtml": "<p>Reference product used to validate theme rendering: size and colour selectors, swatch mapping, sale badge, and all four PDP accordions. Replace the copy, imagery and pricing with real catalogue data, or delete this product once the real catalogue is loaded.</p>",
+  "vendor": "Velvet Tide",
+  "productType": "Bikinis",
+  "tags": ["new"],
+  "status": "ACTIVE",
+  "sizes": ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL"],
+  "colors": ["Noir", "Coral", "Hot Pink"],
+  "price": "68.00",
+  "compareAtPrice": "88.00"
+}
