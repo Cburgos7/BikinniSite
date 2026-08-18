@@ -98,7 +98,7 @@
               <button
                 type="button"
                 class="w-4 h-4 rounded-full border border-deep/20 cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-deep {% if value == color_option.selected_value %}ring-2 ring-offset-1 ring-deep{% endif %}"
-                style="background-color: {{ value | downcase | replace: ' ', '-' }}"
+                style="background-color: {%- render 'swatch-color', color: value -%}"
                 aria-label="{{ value | escape }}"
                 data-color-value="{{ value | escape }}"
                 data-color-swatch
