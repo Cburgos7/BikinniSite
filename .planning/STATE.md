@@ -21,7 +21,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** v1.0 milestone complete — all 6 phases shipped; store data setup (collections, pages, products) in progress
 **Last session:** 2026-08-02
-Last activity: 2026-08-17 - Completed quick task 260817-s0a: swatch color mapping deployed; reference product created to validate PDP rendering (selectors, swatches, 4 metafield accordions, sale price)
+Last activity: 2026-08-19 - Completed quick task 260818-rxc: Elegant Moments → Shopify import pipeline built (396 products / 1,004 variants, draft status). Blocked on catalog image URLs before products can be published.
 
 ## Current Phase
 
@@ -47,6 +47,7 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 | 260802-lvy | Re-trigger Shopify GitHub sync for sections/page-models.liquid to fix /pages/models 404 | 2026-08-02 | e86c094 | [260802-lvy-re-trigger-shopify-github-sync-for-secti](./quick/260802-lvy-re-trigger-shopify-github-sync-for-secti/) |
 | 260817-res | Fix Shopify validation errors blocking 3 theme files from syncing (schema defaults + invalid Liquid comment) | 2026-08-17 | 43e46db, da88af3 | [260817-res-fix-invalid-schema-default-in-sections-p](./quick/260817-res-fix-invalid-schema-default-in-sections-p/) |
 | 260817-s0a | Add data-driven color→hex swatch mapping so colors can use brand names instead of CSS keywords | 2026-08-17 | b8a291a | [260817-s0a-add-data-driven-color-to-hex-swatch-mapp](./quick/260817-s0a-add-data-driven-color-to-hex-swatch-mapp/) |
+| 260818-rxc | Build Elegant Moments to Shopify product import pipeline (396 products / 1,004 variants; images still blocked) | 2026-08-19 | 00ba32c, ce7c92a, bc69740 | [260818-rxc-build-elegant-moments-to-shopify-product](./quick/260818-rxc-build-elegant-moments-to-shopify-product/) |
 
 ## Decisions Log
 
