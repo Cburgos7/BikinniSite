@@ -6,7 +6,7 @@
   "productType": "Bikinis",
   "tags": ["new"],
   "status": "ACTIVE",
-  "sizes": ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL"],
+  "sizes": ["S", "M", "L", "XL", "1X", "2X", "3X", "4X"],
   "colors": ["Noir", "Coral", "Hot Pink"],
   "price": "68.00",
   "compareAtPrice": "88.00"
