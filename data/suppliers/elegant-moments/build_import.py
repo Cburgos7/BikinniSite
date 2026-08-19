@@ -210,13 +210,30 @@ def build_tags(meta, styles):
     return ", ".join(out)
 
 
+def image_view_rank(name):
+    """Front shots first, then back, then anything else.
+
+    The workbook's "Image 1" column is usually the front view but not always —
+    for a handful of styles it holds the back shot, which would otherwise become
+    the featured image on collection tiles. Filenames follow a reliable
+    `<style>_f` / `<style>_b` convention, so order on that instead.
+    """
+    lowered = name.lower()
+    if "_f" in lowered:
+        return 0
+    if "_b" in lowered:
+        return 1
+    return 2
+
+
 def image_names(row):
     names = []
     for key in ("Image 1", "Image 2", "Image 3", "Image 4"):
         val = clean(row.get(key))
         if val:
             names.append(val)
-    return names
+    # Stable sort keeps the supplier's ordering within each view type.
+    return sorted(names, key=image_view_rank)
 
 
 def main():

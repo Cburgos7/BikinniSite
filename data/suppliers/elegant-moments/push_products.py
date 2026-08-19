@@ -9,12 +9,18 @@ directly to Shopify's CDN.
 Products are created as DRAFT. Nothing is published by this script.
 
 Credentials come from the Dev Dashboard app installed on the store; the token is
-minted server-to-server and lasts about 24 hours:
+minted server-to-server and lasts about 24 hours. Put them in a `.env` file beside
+this script (gitignored, never committed):
 
-    export SHOPIFY_CLIENT_ID=...
-    export SHOPIFY_CLIENT_SECRET=...
+    SHOPIFY_CLIENT_ID=...
+    SHOPIFY_CLIENT_SECRET=...
+
+Then:
+
     python push_products.py --limit 1        # smoke-test one product first
     python push_products.py                  # full run
+
+Environment variables of the same names take precedence if set.
 
 Re-running is safe: products are matched by handle and skipped if they exist
 (use --update to refresh price and inventory on existing products instead).
@@ -44,6 +50,26 @@ API_VERSION = "2025-10"
 
 class ShopifyError(RuntimeError):
     pass
+
+
+def load_env_file(path=None):
+    """Read KEY=VALUE pairs from a local .env without adding a dependency.
+
+    Keeps the client secret out of shell history and out of any transcript.
+    Real environment variables win, so CI can override the file.
+    """
+    path = Path(path) if path else HERE / ".env"
+    if not path.exists():
+        return
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
 
 
 def post_json(url, payload, headers, timeout=120):
@@ -289,6 +315,71 @@ LOCATIONS = """
 query { locations(first: 1) { edges { node { id name } } } }
 """
 
+VARIANTS_BY_HANDLE = """
+query($handle: String!) {
+  productByHandle(handle: $handle) {
+    id
+    variants(first: 100) {
+      edges { node { sku inventoryItem { id } } }
+    }
+  }
+}
+"""
+
+SET_QUANTITIES = """
+mutation($input: InventorySetQuantitiesInput!) {
+  inventorySetQuantities(input: $input) {
+    userErrors { field message }
+  }
+}
+"""
+
+
+def backfill_inventory(admin, items, location_id):
+    """Set stock on products that already exist, matching variants by SKU.
+
+    Used when the first push ran without read_locations and the scope was added
+    afterwards.
+    """
+    updated = missing = 0
+    for i, (handle, p) in enumerate(items, 1):
+        want = {v["Variant SKU"]: int(v["Variant Inventory Qty"] or 0)
+                for v in p["variants"]}
+        data = admin.query(VARIANTS_BY_HANDLE, {"handle": handle})
+        product = data.get("productByHandle")
+        if not product:
+            missing += 1
+            continue
+
+        quantities = []
+        for edge in product["variants"]["edges"]:
+            node = edge["node"]
+            if node["sku"] in want:
+                quantities.append({
+                    "inventoryItemId": node["inventoryItem"]["id"],
+                    "locationId": location_id,
+                    "quantity": want[node["sku"]],
+                })
+        if not quantities:
+            continue
+
+        result = admin.query(SET_QUANTITIES, {"input": {
+            "name": "available",
+            "reason": "correction",
+            "ignoreCompareQuantity": True,
+            "quantities": quantities,
+        }})
+        errs = result["inventorySetQuantities"]["userErrors"]
+        if errs:
+            print(f"  ! {handle}: {errs}")
+        else:
+            updated += 1
+        if i % 25 == 0:
+            print(f"  {i}/{len(items)}  updated={updated}")
+
+    print(f"\nInventory backfill done. updated={updated} "
+          f"products_not_found={missing}")
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -298,6 +389,12 @@ def main():
     ap.add_argument("--skip-images", action="store_true")
     ap.add_argument("--dry-run", action="store_true",
                     help="build and print payloads without calling Shopify")
+    ap.add_argument("--env", default=None,
+                    help="path to the env file holding credentials "
+                         "(default: .env beside this script)")
+    ap.add_argument("--inventory-only", action="store_true",
+                    help="do not create products; set stock levels on products "
+                         "that already exist (needs read_locations)")
     args = ap.parse_args()
 
     if not CSV_PATH.exists():
@@ -317,18 +414,44 @@ def main():
         print(f"\n{len(items)} products would be pushed.")
         return
 
+    load_env_file(args.env)
     client_id = os.environ.get("SHOPIFY_CLIENT_ID")
     client_secret = os.environ.get("SHOPIFY_CLIENT_SECRET")
     if not (client_id and client_secret):
-        sys.exit("Set SHOPIFY_CLIENT_ID and SHOPIFY_CLIENT_SECRET "
-                 "(Dev Dashboard -> your app -> credentials)")
+        sys.exit(
+            "Missing credentials.\n"
+            f"Create {HERE / '.env'} containing:\n"
+            "    SHOPIFY_CLIENT_ID=...\n"
+            "    SHOPIFY_CLIENT_SECRET=...\n"
+            "from dev.shopify.com -> Apps -> Velvet tide -> Client credentials.\n"
+            "The file is gitignored."
+        )
 
     token = mint_token(args.store, client_id, client_secret)
     admin = Admin(args.store, token)
 
-    loc = admin.query(LOCATIONS)["locations"]["edges"]
-    location_id = loc[0]["node"]["id"] if loc else None
-    print(f"Location: {loc[0]['node']['name'] if loc else 'NONE'}")
+    # Setting stock needs a location, which needs read_locations. Without it we
+    # can still create everything else, so degrade rather than refuse: a draft
+    # product with no stock is recoverable, a failed run is just lost work.
+    location_id = None
+    try:
+        loc = admin.query(LOCATIONS, retries=1)["locations"]["edges"]
+        location_id = loc[0]["node"]["id"] if loc else None
+        print(f"Location: {loc[0]['node']['name'] if loc else 'NONE'}")
+    except ShopifyError as exc:
+        if "ACCESS_DENIED" not in str(exc):
+            raise
+        print("WARNING: no read_locations scope — creating products WITHOUT "
+              "stock levels.\n"
+              "         Add read_locations + write_inventory to the app, then "
+              "re-run with --inventory-only\n"
+              "         to backfill quantities onto the products already created.")
+
+    if args.inventory_only:
+        if not location_id:
+            sys.exit("--inventory-only needs read_locations on the app.")
+        backfill_inventory(admin, items, location_id)
+        return
 
     created = skipped = failed = images_up = 0
     for i, (handle, p) in enumerate(items, 1):
