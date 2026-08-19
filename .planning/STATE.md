@@ -21,7 +21,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** v1.0 milestone complete — all 6 phases shipped; store data setup (collections, pages, products) in progress
 **Last session:** 2026-08-02
-Last activity: 2026-08-19 - Completed quick task 260818-sew: size range corrected to S–4X across theme and docs, size guide now uses real manufacturer measurements. Product push still blocked on SHOPIFY_CLIENT_ID/SECRET.
+Last activity: 2026-08-19 - Completed quick task 260818-sjc: verified live Shopify push works end to end (product + images created and removed). Awaiting read_locations/write_inventory scope before the full 330-product run.
 
 ## Current Phase
 
@@ -50,6 +50,7 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 | 260818-rxc | Build Elegant Moments to Shopify product import pipeline (396 products / 1,004 variants; images still blocked) | 2026-08-19 | 00ba32c, ce7c92a, bc69740 | [260818-rxc-build-elegant-moments-to-shopify-product](./quick/260818-rxc-build-elegant-moments-to-shopify-product/) |
 | 260818-s63 | Prepare Elegant Moments images (784 imgs, 448MB→81MB), merge plus-size twins (330 products), build Shopify Admin API push; blocked on API credentials | 2026-08-19 | 53c9daf, cba42b9, 4bd5b59, 43ee7c5 | [260818-s63-prepare-elegant-moments-images-and-build](./quick/260818-s63-prepare-elegant-moments-images-and-build/) |
 | 260818-sew | Correct advertised size range from XXS–3XL to the real S–4X; real supplier measurements in size guide + One Size table | 2026-08-19 | 3997a4e, 4a35492 | [260818-sew-correct-size-range-from-xxs-3xl-to-real-](./quick/260818-sew-correct-size-range-from-xxs-3xl-to-real-/) |
+| 260818-sjc | Load Shopify credentials from gitignored .env; verified live product+image push works; front-image ordering fix | 2026-08-19 | 84d1615 | [260818-sjc-load-shopify-credentials-from-gitignored](./quick/260818-sjc-load-shopify-credentials-from-gitignored/) |
 
 ## Decisions Log
 

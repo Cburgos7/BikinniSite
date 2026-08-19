@@ -100,17 +100,39 @@ still gets its front shot.
 
 ## Pushing to Shopify
 
+Create a `.env` beside the scripts (gitignored — never commit it):
+
+```
+SHOPIFY_CLIENT_ID=...
+SHOPIFY_CLIENT_SECRET=...
+```
+
+Both come from **dev.shopify.com → Apps → Velvet tide → Client credentials**. The
+store admin's Apps page shows permissions but never reveals credentials.
+
 ```bash
-export SHOPIFY_CLIENT_ID=...        # Dev Dashboard -> app -> credentials
-export SHOPIFY_CLIENT_SECRET=...
-python push_products.py --dry-run   # inspect a payload, no API calls
-python push_products.py --limit 1   # smoke-test one product end to end
-python push_products.py             # full run
+python push_products.py --dry-run          # inspect a payload, no API calls
+python push_products.py --limit 1          # smoke-test one product end to end
+python push_products.py                    # full run
+python push_products.py --inventory-only   # backfill stock on existing products
 ```
 
 Creates each product through the GraphQL Admin API as **draft**, then stages and
 attaches its images. Re-running skips products whose handle already exists, so an
 interrupted run can simply be restarted. Nothing is published by the script.
+
+### Required scopes
+
+| Scope | Needed for |
+|---|---|
+| `write_products` | creating products and variants |
+| `write_files` | uploading images (already granted) |
+| `read_locations`, `write_inventory` | setting stock levels |
+
+Without location access the push still runs, but every variant lands at zero
+stock; `--inventory-only` backfills once the scope is added. Scope changes need a
+new app version released **and** the install re-approved in the store admin — a
+new version alone does not grant them.
 
 ## Known gaps
 
