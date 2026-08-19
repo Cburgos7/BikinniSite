@@ -14,9 +14,10 @@ Requires: openpyxl
 
 import argparse
 import csv
+import json
 import re
 import sys
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from pathlib import Path
 
 try:
@@ -249,6 +250,9 @@ def main():
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     variant_count = 0
+    # handle -> [image filename, ...]; consumed by push_products.py, which uploads
+    # the bytes directly rather than relying on a public URL (we have none).
+    manifest = OrderedDict()
     with out_path.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=SHOPIFY_COLUMNS)
         writer.writeheader()
@@ -281,6 +285,9 @@ def main():
                 if name not in seen_img:
                     seen_img.add(name)
                     imgs.append(name)
+
+            if imgs:
+                manifest[handle] = {"title": title, "images": imgs}
 
             weight_oz = clean(meta.get("Weight (oz)"))
             try:
@@ -338,6 +345,10 @@ def main():
                     })
                     writer.writerow(extra)
 
+    manifest_path = out_path.parent / "image_manifest.json"
+    with manifest_path.open("w", encoding="utf-8") as fh:
+        json.dump(manifest, fh, indent=2)
+
     total_styles_seen = len({clean(r.get("STYLE")) for r in sellable})
     print(f"Inventory rows:        {len(all_rows)}")
     print(f"  sellable:            {len(sellable)}  ({total_styles_seen} styles)")
@@ -350,6 +361,7 @@ def main():
         print("Images:                NONE — rerun with --image-base once the "
               "Catalog Images manifest is available")
     print(f"\nWrote {out_path}")
+    print(f"Wrote {manifest_path} ({len(manifest)} products with images)")
 
 
 if __name__ == "__main__":
