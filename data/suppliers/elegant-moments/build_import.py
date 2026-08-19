@@ -186,7 +186,7 @@ def build_body_html(meta):
     return "".join(parts)
 
 
-def build_tags(meta, style):
+def build_tags(meta, styles):
     tags = []
     for key in ("Category 1", "Category 2", "Category 3"):
         val = clean(meta.get(key))
@@ -195,7 +195,12 @@ def build_tags(meta, style):
     sheet = meta.get("_sheet")
     if sheet:
         tags.append("Hosiery" if sheet == "Hosiery Items" else sheet)
-    tags.append(f"em-style-{style}")
+    # One tag per contributing supplier style, so a merged product still traces
+    # back to both styles when placing a drop-ship order.
+    for style in styles:
+        tags.append(f"em-style-{style}")
+    if len(styles) > 1:
+        tags.append("Extended Sizing")
     seen, out = set(), []
     for t in tags:
         k = t.lower()
@@ -225,6 +230,9 @@ def main():
     ap.add_argument("--status", default="draft", choices=["draft", "active"],
                     help="Shopify product status (default draft — review before "
                          "publishing)")
+    ap.add_argument("--no-merge-plus", dest="merge_plus", action="store_false",
+                    help="keep the supplier's split regular/plus styles as "
+                         "separate products instead of merging them")
     args = ap.parse_args()
 
     for path in (INVENTORY, DESCRIPTIONS):
@@ -244,6 +252,26 @@ def main():
             skipped_no_copy.add(style)
             continue
         styles.setdefault(style, []).append(r)
+
+    # Elegant Moments splits sizing across two styles — 11022 (S–XL) and 11022X
+    # (1X–4X) — which would otherwise list the same garment twice. Fold each plus
+    # style into its parent as extra size variants. SKUs stay distinct, so
+    # drop-ship order entry still identifies the correct supplier style.
+    merged_styles = {}  # plus style -> parent style
+    if args.merge_plus:
+        for style in list(styles):
+            if not style.upper().endswith("X"):
+                continue
+            parent = style[:-1]
+            if parent not in styles:
+                continue
+            plus_sizes = {clean(r.get("SIZE")).upper() for r in styles[style]}
+            parent_sizes = {clean(r.get("SIZE")).upper() for r in styles[parent]}
+            if plus_sizes & parent_sizes:
+                # Overlapping sizes would collide as duplicate option pairs.
+                continue
+            styles[parent].extend(styles.pop(style))
+            merged_styles[style] = parent
 
     image_base = args.image_base.rstrip("/") + "/" if args.image_base else ""
     out_path = Path(args.out)
@@ -269,22 +297,29 @@ def main():
             rows.sort(key=lambda r: (clean(r.get("COLOR")).upper(),
                                      size_sort_key(clean(r.get("SIZE")))))
 
-            # Collect images across the style's colourways, de-duplicated.
+            # Contributing styles: the product's own, plus any merged plus twin.
+            # Each ships its own photography, so gather images from both.
+            contributing = [style] + [p for p, par in merged_styles.items()
+                                      if par == style]
+
+            # Collect images across each style's colourways, de-duplicated.
             imgs, seen_img = [], set()
-            for color in colors:
-                for size in sorted(sizes, key=size_sort_key):
-                    vrow = by_variant.get((style, color, size)) or \
-                           by_variant.get((style, color, "O/S"))
-                    if vrow:
-                        for name in image_names(vrow):
-                            if name not in seen_img:
-                                seen_img.add(name)
-                                imgs.append(name)
-                        break
-            for name in image_names(meta):
-                if name not in seen_img:
-                    seen_img.add(name)
-                    imgs.append(name)
+            for src_style in contributing:
+                src_meta = by_style.get(src_style, meta)
+                for color in colors:
+                    for size in sorted(sizes, key=size_sort_key):
+                        vrow = by_variant.get((src_style, color, size)) or \
+                               by_variant.get((src_style, color, "O/S"))
+                        if vrow:
+                            for name in image_names(vrow):
+                                if name not in seen_img:
+                                    seen_img.add(name)
+                                    imgs.append(name)
+                            break
+                for name in image_names(src_meta):
+                    if name not in seen_img:
+                        seen_img.add(name)
+                        imgs.append(name)
 
             if imgs:
                 manifest[handle] = {"title": title, "images": imgs}
@@ -322,7 +357,7 @@ def main():
                         "Body (HTML)": build_body_html(meta),
                         "Vendor": ATTRIBUTION,
                         "Type": clean(meta.get("Category 1")).rstrip(". ") or "Lingerie",
-                        "Tags": build_tags(meta, style),
+                        "Tags": build_tags(meta, contributing),
                         "Published": "TRUE" if args.status == "active" else "FALSE",
                         "Status": args.status,
                     })
@@ -354,6 +389,9 @@ def main():
     print(f"  sellable:            {len(sellable)}  ({total_styles_seen} styles)")
     print(f"Description styles:    {len(by_style)}")
     print(f"Products written:      {len(styles)}")
+    if args.merge_plus:
+        print(f"  plus styles merged:  {len(merged_styles)} "
+              f"(folded into their regular-size parent)")
     print(f"Variant rows written:  {variant_count}")
     print(f"Styles without copy:   {len(skipped_no_copy)} (skipped — need Holiday/"
           f"Hosiery/Vivace description files)")
