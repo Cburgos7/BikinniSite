@@ -3,7 +3,7 @@
 
 **Soleil Noir — Shopify Theme**
 
-Soleil Noir is a US-based e-commerce store selling daring swim, lingerie, and activewear in inclusive sizing (XXS–3XL). This project builds the complete Shopify theme — all templates, sections, blocks, metaobject definitions, and integrations — deployed via GitHub auto-deploy to Shopify. The brand runs a weekly drops model and influencer-driven growth strategy.
+Soleil Noir is a US-based e-commerce store selling daring swim, lingerie, and activewear in inclusive sizing (S–4X). This project builds the complete Shopify theme — all templates, sections, blocks, metaobject definitions, and integrations — deployed via GitHub auto-deploy to Shopify. The brand runs a weekly drops model and influencer-driven growth strategy.
 
 **Core Value:** A visually striking, conversion-optimized Shopify storefront that lets customers browse and buy across swim/lingerie collections, with seamless influencer attribution and a frictionless US checkout.
 

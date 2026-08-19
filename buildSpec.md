@@ -2,7 +2,7 @@
 
 **Purpose:** This file is the build brief for Claude Code. It defines the pages, the tech stack, the data each page needs, and the conventions to follow when scaffolding the Soleil Noir e-commerce store.
 
-**Brand:** Soleil Noir — daring swim, lingerie, and activewear. Inclusive sizing XXS–3XL. Weekly drops. Influencer-driven growth model.
+**Brand:** Soleil Noir — daring swim, lingerie, and activewear. Inclusive sizing S–4X. Weekly drops. Influencer-driven growth model.
 
 **Market / legal positioning:** **US-based, US-supporting company.** Pricing in USD, US shipping defaults, US tax handling, US compliance (TCPA for SMS, CCPA for privacy). See "US Positioning" below.
 
@@ -90,7 +90,7 @@ Clarify intent — Shopify owns the actual checkout (PCI-compliant, not custom-b
 > Do NOT build a custom card-capture form. Payments flow through Shopify's hosted, PCI-DSS Level 1 checkout. A custom payment form would be a compliance liability.
 
 ### 2.7 Sizing Page (`templates/page.sizeguide.json`)
-Size guide XXS–3XL with an **interactive fit recommender** (enter measurements → recommended size). Pull fit context from `model_sizing`. Size chart table + measuring instructions.
+Size guide S–4X with an **interactive fit recommender** (enter measurements → recommended size). Pull fit context from `model_sizing`. Size chart table + measuring instructions.
 
 ### 2.8 Affiliates Page (`templates/page.affiliates.json`)
 Public-facing recruitment + **application form**.
