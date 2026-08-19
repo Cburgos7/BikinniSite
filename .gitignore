@@ -4,3 +4,10 @@ node_modules/
 .env
 .env.local
 .env.*.local
+
+# Supplier data — this repo is public, and the Elegant Moments wholesale licence
+# forbids redistribution ("for your sole use... do not distribute or redistribute").
+# The price lists are also our cost basis. Scripts are tracked; their inputs and
+# outputs are not.
+data/suppliers/*/source/
+data/suppliers/*/out/
