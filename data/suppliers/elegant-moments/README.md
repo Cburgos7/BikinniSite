@@ -56,16 +56,45 @@ sellable styles with no matching copy are skipped — they need the **Holiday**,
 **Hosiery**, and **Vivace** description workbooks, which follow the same format
 and can be added to `DESC_SHEETS` handling.
 
+## Images
+
+The *Catalog Images – Download Links* PDF only links four collection ZIPs — there
+are **no per-image URLs**, so the Shopify CSV importer (which fetches `Image Src`
+over HTTP) cannot be used for images. We upload the bytes ourselves instead.
+
+Extract `em2026collection.zip`, then:
+
+```bash
+python prepare_images.py --src /path/to/extracted/Items
+```
+
+The supplier ships ~1200×1800 JPEGs at very low compression (448 MB for the 784
+images this catalog references). Re-encoding at quality 82 keeps identical pixel
+dimensions and cuts that to 81 MB. Dimensions are never altered — the licence
+forbids modifying images in a way that distorts proportions. Shopify re-encodes
+and serves responsive derivatives from its CDN regardless.
+
+Coverage: 383 of 396 products have images, averaging 2.1 each (front and back).
+One referenced file, `l1127_b.jpg`, is absent from the supplier ZIP; that product
+still gets its front shot.
+
+## Pushing to Shopify
+
+```bash
+export SHOPIFY_CLIENT_ID=...        # Dev Dashboard -> app -> credentials
+export SHOPIFY_CLIENT_SECRET=...
+python push_products.py --dry-run   # inspect a payload, no API calls
+python push_products.py --limit 1   # smoke-test one product end to end
+python push_products.py             # full run
+```
+
+Creates each product through the GraphQL Admin API as **draft**, then stages and
+attaches its images. Re-running skips products whose handle already exists, so an
+interrupted run can simply be restarted. Nothing is published by the script.
+
 ## Known gaps
 
-**1. No images.** The workbook's image columns hold bare filenames
-(`44224_f.jpg`), not URLs. The **Catalog Images – Download Links** file from the
-portal's Product Images section has the actual URLs. Until it's supplied, products
-import without photos — do not publish them in that state. Once available, host
-the images (Cloudinary is already in the theme's integration config) and re-run
-with `--image-base`.
-
-**2. Regular and plus sizes are separate products.** Elegant Moments splits them
+**1. Regular and plus sizes are separate products.** Elegant Moments splits them
 into two styles — `11022` (S–XL) and `11022X` (1X–4X) — and the importer follows
 that structure. 67 of the 396 products are a plus twin of another product, so a
 shopper sees the same robe listed twice. That reads badly against inclusive-sizing
@@ -73,11 +102,11 @@ positioning. Merging each `X` style into its parent as additional size variants 
 the fix; it is deliberately **not** done automatically because it rewrites product
 structure and the two styles carry different wholesale costs (typically $1 apart).
 
-**3. Size range is S–4X, not XXS–3XL.** There is no XXS or XS anywhere in the
+**2. Size range is S–4X, not XXS–3XL.** There is no XXS or XS anywhere in the
 inventory feed. Note `O/S` fits roughly dress 2–12 and `Q/S` roughly 14–18 per the
 supplier size chart. Brand copy promising XXS is not supportable on this supplier.
 
-**4. Fulfilment is manual.** Per the drop-ship sheet there is no API — orders go by
+**3. Fulfilment is manual.** Per the drop-ship sheet there is no API — orders go by
 email to `dropship@elegantmomentslingerie.com`, one order per email, with a $3.50
 per-order fee (not per item) and blind packaging. Someone re-keys every order.
 
