@@ -21,7 +21,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-02)
 **Core value:** A visually striking, conversion-optimized Shopify storefront for swim/lingerie with seamless influencer attribution and frictionless US checkout.
 **Current focus:** v1.0 milestone complete — all 6 phases shipped; store data setup (collections, pages, products) in progress
 **Last session:** 2026-08-02
-Last activity: 2026-08-19 - Completed quick task 260818-s63: catalog images prepared (784 imgs, 81MB) and Shopify Admin API push script built. Blocked on SHOPIFY_CLIENT_ID/SECRET to run the push.
+Last activity: 2026-08-19 - Completed quick task 260818-s63: catalog images prepared (784 imgs, 81MB), plus-size twins merged (330 products / 1,004 variants), Shopify Admin API push script built. Blocked on SHOPIFY_CLIENT_ID/SECRET to run the push.
 
 ## Current Phase
 
@@ -48,7 +48,7 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 | 260817-res | Fix Shopify validation errors blocking 3 theme files from syncing (schema defaults + invalid Liquid comment) | 2026-08-17 | 43e46db, da88af3 | [260817-res-fix-invalid-schema-default-in-sections-p](./quick/260817-res-fix-invalid-schema-default-in-sections-p/) |
 | 260817-s0a | Add data-driven color→hex swatch mapping so colors can use brand names instead of CSS keywords | 2026-08-17 | b8a291a | [260817-s0a-add-data-driven-color-to-hex-swatch-mapp](./quick/260817-s0a-add-data-driven-color-to-hex-swatch-mapp/) |
 | 260818-rxc | Build Elegant Moments to Shopify product import pipeline (396 products / 1,004 variants; images still blocked) | 2026-08-19 | 00ba32c, ce7c92a, bc69740 | [260818-rxc-build-elegant-moments-to-shopify-product](./quick/260818-rxc-build-elegant-moments-to-shopify-product/) |
-| 260818-s63 | Prepare Elegant Moments images (784 imgs, 448MB→81MB) and build Shopify Admin API push; blocked on API credentials | 2026-08-19 | 53c9daf, cba42b9, 4bd5b59 | [260818-s63-prepare-elegant-moments-images-and-build](./quick/260818-s63-prepare-elegant-moments-images-and-build/) |
+| 260818-s63 | Prepare Elegant Moments images (784 imgs, 448MB→81MB), merge plus-size twins (330 products), build Shopify Admin API push; blocked on API credentials | 2026-08-19 | 53c9daf, cba42b9, 4bd5b59, 43ee7c5 | [260818-s63-prepare-elegant-moments-images-and-build](./quick/260818-s63-prepare-elegant-moments-images-and-build/) |
 
 ## Decisions Log
 
