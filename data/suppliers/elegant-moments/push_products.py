@@ -40,6 +40,9 @@ from urllib import request, error
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "out"
+
+# Set from --out-dir at startup so each catalogue can be pushed from its own
+# build directory (out/ for the 2026 collection, out/vivace/ for Vivace).
 CSV_PATH = OUT / "shopify_products.csv"
 MANIFEST_PATH = OUT / "image_manifest.json"
 IMAGE_DIR = OUT / "images"
@@ -250,8 +253,17 @@ def build_product_input(handle, head, variants, location_id):
 
 def upload_images(admin, product_id, title, filenames, alt):
     """Stage each JPEG to Shopify's bucket, then attach it as product media."""
-    paths = [IMAGE_DIR / n for n in filenames]
-    paths = [p for p in paths if p.exists()]
+    # prepare_images.py writes lowercased filenames; workbooks sometimes spell
+    # them with capitals. Fall back to a case-insensitive match so a casing
+    # difference does not silently cost a product its photo (and, with
+    # --publish, leave it stuck in draft).
+    paths = []
+    for name in filenames:
+        p = IMAGE_DIR / name
+        if not p.exists():
+            p = IMAGE_DIR / name.lower()
+        if p.exists():
+            paths.append(p)
     if not paths:
         return 0
 
@@ -500,6 +512,10 @@ def backfill_inventory(admin, items, location_id):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--store", default=STORE)
+    ap.add_argument("--out-dir", default=str(OUT),
+                    help="build directory holding shopify_products.csv, "
+                         "image_manifest.json and images/ (default out/; use "
+                         "out/vivace for the Vivace catalogue)")
     ap.add_argument("--limit", type=int, default=0,
                     help="only push the first N products (0 = all)")
     ap.add_argument("--skip-images", action="store_true")
@@ -520,6 +536,12 @@ def main():
     ap.add_argument("--publish-without-images", action="store_true",
                     help="with --publish, also publish products that have no image")
     args = ap.parse_args()
+
+    global CSV_PATH, MANIFEST_PATH, IMAGE_DIR
+    out_dir = Path(args.out_dir)
+    CSV_PATH = out_dir / "shopify_products.csv"
+    MANIFEST_PATH = out_dir / "image_manifest.json"
+    IMAGE_DIR = out_dir / "images"
 
     if not CSV_PATH.exists():
         sys.exit(f"Missing {CSV_PATH} — run build_import.py first")
