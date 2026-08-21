@@ -12,6 +12,12 @@ way that distorts the original proportions.
 
 Usage:
     python prepare_images.py --src "F:/CODING/BikinniSite/Files_Site/Items"
+    python prepare_images.py --catalogue vivace \
+        --src "F:/CODING/BikinniSite/Files_Site/vivace/Items"
+
+The source tree is searched recursively: the 2026 ZIP was flat, but the Vivace
+ZIP splits its files across `1200pxw/` and `Editorials/` while the workbook still
+references bare filenames.
 """
 
 import argparse
@@ -23,58 +29,62 @@ try:
 except ImportError:
     sys.exit("Pillow is required: python -m pip install Pillow")
 
-import openpyxl
-
-# Share the workbook parsing with the importer so a header quirk only has to be
-# handled once — the Hosiery sheet ships blank headers for its image columns.
-from build_import import DESC_SHEETS, repair_header
-
-HERE = Path(__file__).resolve().parent
-SOURCE = HERE / "source"
-DEST = HERE / "out" / "images"
-DESCRIPTIONS = SOURCE / "2026_Collection_Descriptions.xlsx"
+# Share the workbook parsing with the importer so a header quirk or a new
+# catalogue only has to be described once — the 2026 Hosiery sheet ships blank
+# headers for its image columns, and Vivace runs to Image 8 rather than Image 4.
+from build_import import (
+    CATALOGUES, DEFAULT_CATALOGUE, image_columns, read_sheet, SOURCE,
+)
 
 
-def referenced_images():
+def referenced_images(catalogue):
     """Image filenames the descriptions workbook actually points at."""
-    wb = openpyxl.load_workbook(DESCRIPTIONS, read_only=True, data_only=True)
+    path = SOURCE / catalogue["workbook"]
     names = set()
-    for sheet in DESC_SHEETS:
-        if sheet not in wb.sheetnames:
+    for sheet in catalogue["sheets"]:
+        header, rows = read_sheet(path, sheet, catalogue["images"])
+        if header is None:
             continue
-        ws = wb[sheet]
-        it = ws.iter_rows(values_only=True)
-        header = [str(h).strip() if h is not None else "" for h in next(it)]
-        header = repair_header(header, sheet)
-        for raw in it:
-            row = dict(zip(header, raw))
-            if not row.get("Style"):
+        cols = image_columns(header)
+        idx = [header.index(c) for c in cols]
+        style_at = header.index("Style")
+        for raw in rows:
+            if style_at >= len(raw) or raw[style_at] in (None, ""):
                 continue
-            for key in ("Image 1", "Image 2", "Image 3", "Image 4"):
-                val = row.get(key)
-                if val:
-                    names.add(str(val).strip().lower())
+            for i in idx:
+                if i < len(raw) and raw[i]:
+                    names.add(str(raw[i]).strip().lower())
     return names
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--catalogue", default=DEFAULT_CATALOGUE,
+                    choices=list(CATALOGUES))
     ap.add_argument("--src", required=True,
-                    help="directory of extracted supplier JPEGs")
+                    help="directory of extracted supplier JPEGs (searched "
+                         "recursively)")
     ap.add_argument("--quality", type=int, default=82)
-    ap.add_argument("--dest", default=str(DEST))
+    ap.add_argument("--dest", default=None,
+                    help="output directory (default: the catalogue's "
+                         "out/images)")
     ap.add_argument("--all", action="store_true",
                     help="convert every JPEG, not just those the workbook references")
     args = ap.parse_args()
 
+    catalogue = CATALOGUES[args.catalogue]
     src = Path(args.src)
     if not src.is_dir():
         sys.exit(f"Not a directory: {src}")
-    dest = Path(args.dest)
+    dest = Path(args.dest) if args.dest else catalogue["out"] / "images"
     dest.mkdir(parents=True, exist_ok=True)
 
-    wanted = None if args.all else referenced_images()
-    on_disk = {p.name.lower(): p for p in src.glob("*.jpg")}
+    wanted = None if args.all else referenced_images(catalogue)
+    # Recursive: the Vivace ZIP nests product shots under 1200pxw/ and lifestyle
+    # shots under Editorials/, but the workbook references bare filenames.
+    on_disk = {}
+    for p in src.rglob("*.jpg"):
+        on_disk.setdefault(p.name.lower(), p)
 
     if wanted is not None:
         missing = sorted(wanted - set(on_disk))

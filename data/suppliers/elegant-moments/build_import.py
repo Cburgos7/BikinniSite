@@ -5,11 +5,15 @@ Joins the live inventory feed (stock + wholesale cost) against the collection
 descriptions workbook (copy, fabric, categories, image filenames) on STYLE, keeps
 only sellable stock, and emits Shopify's product import format.
 
+Each supplier release is a separate catalogue (see CATALOGUES): same shape,
+different sheet names, size column spelling and image column count.
+
 Usage:
-    python build_import.py
+    python build_import.py                      # the 2026 collection
+    python build_import.py --catalogue vivace   # 2026-2027 Vivace
     python build_import.py --markup 2.5 --image-base https://cdn.example.com/em/
 
-Requires: openpyxl
+Requires: openpyxl (plus xlrd for the legacy .xls hosiery workbook)
 """
 
 import argparse
@@ -30,49 +34,214 @@ SOURCE = HERE / "source"
 OUT = HERE / "out"
 
 INVENTORY = SOURCE / "liveinventory.csv"
-DESCRIPTIONS = SOURCE / "2026_Collection_Descriptions.xlsx"
 
-# Sheets holding product rows. "Information" is the licence/terms sheet — skipped.
-DESC_SHEETS = ["Lingerie", "Leather", "Vinyl", "Costumes", "Hosiery Items"]
+# --- Catalogue configuration -------------------------------------------------
+#
+# Every Elegant Moments descriptions workbook has the same shape but not the
+# same spelling: sheet names differ, the size column is "Sizes" in one release
+# and "Size" in the next, and the number of image columns grows when a
+# collection ships editorial shots. Adding a catalogue is configuration here,
+# not a new code path.
+#
+# Keys:
+#   workbook     filename inside source/
+#   sheets       ordered {sheet name: tag applied to its products}
+#   images       how many "Image N" columns the layout defines; only used to
+#                repair blank headers — actual columns are read from the header
+#   plus_suffix  style-number suffixes marking a plus-size twin of a parent
+#                style. 2026 uses "X" (11022 / 11022X); Vivace and Holiday use
+#                "Q" for Queen (82579 / 82579Q).
+#   out          output directory
+#   follows      catalogues imported earlier whose styles this one must not
+#                re-list. Workbooks overlap — 14 of Holiday's styles are already
+#                carried by the 2026 and Vivace releases, and importing them
+#                twice would collide on the em-<style> handle.
 
-# Canonical column order, used to repair sheets that ship blank headers.
-# The "Hosiery Items" sheet leaves columns 13-18 unnamed even though the rows
-# carry the same data as every other sheet — without this, weights and image
-# filenames are silently dropped.
-CANONICAL_COLUMNS = [
-    "Style", "Description", "Sizes", "Color", "Page", "Price", "UPC Code",
+BASE_COLUMNS = [
+    "Style", "Description", "Size", "Color", "Page", "Price", "UPC Code",
     "SKU Number", "Country Of Origin", "Fabric/Material", "Category 1",
     "Category 2", "Category 3", "Shown With", "Weight (oz)",
-    "Image 1", "Image 2", "Image 3", "Image 4",
 ]
 
+# Spelling drift between releases. Normalising on read means the rest of the
+# builder only ever sees one name per concept.
+COLUMN_ALIASES = {
+    "sizes": "Size",
+    "pdf page": "Page",
+}
 
-def repair_header(header, sheet_name):
+CATALOGUES = OrderedDict([
+    ("2026", {
+        "workbook": "2026_Collection_Descriptions.xlsx",
+        "sheets": OrderedDict([
+            ("Lingerie", "Lingerie"),
+            ("Leather", "Leather"),
+            ("Vinyl", "Vinyl"),
+            ("Costumes", "Costumes"),
+            # The sheet is named "Hosiery Items"; the shopper-facing tag is not.
+            ("Hosiery Items", "Hosiery"),
+        ]),
+        "images": 4,
+        "plus_suffix": ("X",),
+        "out": OUT,
+        "follows": [],
+    }),
+    ("vivace", {
+        "workbook": "2026-2027_Vivace_Descriptions.xlsx",
+        "sheets": OrderedDict([
+            ("2026-2027 Vivace Swimwear", "Swimwear"),
+            ("2026-2027 Vivace", "Vivace"),
+            ("2026-2027 Vivace Panties", "Vivace"),
+            ("2026-2027 Vivace Menswear", "Menswear"),
+        ]),
+        # Swim styles carry editorial shots on top of front/back, so this
+        # layout runs to Image 8 where the 2026 one stopped at 4.
+        "images": 8,
+        "plus_suffix": ("Q",),
+        "out": OUT / "vivace",
+        "follows": ["2026"],
+    }),
+    ("holiday", {
+        "workbook": "2026_Holiday_Descriptions.xlsx",
+        "sheets": OrderedDict([("2026 Holiday", "Holiday")]),
+        "images": 4,
+        "plus_suffix": ("Q", "X"),
+        "out": OUT / "holiday",
+        "follows": ["2026", "vivace"],
+    }),
+    ("hosiery", {
+        # Legacy .xls — openpyxl cannot read it, so this one goes through xlrd.
+        "workbook": "2025-2026_Hosiery_Descriptions.xls",
+        "sheets": OrderedDict([("2025-2026 Hosiery", "Hosiery")]),
+        "images": 3,
+        "plus_suffix": ("Q", "X"),
+        "out": OUT / "hosiery",
+        "follows": ["2026", "vivace", "holiday"],
+    }),
+])
+
+DEFAULT_CATALOGUE = "2026"
+
+
+def canonical_columns(image_count):
+    return BASE_COLUMNS + [f"Image {i}" for i in range(1, image_count + 1)]
+
+
+def normalise_header(header):
+    """Map a release's column spellings onto the canonical ones."""
+    out = []
+    for name in header:
+        out.append(COLUMN_ALIASES.get(name.strip().lower(), name))
+    return out
+
+
+IMAGE_COLUMN_RE = re.compile(r"^image\s*(\d+)$", re.I)
+
+
+def image_columns(header):
+    """Image columns present in a header, in numeric order.
+
+    Reading these from the header rather than a fixed list is what lets a
+    workbook with Image 1..8 keep its editorial shots instead of losing
+    everything past Image 4.
+    """
+    found = []
+    for name in header:
+        m = IMAGE_COLUMN_RE.match(str(name).strip())
+        if m:
+            found.append((int(m.group(1)), name))
+    return [name for _, name in sorted(found)]
+
+
+def repair_header(header, sheet_name, canonical=None, quiet=False):
     """Fill in blank header cells from the canonical column order.
 
     Only fills positions that are blank, and only where the named columns that
     ARE present still line up with the canonical order — otherwise a genuinely
     different layout would get mislabelled.
+
+    The 2026 "Hosiery Items" sheet leaves columns 13-18 unnamed even though the
+    rows carry the same data as every other sheet — without this, weights and
+    image filenames are silently dropped. Later workbooks name every column that
+    holds data but pad the sheet with a few trailing blank ones; those are left
+    alone because `canonical` stops where the data does.
     """
+    if canonical is None:
+        canonical = canonical_columns(4)
     for i, name in enumerate(header):
-        if name and i < len(CANONICAL_COLUMNS) and name != CANONICAL_COLUMNS[i]:
-            print(f"  WARNING: {sheet_name!r} column {i} is {name!r}, expected "
-                  f"{CANONICAL_COLUMNS[i]!r} — leaving header untouched")
+        if name and i < len(canonical) and name != canonical[i]:
+            if not quiet:
+                print(f"  WARNING: {sheet_name!r} column {i} is {name!r}, "
+                      f"expected {canonical[i]!r} — leaving header untouched")
             return header
 
+    # Only blanks inside the header are filled. Nothing is appended past its
+    # end: a sheet whose header is shorter than the canonical list simply has
+    # fewer columns, and inventing names for columns that do not exist would
+    # report image columns the workbook never shipped.
     repaired = list(header)
     filled = []
-    for i, canonical in enumerate(CANONICAL_COLUMNS):
-        if i >= len(repaired):
-            repaired.append(canonical)
-            filled.append(canonical)
-        elif not repaired[i]:
-            repaired[i] = canonical
-            filled.append(canonical)
-    if filled:
+    for i, name in enumerate(canonical[:len(repaired)]):
+        if not repaired[i]:
+            repaired[i] = name
+            filled.append(name)
+    if filled and not quiet:
         print(f"  note: {sheet_name!r} had {len(filled)} blank header(s); "
               f"filled positionally: {', '.join(filled)}")
     return repaired
+
+
+def sheet_rows(path, sheet_name):
+    """Yield (header, row tuples) for one sheet of an .xlsx or legacy .xls.
+
+    The 2025-2026 Hosiery workbook is still in the pre-2007 binary format that
+    openpyxl refuses outright, so it goes through xlrd. xlrd hands every number
+    back as a float, which would turn style 12179 into "12179.0" and break the
+    join against the inventory feed — integral floats are folded back to int.
+    """
+    if path.suffix.lower() == ".xls":
+        try:
+            import xlrd
+        except ImportError:
+            sys.exit(f"{path.name} is a legacy .xls; xlrd is required to read "
+                     f"it: python -m pip install xlrd")
+        book = xlrd.open_workbook(path)
+        if sheet_name not in book.sheet_names():
+            return None, []
+        sheet = book.sheet_by_name(sheet_name)
+
+        def value(cell):
+            if cell.ctype == xlrd.XL_CELL_NUMBER and float(cell.value).is_integer():
+                return int(cell.value)
+            return cell.value if cell.ctype != xlrd.XL_CELL_EMPTY else None
+
+        rows = [tuple(value(c) for c in sheet.row(i))
+                for i in range(sheet.nrows)]
+        if not rows:
+            return None, []
+        return rows[0], rows[1:]
+
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    if sheet_name not in wb.sheetnames:
+        return None, []
+    it = wb[sheet_name].iter_rows(values_only=True)
+    try:
+        header = next(it)
+    except StopIteration:
+        return None, []
+    return header, list(it)
+
+
+def read_sheet(path, sheet_name, image_count, quiet=False):
+    """Return (header, rows) with the header normalised and repaired."""
+    raw_header, rows = sheet_rows(path, sheet_name)
+    if raw_header is None:
+        return None, []
+    header = [str(h).strip() if h is not None else "" for h in raw_header]
+    header = normalise_header(header)
+    header = repair_header(header, sheet_name, canonical_columns(image_count),
+                           quiet=quiet)
+    return header, rows
 
 # The supplier licence requires their name to appear in advertising content.
 ATTRIBUTION = "Elegant Moments"
@@ -180,32 +349,33 @@ def read_inventory():
     return rows, sellable
 
 
-def read_descriptions():
+def read_descriptions(catalogue, quiet=False):
     """Return {style: metadata} and {(style, color, size): row}.
 
     Metadata is style-level (copy, fabric, categories). Colour/size level rows
     carry the image filenames, which vary by colourway.
     """
-    wb = openpyxl.load_workbook(DESCRIPTIONS, read_only=True, data_only=True)
+    path = SOURCE / catalogue["workbook"]
     by_style = {}
     by_variant = {}
-    for sheet in DESC_SHEETS:
-        if sheet not in wb.sheetnames:
+    for sheet, tag in catalogue["sheets"].items():
+        header, rows = read_sheet(path, sheet, catalogue["images"], quiet=quiet)
+        if header is None:
+            print(f"  WARNING: sheet {sheet!r} not found in {path.name}")
             continue
-        ws = wb[sheet]
-        it = ws.iter_rows(values_only=True)
-        header = [str(h).strip() if h is not None else "" for h in next(it)]
-        header = repair_header(header, sheet)
-        for raw in it:
+        img_cols = image_columns(header)
+        for raw in rows:
             row = dict(zip(header, raw))
             style = row.get("Style")
             if style is None or str(style).strip() == "":
                 continue
             style = str(style).strip()
             row["_sheet"] = sheet
+            row["_tag"] = tag
+            row["_image_columns"] = img_cols
             by_style.setdefault(style, row)
             color = str(row.get("Color") or "").strip().upper()
-            size = str(row.get("Sizes") or "").strip().upper()
+            size = str(row.get("Size") or "").strip().upper()
             if size == "ONE SIZE":
                 size = "O/S"
             by_variant[(style, color, size)] = row
@@ -244,9 +414,9 @@ def build_tags(meta, styles):
         val = clean(meta.get(key))
         if val:
             tags.append(val.rstrip(". "))
-    sheet = meta.get("_sheet")
-    if sheet:
-        tags.append("Hosiery" if sheet == "Hosiery Items" else sheet)
+    sheet_tag = meta.get("_tag")
+    if sheet_tag:
+        tags.append(sheet_tag)
     # One tag per contributing supplier style, so a merged product still traces
     # back to both styles when placing a drop-ship order.
     for style in styles:
@@ -280,7 +450,9 @@ def image_view_rank(name):
 
 def image_names(row):
     names = []
-    for key in ("Image 1", "Image 2", "Image 3", "Image 4"):
+    # Columns come from the sheet's own header, so a layout with Image 1..8
+    # keeps its editorial shots instead of stopping at 4.
+    for key in row.get("_image_columns") or ():
         val = clean(row.get(key))
         if val:
             names.append(val)
@@ -290,33 +462,60 @@ def image_names(row):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--catalogue", default=DEFAULT_CATALOGUE,
+                    choices=list(CATALOGUES),
+                    help=f"which descriptions workbook to build "
+                         f"(default {DEFAULT_CATALOGUE})")
     ap.add_argument("--markup", type=float, default=2.5,
                     help="retail multiplier on wholesale cost (default 2.5)")
     ap.add_argument("--image-base", default="",
                     help="base URL for product images; when empty, Image Src is "
                          "left blank pending the catalog image manifest")
-    ap.add_argument("--out", default=str(OUT / "shopify_products.csv"))
+    ap.add_argument("--out", default=None,
+                    help="output CSV path (default: the catalogue's out dir)")
     ap.add_argument("--status", default="draft", choices=["draft", "active"],
                     help="Shopify product status (default draft — review before "
                          "publishing)")
     ap.add_argument("--no-merge-plus", dest="merge_plus", action="store_false",
                     help="keep the supplier's split regular/plus styles as "
                          "separate products instead of merging them")
+    ap.add_argument("--no-follows", dest="follows", action="store_false",
+                    help="do not exclude styles already covered by earlier "
+                         "catalogues")
     args = ap.parse_args()
 
-    for path in (INVENTORY, DESCRIPTIONS):
+    catalogue = CATALOGUES[args.catalogue]
+    descriptions = SOURCE / catalogue["workbook"]
+
+    for path in (INVENTORY, descriptions):
         if not path.exists():
             sys.exit(f"Missing source file: {path}\n"
                      f"Download it from b2b.elegantmoments.com and place it in {SOURCE}")
 
     all_rows, sellable = read_inventory()
-    by_style, by_variant = read_descriptions()
+    print(f"Catalogue: {args.catalogue} ({descriptions.name})")
+    by_style, by_variant = read_descriptions(catalogue)
+
+    # Workbooks overlap: a style carried over from an earlier release appears in
+    # both, and importing it twice would collide on the em-<style> handle. The
+    # first catalogue to ship a style owns it.
+    already_imported = set()
+    if args.follows:
+        for earlier in catalogue["follows"]:
+            prior, _ = read_descriptions(CATALOGUES[earlier], quiet=True)
+            already_imported |= set(prior)
+        overlap = set(by_style) & already_imported
+        if overlap:
+            print(f"  {len(overlap)} style(s) already covered by "
+                  f"{', '.join(catalogue['follows'])} — left to that catalogue")
 
     # Group sellable inventory by style, keeping only styles we have copy for.
     styles = OrderedDict()
     skipped_no_copy = set()
     for r in sellable:
         style = clean(r.get("STYLE"))
+        if style in already_imported:
+            continue
         if style not in by_style:
             skipped_no_copy.add(style)
             continue
@@ -326,10 +525,12 @@ def main():
     # (1X–4X) — which would otherwise list the same garment twice. Fold each plus
     # style into its parent as extra size variants. SKUs stay distinct, so
     # drop-ship order entry still identifies the correct supplier style.
+    # The suffix is per-catalogue: 2026 uses X, Vivace uses Q for Queen.
     merged_styles = {}  # plus style -> parent style
     if args.merge_plus:
+        suffixes = catalogue["plus_suffix"]
         for style in list(styles):
-            if not style.upper().endswith("X"):
+            if not style.upper().endswith(tuple(suffixes)):
                 continue
             parent = style[:-1]
             if parent not in styles:
@@ -343,7 +544,8 @@ def main():
             merged_styles[style] = parent
 
     image_base = args.image_base.rstrip("/") + "/" if args.image_base else ""
-    out_path = Path(args.out)
+    out_path = Path(args.out) if args.out \
+        else catalogue["out"] / "shopify_products.csv"
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     variant_count = 0
@@ -462,8 +664,8 @@ def main():
         print(f"  plus styles merged:  {len(merged_styles)} "
               f"(folded into their regular-size parent)")
     print(f"Variant rows written:  {variant_count}")
-    print(f"Styles without copy:   {len(skipped_no_copy)} (skipped — need Holiday/"
-          f"Hosiery/Vivace description files)")
+    print(f"Styles without copy:   {len(skipped_no_copy)} (not in this "
+          f"catalogue's workbook)")
     if not image_base:
         print("Images:                NONE — rerun with --image-base once the "
               "Catalog Images manifest is available")
