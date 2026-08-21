@@ -38,7 +38,13 @@
         {%- endfor -%}
       {%- else -%}
         {%- for handle in fallback_handles -%}
-          {%- assign col = collections[handle | strip] -%}
+          {%- comment -%}
+            The handle must be stripped into its own variable first: Liquid does
+            not allow a filter inside a bracket lookup, and Shopify rejects the
+            whole file if you try — silently keeping the previously synced copy.
+          {%- endcomment -%}
+          {%- assign clean_handle = handle | strip -%}
+          {%- assign col = collections[clean_handle] -%}
           {%- if col != blank and col.all_products_count > 0 -%}
             {%- render 'category-card', collection: col, label: col.title, attrs: '' -%}
           {%- endif -%}
