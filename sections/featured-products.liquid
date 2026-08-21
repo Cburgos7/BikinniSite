@@ -5,17 +5,24 @@
       {{ section.settings.heading }}
     </h2>
 
-    {%- if section.settings.collection != blank -%}
-      {%- assign featured_products = section.settings.collection.products | limit: section.settings.product_count -%}
+    {%- comment -%}
+      Falls back to a collection handle when nothing is picked in the theme
+      editor. A preset cannot reference a collection that does not exist yet, so
+      without this the home page ships telling shoppers to configure a theme.
+    {%- endcomment -%}
+    {%- assign source = section.settings.collection -%}
+    {%- if source == blank -%}
+      {%- assign source = collections[section.settings.fallback_handle] -%}
+    {%- endif -%}
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    {%- if source != blank and source.all_products_count > 0 -%}
+      {%- assign featured_products = source.products | limit: section.settings.product_count -%}
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
         {%- for product in featured_products -%}
           {%- render 'product-card', product: product -%}
         {%- endfor -%}
       </div>
-
-    {%- else -%}
-      <p class="text-center text-mid">Configure a collection in theme editor settings.</p>
     {%- endif -%}
 
   </div>
@@ -35,6 +42,13 @@
       "type": "collection",
       "id": "collection",
       "label": "Collection"
+    },
+    {
+      "type": "text",
+      "id": "fallback_handle",
+      "label": "Fallback collection handle",
+      "info": "Used only when no collection is picked above.",
+      "default": "best-sellers"
     },
     {
       "type": "range",

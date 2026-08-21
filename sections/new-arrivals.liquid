@@ -5,23 +5,29 @@
       {{ section.settings.heading }}
     </h2>
 
-    {%- if section.settings.collection != blank -%}
-      {%- assign new_products = section.settings.collection.products | limit: section.settings.product_count -%}
+    {%- comment -%}
+      See featured-products: falls back to a handle so the section renders before
+      anyone opens the theme editor.
+    {%- endcomment -%}
+    {%- assign source = section.settings.collection -%}
+    {%- if source == blank -%}
+      {%- assign source = collections[section.settings.fallback_handle] -%}
+    {%- endif -%}
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    {%- if source != blank and source.all_products_count > 0 -%}
+      {%- assign new_products = source.products | limit: section.settings.product_count -%}
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
         {%- for product in new_products -%}
           {%- render 'product-card', product: product -%}
         {%- endfor -%}
       </div>
 
       <div class="mt-8 text-center">
-        <a href="{{ section.settings.collection.url }}" class="font-body text-sm font-semibold tracking-widest uppercase text-coral hover:text-deep transition-colors">
+        <a href="{{ source.url }}" class="font-body text-sm font-semibold tracking-widest uppercase text-coral hover:text-deep transition-colors">
           {{ section.settings.view_all_label }}
         </a>
       </div>
-
-    {%- else -%}
-      <p class="text-center text-mid">Configure a collection in theme editor settings.</p>
     {%- endif -%}
 
   </div>
@@ -41,6 +47,13 @@
       "type": "collection",
       "id": "collection",
       "label": "Collection"
+    },
+    {
+      "type": "text",
+      "id": "fallback_handle",
+      "label": "Fallback collection handle",
+      "info": "Used only when no collection is picked above.",
+      "default": "new-in"
     },
     {
       "type": "range",
