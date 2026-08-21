@@ -30,18 +30,27 @@
 
     <!-- Desktop nav links + inline search -->
     <nav id="nav-links" class="hidden lg:flex items-center gap-8 transition-opacity duration-200" aria-label="Main navigation">
-      {%- assign nav_links = 'new-in,/collections/new-in|Bikinis,/collections/bikinis|Lingerie,/collections/lingerie|Sale,/collections/sale' | split: '|' -%}
-      {%- assign nav_items = 'New In,/collections/new-in|Bikinis,/collections/bikinis|Lingerie,/collections/lingerie|Sale,/collections/sale' | split: '|' -%}
-      {%- for item in nav_items -%}
-        {%- assign parts = item | split: ',' -%}
-        {%- assign item_label = parts[0] -%}
-        {%- assign item_url = parts[1] -%}
-        <a
-          href="{{ item_url }}"
-          class="font-body text-sm tracking-widest uppercase transition-colors duration-200 hover:text-gold
-            {%- if item_label == 'Sale' %} text-coral{%- else %} text-cream{%- endif %}
-            {%- if request.path == item_url %} border-b-2 border-coral pb-0.5{%- endif %}"
-        >{{ item_label }}</a>
+      {%- comment -%}
+        Driven by collection handles rather than hardcoded labels and URLs. The
+        previous list still pointed at /collections/bikinis, which only resolved
+        via a redirect after the collection was renamed to swimwear, and included
+        a Sale link that led to an empty collection. Empty collections are skipped
+        so the nav can never advertise a dead end.
+      {%- endcomment -%}
+      {%- assign nav_handles = section.settings.nav_handles
+        | default: 'new-in,lingerie,swimwear,leather-vinyl,plus-size,menswear,sale'
+        | split: ',' -%}
+      {%- for raw_handle in nav_handles -%}
+        {%- assign nav_handle = raw_handle | strip -%}
+        {%- assign nav_collection = collections[nav_handle] -%}
+        {%- if nav_collection != blank and nav_collection.all_products_count > 0 -%}
+          <a
+            href="{{ nav_collection.url }}"
+            class="font-body text-sm tracking-widest uppercase transition-colors duration-200 hover:text-gold
+              {%- if nav_handle == 'sale' %} text-coral{%- else %} text-cream{%- endif %}
+              {%- if request.path == nav_collection.url %} border-b-2 border-coral pb-0.5{%- endif %}"
+          >{{ nav_collection.title }}</a>
+        {%- endif -%}
       {%- endfor -%}
     </nav>
 
@@ -137,18 +146,20 @@
     </button>
   </div>
   <nav class="flex flex-col py-4" aria-label="Mobile navigation">
-    {%- if collections['new-in'].id -%}
-      <a href="{{ collections['new-in'].url }}" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">New In</a>
-    {%- endif -%}
-    {%- if collections['bikinis'].id -%}
-      <a href="{{ collections['bikinis'].url }}" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Bikinis</a>
-    {%- endif -%}
-    {%- if collections['lingerie'].id -%}
-      <a href="{{ collections['lingerie'].url }}" class="font-display text-3xl text-cream py-4 px-8 hover:text-gold transition-colors duration-200">Lingerie</a>
-    {%- endif -%}
-    {%- if collections['sale'].id -%}
-      <a href="{{ collections['sale'].url }}" class="font-display text-3xl text-coral py-4 px-8 hover:text-gold transition-colors duration-200">Sale</a>
-    {%- endif -%}
+    {%- comment -%}
+      Mirrors the desktop nav from the same handle list, so the two cannot drift.
+    {%- endcomment -%}
+    {%- for raw_handle in nav_handles -%}
+      {%- assign nav_handle = raw_handle | strip -%}
+      {%- assign nav_collection = collections[nav_handle] -%}
+      {%- if nav_collection != blank and nav_collection.all_products_count > 0 -%}
+        <a
+          href="{{ nav_collection.url }}"
+          class="font-display text-3xl py-4 px-8 hover:text-gold transition-colors duration-200
+            {%- if nav_handle == 'sale' %} text-coral{%- else %} text-cream{%- endif %}"
+        >{{ nav_collection.title }}</a>
+      {%- endif -%}
+    {%- endfor -%}
   </nav>
 </div>
 
@@ -167,6 +178,13 @@
   "name": "Header",
   "settings": [
     {
+      "type": "text",
+      "id": "nav_handles",
+      "label": "Navigation collection handles",
+      "info": "Comma-separated. Empty collections are skipped automatically.",
+      "default": "new-in,lingerie,swimwear,leather-vinyl,plus-size,menswear,sale"
+    },
+    {
       "type": "image_picker",
       "id": "logo",
       "label": "Logo image"
@@ -178,6 +196,10 @@
       "default": 75
     }
   ],
-  "presets": [{ "name": "Header" }]
+  "presets": [
+    {
+      "name": "Header"
+    }
+  ]
 }
 {% endschema %}
