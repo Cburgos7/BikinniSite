@@ -1,6 +1,6 @@
 # Roadmap — Soleil Noir Shopify Theme
 
-**6 phases** | **37 requirements mapped** | All v1 requirements covered ✓
+**7 phases** | **37 requirements mapped** | v1 complete ✓ · Phase 7 added post-v1
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|-----------------|
@@ -10,6 +10,7 @@
 | 4 | Collections & PDP | 5/5 | Complete   | 2026-06-14 |
 | 5 | Content Pages | 8/8 | Complete   | 2026-06-14 |
 | 6 | Integrations | 6/6 | Complete   | 2026-06-18 |
+| 7 | Drop-Ship Order Automation | Orders reach the supplier and tracking reaches customers without manual re-keying | TBD | Not planned |
 
 ---
 
@@ -127,8 +128,6 @@ Plans:
 4. Social page displays social_post metaobject entries as a shoppable UGC gallery
 5. All policy pages and Contact/FAQ pages exist and are linked from the footer
 
----
-
 ### Phase 6: Integrations
 **Goal:** Wire all third-party services — Klaviyo flows, UpPromote affiliate tracking, GA4 enhanced e-commerce, and Cloudinary image transforms — and verify end-to-end data flow.
 **Mode:** standard
@@ -138,3 +137,40 @@ Plans:
 2. UpPromote affiliate link with `influencer_code` param correctly attributes a test order; discount code works at checkout
 3. GA4 registers `view_item`, `add_to_cart`, `begin_checkout`, and `purchase` events with `influencer_code` dimension on a test purchase
 4. Cloudinary fetch-URL transforms (`f_auto,q_auto`) serve optimized images; no broken image URLs in production
+
+---
+
+### Phase 7: Drop-Ship Order Automation
+
+**Goal:** Automate the Elegant Moments drop-ship loop so orders reach the supplier and tracking reaches customers without anyone re-keying them by hand.
+**Requirements**: TBD
+**Depends on:** Phase 6, plus the real catalogue being live in Shopify
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 7 to break down)
+
+**Scope:**
+1. **Order → supplier email.** Shopify Flow rule on order creation, emailing
+   `dropship@elegantmomentslingerie.com`. Per their drop-ship sheet: one order per
+   email, carrying style number, colour, size, quantity, and the customer's
+   shipping address.
+2. **Tracking → customer.** Scheduled agent run writing supplier tracking numbers
+   back onto Shopify orders and marking fulfilment, so Shopify's own notification
+   fires.
+3. **Exception handling.** The supplier replies when an item is out of stock or
+   discontinued and waits for a decision — substitute, backorder, or refund. Needs
+   a defined policy and a queue, not ad-hoc replies.
+4. **Returns policy document.** Elegant Moments includes our returns policy in
+   packages only if we supply one. Currently we have not.
+
+**Constraints:**
+- **No Shopify scope grants arbitrary email sending.** Flow is the always-on path;
+  a scheduled agent covers tracking write-back and exceptions. An agent alone
+  cannot be relied on — it does not run continuously.
+- Requires `read_orders`, `write_orders`,
+  `write_merchant_managed_fulfillment_orders`.
+- Customer names and home addresses travel in these emails. The sending path must
+  be a service with an audit trail, not a personal mailbox.
+- Supplier ships within 24–48h Mon–Fri; expedited orders must reach them by 1 PM
+  Eastern. Cancellations are only accepted in writing, by email.

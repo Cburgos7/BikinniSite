@@ -66,3 +66,9 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 | 2026-06-14 | pdp.js variant lookup uses title string includes() | 04-04 | Works for standard Shopify variant title format (size/color) |
 | 2026-06-14 | FAQ richtext answers rendered without escape | 05-06 | Shopify richtext schema type sanitized by platform (same trust as product.description) |
 | 2026-06-14 | faq.js standalone ES module, no import from pdp.js | 05-06 | Avoid coupling between page sections |
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 7 added 2026-08-19: Drop-Ship Order Automation — supplier order email, tracking write-back, exception handling, returns policy doc
