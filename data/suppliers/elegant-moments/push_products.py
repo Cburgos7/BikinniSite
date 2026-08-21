@@ -47,6 +47,9 @@ CSV_PATH = OUT / "shopify_products.csv"
 MANIFEST_PATH = OUT / "image_manifest.json"
 IMAGE_DIR = OUT / "images"
 
+# Supplier licence requires their name in advertising content.
+ATTRIBUTION = "Elegant Moments"
+
 STORE = "velvet-tide-2.myshopify.com"
 API_VERSION = "2025-10"
 
@@ -372,6 +375,42 @@ mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
 """
 
 
+def attach_images(admin, items, manifest):
+    """Upload images onto products that were created before their photos existed.
+
+    Holiday and Hosiery were pushed while their image archives were still
+    undownloaded. Recreating them would work but would discard their stock levels
+    and product IDs for no reason, so attach to the existing records instead.
+    Products that already carry media are skipped, which makes this re-runnable.
+    """
+    attached = skipped = missing = failed = 0
+    for i, (handle, _p) in enumerate(items, 1):
+        entry = manifest.get(handle)
+        if not entry:
+            continue
+        data = admin.query(PRODUCT_BY_HANDLE_FULL, {"handle": handle})
+        product = data.get("productByHandle")
+        if not product:
+            missing += 1
+            continue
+        if product["media"]["edges"]:
+            skipped += 1
+            continue
+        try:
+            n = upload_images(admin, product["id"], entry["title"],
+                              entry["images"],
+                              f"{entry['title']} by {ATTRIBUTION}")
+            attached += n
+        except ShopifyError as exc:
+            print(f"  ! {handle}: {exc}")
+            failed += 1
+        if i % 25 == 0:
+            print(f"  {i}/{len(items)}  images={attached} "
+                  f"already_had={skipped} failed={failed}")
+    print(f"\nImage attach done. images={attached} products_skipped={skipped} "
+          f"not_found={missing} failed={failed}")
+
+
 def update_prices(admin, items):
     """Push repriced variants onto products that already exist.
 
@@ -588,6 +627,8 @@ def main():
     ap.add_argument("--inventory-only", action="store_true",
                     help="do not create products; set stock levels on products "
                          "that already exist (needs read_locations)")
+    ap.add_argument("--attach-images", action="store_true",
+                    help="upload images onto existing products that have none")
     ap.add_argument("--update-prices", action="store_true",
                     help="push repriced variants onto existing products "
                          "(used after a pricing rule change)")
@@ -661,6 +702,10 @@ def main():
         if not location_id:
             sys.exit("--inventory-only needs read_locations on the app.")
         backfill_inventory(admin, items, location_id)
+        return
+
+    if args.attach_images:
+        attach_images(admin, items, manifest)
         return
 
     if args.update_prices:

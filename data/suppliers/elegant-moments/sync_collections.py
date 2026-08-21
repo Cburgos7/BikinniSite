@@ -39,7 +39,36 @@ COLLECTION_TAGS = OrderedDict([
     ("swimwear", {
         "title": "Swimwear",
         "tags": ["Swimwear"],
+        # Men's swim briefs are swimwear, but they belong with the rest of the
+        # men's range rather than mixed into a women's-brand swim grid.
+        "exclude": ["Menswear"],
+    }),
+    ("menswear", {
+        "title": "Menswear",
+        "tags": ["Menswear"],
         "exclude": [],
+    }),
+    ("leather-vinyl", {
+        "title": "Leather & Vinyl",
+        "tags": ["Leather", "Vinyl"],
+        "exclude": ["Menswear"],
+    }),
+    ("costumes", {
+        "title": "Costumes",
+        "tags": ["Costumes"],
+        "exclude": [],
+    }),
+    ("hosiery", {
+        "title": "Hosiery",
+        "tags": ["Hosiery"],
+        "exclude": ["Menswear"],
+    }),
+    ("plus-size", {
+        "title": "Plus Size",
+        # Set by the importer on products whose sizes reach beyond XL, i.e. the
+        # merged plus-size twins. Not a supplier category — ours.
+        "tags": ["Extended Sizing"],
+        "exclude": ["Menswear"],
     }),
 ])
 
