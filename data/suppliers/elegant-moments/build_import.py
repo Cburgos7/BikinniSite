@@ -317,14 +317,36 @@ def titleize(text, style):
     return head[:1].upper() + head[1:] if head else f"Style {style}"
 
 
-def retail_price(wholesale, markup):
-    """wholesale x markup, rounded to the nearest .95 price point (never below .95)."""
+# Below this retail price a single-item order loses money once the supplier's
+# $3.50 drop-ship fee, their postage, and payment processing are covered.
+#
+# Worked from the real numbers: revenue = price + $7.95 shipping charged; costs =
+# wholesale (price / markup) + $3.50 + postage + 2.9% + $0.30. At the top of the
+# supplier's own $4–12 standard band, break-even lands at $14.15 retail for the
+# worst-affected items (those around $5-6 wholesale, where a 2.5x markup does not
+# clear the fixed costs). The supplier cannot tell us actual postage until the
+# parcel is packed, so this cannot be priced per order — it has to be a floor.
+#
+# $14.95 covers every case. A higher floor was tried and rejected: it collapsed
+# 405 variants onto one price point, erasing the difference between a $4 thigh-high
+# and an $8 bodystocking.
+DEFAULT_PRICE_FLOOR = 14.95
+
+
+def retail_price(wholesale, markup, floor=0.0):
+    """wholesale x markup, rounded to the nearest .95 price point.
+
+    `floor` lifts anything that would otherwise sell at a loss on a single-item
+    order. Raising a $6.95 item to the floor is a real margin decision, not a
+    rounding detail — see DEFAULT_PRICE_FLOOR.
+    """
     target = wholesale * markup
     whole = int(target)
     # Candidates bracketing the target: X-1.95, X.95, X+0.95
     candidates = [whole - 1 + 0.95, whole + 0.95, whole + 1.95]
     candidates = [c for c in candidates if c >= 0.95]
-    return min(candidates, key=lambda c: abs(c - target))
+    price = min(candidates, key=lambda c: abs(c - target))
+    return max(price, floor)
 
 
 def read_inventory():
@@ -466,6 +488,10 @@ def main():
                     choices=list(CATALOGUES),
                     help=f"which descriptions workbook to build "
                          f"(default {DEFAULT_CATALOGUE})")
+    ap.add_argument("--price-floor", type=float, default=DEFAULT_PRICE_FLOOR,
+                    help="minimum retail price; below this a single-item order "
+                         "loses money after the drop-ship fee, postage and "
+                         "payment processing (default %(default)s, 0 disables)")
     ap.add_argument("--markup", type=float, default=2.5,
                     help="retail multiplier on wholesale cost (default 2.5)")
     ap.add_argument("--image-base", default="",
@@ -603,7 +629,7 @@ def main():
 
             for i, r in enumerate(rows):
                 first = i == 0
-                price = retail_price(r["_wholesale"], args.markup)
+                price = retail_price(r["_wholesale"], args.markup, args.price_floor)
                 record = {c: "" for c in SHOPIFY_COLUMNS}
                 record.update({
                     "Handle": handle,

@@ -354,6 +354,67 @@ mutation($id: ID!, $input: [PublicationInput!]!) {
 """
 
 
+VARIANTS_FOR_PRICING = """
+query($handle: String!) {
+  productByHandle(handle: $handle) {
+    id
+    variants(first: 100) { edges { node { id sku price } } }
+  }
+}
+"""
+
+VARIANTS_BULK_UPDATE = """
+mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+  productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+    userErrors { field message }
+  }
+}
+"""
+
+
+def update_prices(admin, items):
+    """Push repriced variants onto products that already exist.
+
+    Used after a pricing rule changes — the price floor, for instance. Only
+    variants whose price actually differs are sent, so a re-run after a no-op
+    rebuild costs one read per product and no writes.
+    """
+    changed_products = changed_variants = missing = 0
+    for i, (handle, p) in enumerate(items, 1):
+        want = {v["Variant SKU"]: v["Variant Price"] for v in p["variants"]}
+        data = admin.query(VARIANTS_FOR_PRICING, {"handle": handle})
+        product = data.get("productByHandle")
+        if not product:
+            missing += 1
+            continue
+
+        updates = []
+        for edge in product["variants"]["edges"]:
+            node = edge["node"]
+            target = want.get(node["sku"])
+            if target is None:
+                continue
+            if abs(float(node["price"]) - float(target)) > 0.001:
+                updates.append({"id": node["id"], "price": target})
+        if not updates:
+            continue
+
+        result = admin.query(VARIANTS_BULK_UPDATE, {
+            "productId": product["id"], "variants": updates})
+        errs = result["productVariantsBulkUpdate"]["userErrors"]
+        if errs:
+            print(f"  ! {handle}: {errs}")
+            continue
+        changed_products += 1
+        changed_variants += len(updates)
+        if i % 50 == 0:
+            print(f"  {i}/{len(items)}  products={changed_products} "
+                  f"variants={changed_variants}")
+
+    print(f"\nPrice update done. products={changed_products} "
+          f"variants={changed_variants} not_found={missing}")
+
+
 def update_copy(admin, items):
     """Refresh title and description on products that already exist.
 
@@ -527,6 +588,9 @@ def main():
     ap.add_argument("--inventory-only", action="store_true",
                     help="do not create products; set stock levels on products "
                          "that already exist (needs read_locations)")
+    ap.add_argument("--update-prices", action="store_true",
+                    help="push repriced variants onto existing products "
+                         "(used after a pricing rule change)")
     ap.add_argument("--update-copy", action="store_true",
                     help="refresh title and description on existing products "
                          "without recreating them")
@@ -597,6 +661,10 @@ def main():
         if not location_id:
             sys.exit("--inventory-only needs read_locations on the app.")
         backfill_inventory(admin, items, location_id)
+        return
+
+    if args.update_prices:
+        update_prices(admin, items)
         return
 
     if args.update_copy:
