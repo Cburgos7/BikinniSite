@@ -15,7 +15,15 @@
     {%- comment -%} IMAGE BLOCK {%- endcomment -%}
     <div class="relative overflow-hidden aspect-[3/4]">
       {%- if product.featured_image != blank -%}
-        <span id="card-img-{{ product.id }}" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500 block">
+        {%- comment -%}
+          Absolutely filled rather than h-full. The supplier ships a few landscape
+          photos (v9868 is 500x413 where most are 500x750); with a percentage
+          height chain of div -> span -> img those rendered at their natural ratio
+          and left the bottom of the card empty, so rows looked misaligned even
+          though every box was the same height. Pinning to the box makes
+          object-cover crop regardless of the source ratio.
+        {%- endcomment -%}
+        <span id="card-img-{{ product.id }}" class="absolute inset-0 block scale-100 group-hover:scale-105 transition-transform duration-500">
           {%- comment -%}
             Four cards per row means each is roughly 300px wide, so 500px covers
             a 1.5x display without shipping a needlessly large file.

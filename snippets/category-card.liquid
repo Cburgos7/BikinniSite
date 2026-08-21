@@ -25,12 +25,17 @@
   {{ attrs }}
 >
   {%- if card_image != blank -%}
+    {%- comment -%}
+      Absolutely filled for the same reason as product-card: a landscape source
+      image would otherwise render at its natural ratio and leave the tile
+      part-empty.
+    {%- endcomment -%}
     <img
       src="{{ card_image | image_url: width: 500 }}"
       alt="{{ label | escape }}"
       width="500"
       loading="lazy"
-      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
     >
   {%- endif -%}
 
