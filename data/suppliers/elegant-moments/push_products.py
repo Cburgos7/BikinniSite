@@ -135,6 +135,15 @@ query($handle: String!) {
 }
 """
 
+PRODUCT_BY_HANDLE_FULL = """
+query($handle: String!) {
+  productByHandle(handle: $handle) {
+    id handle status title descriptionHtml
+    media(first: 1) { edges { node { id } } }
+  }
+}
+"""
+
 PRODUCT_SET = """
 mutation($input: ProductSetInput!) {
   productSet(synchronous: true, input: $input) {
@@ -311,6 +320,113 @@ def _multipart_put(target, path):
         raise ShopifyError(f"staged upload HTTP {exc.code}: {detail}") from exc
 
 
+PRODUCT_UPDATE = """
+mutation($product: ProductUpdateInput!) {
+  productUpdate(product: $product) {
+    product { id handle }
+    userErrors { field message }
+  }
+}
+"""
+
+PUBLICATIONS = """
+query { publications(first: 20) { edges { node { id name } } } }
+"""
+
+PUBLISH = """
+mutation($id: ID!, $input: [PublicationInput!]!) {
+  publishablePublish(id: $id, input: $input) {
+    userErrors { field message }
+  }
+}
+"""
+
+
+def update_copy(admin, items):
+    """Refresh title and description on products that already exist.
+
+    Used when the copy rules change — cheaper and safer than recreating, which
+    would discard uploaded images and stock levels.
+    """
+    updated = unchanged = missing = 0
+    for i, (handle, p) in enumerate(items, 1):
+        head = p["head"]
+        data = admin.query(PRODUCT_BY_HANDLE_FULL, {"handle": handle})
+        product = data.get("productByHandle")
+        if not product:
+            missing += 1
+            continue
+        if (product["title"] == head["Title"]
+                and product["descriptionHtml"] == head["Body (HTML)"]):
+            unchanged += 1
+            continue
+        result = admin.query(PRODUCT_UPDATE, {"product": {
+            "id": product["id"],
+            "title": head["Title"],
+            "descriptionHtml": head["Body (HTML)"],
+        }})
+        errs = result["productUpdate"]["userErrors"]
+        if errs:
+            print(f"  ! {handle}: {errs}")
+        else:
+            updated += 1
+        if i % 50 == 0:
+            print(f"  {i}/{len(items)}  updated={updated} unchanged={unchanged}")
+    print(f"\nCopy update done. updated={updated} unchanged={unchanged} "
+          f"not_found={missing}")
+
+
+def publish_products(admin, items, require_image=True):
+    """Set products ACTIVE and publish them to the Online Store.
+
+    Products with no image are left as drafts by default — an empty product card
+    on a collection grid looks broken, and these have no photo because the
+    supplier never shipped one.
+    """
+    pubs = admin.query(PUBLICATIONS)["publications"]["edges"]
+    online = next((p["node"] for p in pubs
+                   if p["node"]["name"] == "Online Store"), None)
+    if not online:
+        sys.exit(f"No Online Store publication found. Available: "
+                 f"{[p['node']['name'] for p in pubs]}")
+    print(f"Publishing to: {online['name']}")
+
+    published = skipped_noimg = missing = 0
+    for i, (handle, _p) in enumerate(items, 1):
+        data = admin.query(PRODUCT_BY_HANDLE_FULL, {"handle": handle})
+        product = data.get("productByHandle")
+        if not product:
+            missing += 1
+            continue
+        if require_image and not product["media"]["edges"]:
+            skipped_noimg += 1
+            continue
+
+        if product["status"] != "ACTIVE":
+            result = admin.query(PRODUCT_UPDATE, {"product": {
+                "id": product["id"], "status": "ACTIVE"}})
+            errs = result["productUpdate"]["userErrors"]
+            if errs:
+                print(f"  ! {handle}: {errs}")
+                continue
+
+        result = admin.query(PUBLISH, {
+            "id": product["id"],
+            "input": [{"publicationId": online["id"]}],
+        })
+        errs = result["publishablePublish"]["userErrors"]
+        if errs:
+            print(f"  ! {handle}: {errs}")
+            continue
+        published += 1
+        if i % 50 == 0:
+            print(f"  {i}/{len(items)}  published={published} "
+                  f"no_image_skipped={skipped_noimg}")
+
+    print(f"\nPublish done. published={published} "
+          f"left_as_draft_no_image={skipped_noimg} not_found={missing}")
+
+
 LOCATIONS = """
 query { locations(first: 1) { edges { node { id name } } } }
 """
@@ -395,6 +511,14 @@ def main():
     ap.add_argument("--inventory-only", action="store_true",
                     help="do not create products; set stock levels on products "
                          "that already exist (needs read_locations)")
+    ap.add_argument("--update-copy", action="store_true",
+                    help="refresh title and description on existing products "
+                         "without recreating them")
+    ap.add_argument("--publish", action="store_true",
+                    help="set existing products ACTIVE and publish to the Online "
+                         "Store; products with no image stay draft")
+    ap.add_argument("--publish-without-images", action="store_true",
+                    help="with --publish, also publish products that have no image")
     args = ap.parse_args()
 
     if not CSV_PATH.exists():
@@ -451,6 +575,15 @@ def main():
         if not location_id:
             sys.exit("--inventory-only needs read_locations on the app.")
         backfill_inventory(admin, items, location_id)
+        return
+
+    if args.update_copy:
+        update_copy(admin, items)
+        return
+
+    if args.publish:
+        publish_products(admin, items,
+                         require_image=not args.publish_without_images)
         return
 
     created = skipped = failed = images_up = 0

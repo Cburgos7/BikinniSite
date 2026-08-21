@@ -114,6 +114,18 @@ def slugify(value):
     return slug or "item"
 
 
+def strip_trade_notes(text):
+    """Remove wholesale-facing asides from copy meant for shoppers.
+
+    The supplier's descriptions carry notes aimed at buyers, not customers —
+    "*Available Boxed" is about how the item ships to a retailer, and it reads as
+    noise on a product page.
+    """
+    text = re.sub(r'\*\s*Available\s+Boxed\.?', '', text, flags=re.I)
+    text = re.sub(r'\s{2,}', ' ', text)
+    return text.strip()
+
+
 def titleize(text, style):
     """Build a product title from the description's leading clause.
 
@@ -121,7 +133,7 @@ def titleize(text, style):
     underwire cups, adjustable straps and hook"). The clause before the first
     comma / "with" is the product name; the rest is detail.
     """
-    text = (text or "").strip()
+    text = strip_trade_notes(text or "")
     if not text:
         return f"Style {style}"
     # Costume rows use "Name - description"; keep the name.
@@ -205,10 +217,9 @@ def clean(value):
 
 
 def build_body_html(meta):
-    desc = clean(meta.get("Description"))
+    desc = strip_trade_notes(clean(meta.get("Description")))
     fabric = clean(meta.get("Fabric/Material"))
     origin = clean(meta.get("Country Of Origin"))
-    shown_with = clean(meta.get("Shown With"))
 
     parts = []
     if desc:
@@ -221,8 +232,9 @@ def build_body_html(meta):
     # Required by the Elegant Moments wholesale image/content licence.
     details.append(f"<li><strong>Brand:</strong> {ATTRIBUTION}</li>")
     parts.append("<ul>" + "".join(details) + "</ul>")
-    if shown_with:
-        parts.append(f"<p><em>{shown_with}</em></p>")
+    # The workbook's "Shown With" column references other products by supplier
+    # style number ("Shown with 1480."). That means nothing to a shopper and
+    # cannot be clicked, so it is deliberately not rendered.
     return "".join(parts)
 
 

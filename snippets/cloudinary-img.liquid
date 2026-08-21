@@ -21,10 +21,19 @@
     Cloudinary fetch-URL with f_auto,q_auto,w_ transforms (30–60% payload
     reduction via WebP/AVIF auto-format and perceptual quality compression).
     When cloudinary_cloud_name is blank, falls back to the raw Shopify CDN URL.
+
+    A cloud name still containing "PLACEHOLDER" is treated as unset. Shipping the
+    placeholder through produces res.cloudinary.com/CLOUDINARY_CLOUD_NAME_PLACEHOLDER
+    URLs, which 404 — every image on the storefront breaks, silently and sitewide.
+    Falling back is always better than emitting a URL that cannot resolve.
 {%- endcomment -%}
 {%- assign shopify_url = image | image_url: width: width -%}
-{%- if settings.cloudinary_cloud_name != blank -%}
-  {%- assign cloud_name_encoded = settings.cloudinary_cloud_name | url_encode -%}
+{%- assign cloud_name = settings.cloudinary_cloud_name -%}
+{%- if cloud_name contains 'PLACEHOLDER' or cloud_name contains 'placeholder' -%}
+  {%- assign cloud_name = blank -%}
+{%- endif -%}
+{%- if cloud_name != blank -%}
+  {%- assign cloud_name_encoded = cloud_name | url_encode -%}
   {%- assign src = 'https://res.cloudinary.com/'
     | append: cloud_name_encoded
     | append: '/image/fetch/f_auto,q_auto,w_'

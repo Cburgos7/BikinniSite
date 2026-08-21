@@ -2,7 +2,7 @@
   "current": {
     "klaviyo_company_id": "KLAVIYO_COMPANY_ID_PLACEHOLDER",
     "ga4_measurement_id": "G-XXXXXXXXXX",
-    "cloudinary_cloud_name": "CLOUDINARY_CLOUD_NAME_PLACEHOLDER",
+    "cloudinary_cloud_name": "",
     "upromote_merchant_id": "UPROMOTE_MERCHANT_ID_PLACEHOLDER"
   }
 }
