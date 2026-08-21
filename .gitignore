@@ -1,6 +1,7 @@
 node_modules/
 .DS_Store
 *.log
+__pycache__/
 .env
 .env.local
 .env.*.local
@@ -11,3 +12,8 @@ node_modules/
 # outputs are not.
 data/suppliers/*/source/
 data/suppliers/*/out/
+
+# Supplier downloads staging area — raw workbooks, price lists and the catalog
+# image ZIPs land here before being copied into data/suppliers/*/source/.
+# Same licence restriction, and it runs to hundreds of MB of their photography.
+Files_Site/
