@@ -158,7 +158,11 @@
 
       {%- comment -%} PRODUCT GRID {%- endcomment -%}
       {%- paginate collection.products by 24 -%}
-        <div id="product-grid-inner" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+        {%- comment -%}
+          Four across from 1024px rather than 1280px: at three columns the cards
+          were large enough that a browser under 1280px wide showed only two.
+        {%- endcomment -%}
+        <div id="product-grid-inner" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
           {%- for product in collection.products -%}
             {%- render 'product-card', product: product -%}
           {%- endfor -%}
