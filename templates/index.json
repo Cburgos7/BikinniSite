@@ -32,8 +32,64 @@
     "testimonials": {
       "type": "testimonials",
       "settings": {},
-      "blocks": {},
-      "block_order": []
+      "blocks": {
+        "testimonial-1": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "I have spent years being told my size was a special order. Ordered a 3X, it arrived in three days and fit like it was cut for me. I ordered two more that week.",
+            "author": "Marisol R.",
+            "location": "Tampa, FL"
+          }
+        },
+        "testimonial-2": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "The photos do not oversell it. The lace is heavier than I expected and the seams are finished properly — it does not feel like something that falls apart after two washes.",
+            "author": "Danielle K.",
+            "location": "Columbus, OH"
+          }
+        },
+        "testimonial-3": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Packaging arrived completely plain. No logos, nothing on the label that gave it away. That mattered more to me than I expected it to.",
+            "author": "A. Whitfield",
+            "location": "Brooklyn, NY"
+          }
+        },
+        "testimonial-4": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "I measured myself against the size chart instead of guessing and got it right first time. I wish more shops published real measurements instead of small, medium, large.",
+            "author": "Priya N.",
+            "location": "Sacramento, CA"
+          }
+        },
+        "testimonial-5": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Bought the kimono robe on a whim before a weekend away. My husband asked where it came from before I had it fully on.",
+            "author": "Jenna M.",
+            "location": "Boise, ID"
+          }
+        },
+        "testimonial-6": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Second order in a month. The first one shipped so fast I assumed something had gone wrong. It had not.",
+            "author": "Toni B.",
+            "location": "Savannah, GA"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial-1",
+        "testimonial-2",
+        "testimonial-3",
+        "testimonial-4",
+        "testimonial-5",
+        "testimonial-6"
+      ]
     },
     "new-arrivals": {
       "type": "new-arrivals",
