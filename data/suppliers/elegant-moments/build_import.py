@@ -35,6 +35,45 @@ DESCRIPTIONS = SOURCE / "2026_Collection_Descriptions.xlsx"
 # Sheets holding product rows. "Information" is the licence/terms sheet — skipped.
 DESC_SHEETS = ["Lingerie", "Leather", "Vinyl", "Costumes", "Hosiery Items"]
 
+# Canonical column order, used to repair sheets that ship blank headers.
+# The "Hosiery Items" sheet leaves columns 13-18 unnamed even though the rows
+# carry the same data as every other sheet — without this, weights and image
+# filenames are silently dropped.
+CANONICAL_COLUMNS = [
+    "Style", "Description", "Sizes", "Color", "Page", "Price", "UPC Code",
+    "SKU Number", "Country Of Origin", "Fabric/Material", "Category 1",
+    "Category 2", "Category 3", "Shown With", "Weight (oz)",
+    "Image 1", "Image 2", "Image 3", "Image 4",
+]
+
+
+def repair_header(header, sheet_name):
+    """Fill in blank header cells from the canonical column order.
+
+    Only fills positions that are blank, and only where the named columns that
+    ARE present still line up with the canonical order — otherwise a genuinely
+    different layout would get mislabelled.
+    """
+    for i, name in enumerate(header):
+        if name and i < len(CANONICAL_COLUMNS) and name != CANONICAL_COLUMNS[i]:
+            print(f"  WARNING: {sheet_name!r} column {i} is {name!r}, expected "
+                  f"{CANONICAL_COLUMNS[i]!r} — leaving header untouched")
+            return header
+
+    repaired = list(header)
+    filled = []
+    for i, canonical in enumerate(CANONICAL_COLUMNS):
+        if i >= len(repaired):
+            repaired.append(canonical)
+            filled.append(canonical)
+        elif not repaired[i]:
+            repaired[i] = canonical
+            filled.append(canonical)
+    if filled:
+        print(f"  note: {sheet_name!r} had {len(filled)} blank header(s); "
+              f"filled positionally: {', '.join(filled)}")
+    return repaired
+
 # The supplier licence requires their name to appear in advertising content.
 ATTRIBUTION = "Elegant Moments"
 
@@ -144,6 +183,7 @@ def read_descriptions():
         ws = wb[sheet]
         it = ws.iter_rows(values_only=True)
         header = [str(h).strip() if h is not None else "" for h in next(it)]
+        header = repair_header(header, sheet)
         for raw in it:
             row = dict(zip(header, raw))
             style = row.get("Style")

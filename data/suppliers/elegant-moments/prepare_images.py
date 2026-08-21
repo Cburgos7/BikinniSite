@@ -25,11 +25,14 @@ except ImportError:
 
 import openpyxl
 
+# Share the workbook parsing with the importer so a header quirk only has to be
+# handled once — the Hosiery sheet ships blank headers for its image columns.
+from build_import import DESC_SHEETS, repair_header
+
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "source"
 DEST = HERE / "out" / "images"
 DESCRIPTIONS = SOURCE / "2026_Collection_Descriptions.xlsx"
-DESC_SHEETS = ["Lingerie", "Leather", "Vinyl", "Costumes", "Hosiery Items"]
 
 
 def referenced_images():
@@ -42,6 +45,7 @@ def referenced_images():
         ws = wb[sheet]
         it = ws.iter_rows(values_only=True)
         header = [str(h).strip() if h is not None else "" for h in next(it)]
+        header = repair_header(header, sheet)
         for raw in it:
             row = dict(zip(header, raw))
             if not row.get("Style"):
