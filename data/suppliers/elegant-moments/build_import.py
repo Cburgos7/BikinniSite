@@ -317,20 +317,24 @@ def titleize(text, style):
     return head[:1].upper() + head[1:] if head else f"Style {style}"
 
 
-# Below this retail price a single-item order loses money once the supplier's
-# $3.50 drop-ship fee, their postage, and payment processing are covered.
+# Below this retail price an order stops covering its own fixed costs: the
+# supplier's $3.50 per-ORDER drop-ship fee, their $4-12 postage (unquotable until
+# the parcel is packed), and payment processing.
 #
-# Worked from the real numbers: revenue = price + $7.95 shipping charged; costs =
-# wholesale (price / markup) + $3.50 + postage + 2.9% + $0.30. At the top of the
-# supplier's own $4–12 standard band, break-even lands at $14.15 retail for the
-# worst-affected items (those around $5-6 wholesale, where a 2.5x markup does not
-# clear the fixed costs). The supplier cannot tell us actual postage until the
-# parcel is packed, so this cannot be priced per order — it has to be a floor.
+# $14.95 covered a FULL-PRICE order. It does not survive a discount code — with any
+# 10% code live, whether an influencer's, a welcome popup or a Klaviyo flow,
+# break-even moves to $17.05. The floor therefore has to clear the discount, not
+# just the base cost.
 #
-# $14.95 covers every case. A higher floor was tried and rejected: it collapsed
-# 405 variants onto one price point, erasing the difference between a $4 thigh-high
-# and an $8 bodystocking.
-DEFAULT_PRICE_FLOOR = 14.95
+# Affiliate commission is deliberately NOT priced in here. Pricing a single item to
+# survive 10% off plus 15% commission needs $23.84, which drags 44% of the catalogue
+# onto one price point and erases the difference between a $4 thigh-high and a $10
+# bodystocking. Commission is instead gated to baskets of $50+ merchandise, where
+# the per-order costs are already amortised and every scenario stays positive. The
+# affordable commission rate is a property of the basket, not of the product: the
+# fee and postage are per order while a percentage commission is per dollar.
+# See .planning/research/REFERRALS.md.
+DEFAULT_PRICE_FLOOR = 17.95
 
 
 def retail_price(wholesale, markup, floor=0.0):
