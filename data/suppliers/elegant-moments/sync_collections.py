@@ -13,7 +13,7 @@ Usage:
 import argparse
 import os
 import sys
-from collections import defaultdict
+from collections import OrderedDict
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -24,10 +24,31 @@ from push_products import (  # noqa: E402
 )
 
 # Which tags feed which collection handle. A product can appear in several.
-COLLECTION_TAGS = {
-    "lingerie": ["Lingerie", "Babydoll", "Teddy", "Bra Set", "Bra", "Thong",
+#   tags     any of these puts a product in the collection
+#   exclude  ...unless it also carries one of these
+COLLECTION_TAGS = OrderedDict([
+    ("lingerie", {
+        "title": "Lingerie",
+        "tags": ["Lingerie", "Babydoll", "Teddy", "Bra Set", "Bra", "Thong",
                  "G-String", "Panty", "Bodystocking", "Robe", "Chemise",
                  "Corset", "Bustier", "Camisole", "Slip", "Garter", "Hosiery"],
+        # The Vivace catalogue includes men's thongs and briefs. They match the
+        # garment tags above but do not belong in a women's lingerie collection.
+        "exclude": ["Menswear"],
+    }),
+    ("swimwear", {
+        "title": "Swimwear",
+        "tags": ["Swimwear"],
+        "exclude": [],
+    }),
+])
+
+# Collections the storefront already links to under an older name. Renaming in
+# place (handle and title) keeps those links resolving and avoids a duplicate
+# empty collection sitting next to the real one. Shopify is asked to leave a
+# redirect behind for the old handle.
+RENAMED_FROM = {
+    "swimwear": "bikinis",
 }
 
 # Everything published is new at launch; the theme's New In collection is a smart
@@ -58,6 +79,70 @@ mutation($id:ID!, $tags:[String!]!){
   tagsAdd(id:$id, tags:$tags){ userErrors{ field message } }
 }
 """
+
+COLLECTION_UPDATE = """
+mutation($input:CollectionInput!){
+  collectionUpdate(input:$input){
+    collection{ id handle title }
+    userErrors{ field message }
+  }
+}
+"""
+
+COLLECTION_CREATE = """
+mutation($input:CollectionInput!){
+  collectionCreate(input:$input){
+    collection{ id handle title }
+    userErrors{ field message }
+  }
+}
+"""
+
+
+def resolve_collection(admin, handle, title, dry_run=False):
+    """Find the collection for `handle`, renaming or creating it if needed.
+
+    Order matters: an existing collection under the old handle is renamed rather
+    than left behind as an empty duplicate, because the theme's navigation links
+    to whichever handle survives.
+    """
+    col = admin.query(COLLECTION_BY_HANDLE, {"handle": handle}) \
+               .get("collectionByHandle")
+    if col:
+        return col
+
+    old = RENAMED_FROM.get(handle)
+    if old:
+        prev = admin.query(COLLECTION_BY_HANDLE, {"handle": old}) \
+                    .get("collectionByHandle")
+        if prev:
+            print(f"  /{old} -> /{handle}: renaming existing collection "
+                  f"({prev['productsCount']['count']} products)")
+            if dry_run:
+                return None
+            r = admin.query(COLLECTION_UPDATE, {"input": {
+                "id": prev["id"], "handle": handle, "title": title,
+                # Leave a redirect so any link to the old handle still works.
+                "redirectNewHandle": True,
+            }})
+            errs = r["collectionUpdate"]["userErrors"]
+            if errs:
+                print(f"    ! rename failed: {errs}")
+                return None
+            return admin.query(COLLECTION_BY_HANDLE, {"handle": handle}) \
+                        .get("collectionByHandle")
+
+    print(f"  /{handle}: does not exist — creating {title!r}")
+    if dry_run:
+        return None
+    r = admin.query(COLLECTION_CREATE, {"input": {
+        "handle": handle, "title": title}})
+    errs = r["collectionCreate"]["userErrors"]
+    if errs:
+        print(f"    ! create failed: {errs}")
+        return None
+    return admin.query(COLLECTION_BY_HANDLE, {"handle": handle}) \
+                .get("collectionByHandle")
 
 
 def fetch_active_products(admin):
@@ -95,20 +180,24 @@ def main():
     print(f"active products: {len(products)}")
 
     # --- collection membership ---
-    for handle, tags in COLLECTION_TAGS.items():
-        wanted = tags_lower = {t.lower() for t in tags}
-        matches = [p for p in products
-                   if {t.lower() for t in p["tags"]} & tags_lower]
-        col = admin.query(COLLECTION_BY_HANDLE, {"handle": handle})
-        col = col.get("collectionByHandle")
+    for handle, spec in COLLECTION_TAGS.items():
+        wanted = {t.lower() for t in spec["tags"]}
+        banned = {t.lower() for t in spec["exclude"]}
+        matches = []
+        for p in products:
+            tags = {t.lower() for t in p["tags"]}
+            if tags & wanted and not tags & banned:
+                matches.append(p)
+        print(f"  /{handle}: {len(matches)} matching products")
+        col = resolve_collection(admin, handle, spec["title"], args.dry_run)
         if not col:
-            print(f"  ! no collection /{handle} — skipping")
+            if not args.dry_run:
+                print(f"  ! no collection /{handle} — skipping")
             continue
         if col.get("ruleSet"):
             print(f"  ! /{handle} is a smart collection; leaving its rules alone")
             continue
-        print(f"  /{handle}: {col['productsCount']['count']} now -> "
-              f"{len(matches)} matching products")
+        print(f"    holds {col['productsCount']['count']} now")
         if args.dry_run or not matches:
             continue
         for batch in chunked([p["id"] for p in matches], 100):
