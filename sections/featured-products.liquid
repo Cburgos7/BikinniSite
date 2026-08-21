@@ -18,11 +18,21 @@
     {%- if source != blank and source.all_products_count > 0 -%}
       {%- assign featured_products = source.products | limit: section.settings.product_count -%}
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+      {%- comment -%}
+        Home page rows scroll sideways instead of stacking, so the page stays
+        short and a shopper can browse a whole collection without a click. The
+        slide widths sit just under 1/n of the rail so the next card is always
+        part-visible — that clipped edge is the only affordance telling anyone
+        the row moves.
+      {%- endcomment -%}
+      {%- capture rail_items -%}
         {%- for product in featured_products -%}
-          {%- render 'product-card', product: product -%}
+          <div class="snap-start shrink-0 w-[42%] sm:w-[30%] md:w-[22%]">
+            {%- render 'product-card', product: product -%}
+          </div>
         {%- endfor -%}
-      </div>
+      {%- endcapture -%}
+      {%- render 'carousel', items: rail_items, label: section.settings.heading -%}
     {%- endif -%}
 
   </div>
@@ -54,10 +64,11 @@
       "type": "range",
       "id": "product_count",
       "label": "Number of products",
-      "min": 2,
-      "max": 8,
+      "info": "This row scrolls sideways, so it holds far more than a grid row would.",
+      "min": 4,
+      "max": 20,
       "step": 2,
-      "default": 4
+      "default": 12
     }
   ],
   "presets": [{ "name": "Featured Products" }]

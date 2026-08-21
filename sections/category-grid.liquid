@@ -27,13 +27,21 @@
       <h2 class="font-display text-3xl md:text-4xl font-normal text-deep mb-6 md:mb-8">{{ section.settings.heading | escape }}</h2>
     {%- endif -%}
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+    {%- comment -%}
+      Categories scroll sideways like the product rows below them, so the home
+      page opens with browsable rows rather than a full screen of tiles. Slide
+      widths sit just under 1/n of the rail so the next tile stays part-visible
+      and the row reads as scrollable.
+    {%- endcomment -%}
+    {%- capture rail_items -%}
       {%- if configured > 0 -%}
         {%- for block in section.blocks -%}
           {%- assign col = block.settings.collection -%}
           {%- if col != blank and col.all_products_count > 0 -%}
             {%- assign card_label = block.settings.label | default: col.title -%}
-            {%- render 'category-card', collection: col, label: card_label, attrs: block.shopify_attributes -%}
+            <div class="snap-start shrink-0 w-[42%] sm:w-[30%] md:w-[22%]">
+              {%- render 'category-card', collection: col, label: card_label, attrs: block.shopify_attributes -%}
+            </div>
           {%- endif -%}
         {%- endfor -%}
       {%- else -%}
@@ -46,11 +54,15 @@
           {%- assign clean_handle = handle | strip -%}
           {%- assign col = collections[clean_handle] -%}
           {%- if col != blank and col.all_products_count > 0 -%}
-            {%- render 'category-card', collection: col, label: col.title, attrs: '' -%}
+            <div class="snap-start shrink-0 w-[42%] sm:w-[30%] md:w-[22%]">
+              {%- render 'category-card', collection: col, label: col.title, attrs: '' -%}
+            </div>
           {%- endif -%}
         {%- endfor -%}
       {%- endif -%}
-    </div>
+    {%- endcapture -%}
+    {%- assign rail_label = section.settings.heading | default: 'Categories' -%}
+    {%- render 'carousel', items: rail_items, label: rail_label -%}
   </div>
 </section>
 
@@ -91,7 +103,7 @@
       ]
     }
   ],
-  "max_blocks": 8,
+  "max_blocks": 12,
   "presets": [
     {
       "name": "Category Grid"
