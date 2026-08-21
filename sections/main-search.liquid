@@ -47,7 +47,8 @@
 
     {%- if search.results_count > 0 -%}
       {%- paginate search.results by 24 -%}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+        {%- comment -%} Same column ladder as collection-grid: four across from 768px. {%- endcomment -%}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 lg:gap-4">
           {%- for item in search.results -%}
             {%- if item.object_type == 'product' -%}
               {%- render 'product-card', product: item -%}

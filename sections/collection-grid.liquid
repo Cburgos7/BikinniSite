@@ -159,10 +159,12 @@
       {%- comment -%} PRODUCT GRID {%- endcomment -%}
       {%- paginate collection.products by 24 -%}
         {%- comment -%}
-          Four across from 1024px rather than 1280px: at three columns the cards
-          were large enough that a browser under 1280px wide showed only two.
+          Four across from 768px. The previous `lg:` breakpoint meant a laptop
+          window under 1024px — which is where the owner was looking — dropped
+          back to three columns and the cards ballooned. 768px is the narrowest
+          width where four cards still clear ~170px each.
         {%- endcomment -%}
-        <div id="product-grid-inner" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+        <div id="product-grid-inner" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 lg:gap-4">
           {%- for product in collection.products -%}
             {%- render 'product-card', product: product -%}
           {%- endfor -%}
