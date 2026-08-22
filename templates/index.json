@@ -3,7 +3,18 @@
   "sections": {
     "hero": {
       "type": "hero",
-      "settings": {}
+      "settings": {
+        "image": "shopify://shop_images/hero-velvet-tide.jpg",
+        "image_alt": "Velvet Tide swimwear on the beach at golden hour",
+        "fallback_handle": "swimwear",
+        "eyebrow": "New drops every week",
+        "heading": "Bare, on your terms.",
+        "subheading": "Swim, lingerie and leather in sizes S to 4X. Shipped discreetly from the US.",
+        "cta_label": "Shop New In",
+        "cta_url": "/collections/new-in",
+        "cta2_label": "Shop Swimwear",
+        "cta2_url": "/collections/swimwear"
+      }
     },
     "ticker": {
       "type": "ticker",
