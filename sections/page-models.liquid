@@ -16,8 +16,8 @@
       {%- for model in models limit: 10 -%}
         <div class="bg-cream group">
           <div class="aspect-[2/3] overflow-hidden">
-            {%- if model.portrait != blank -%}
-              {{ model.portrait | image_url: width: 600 | image_tag: class: 'object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: model.name | escape }}
+            {%- if model.photo != blank -%}
+              {{ model.photo | image_url: width: 600 | image_tag: class: 'object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-500', loading: 'lazy', alt: model.name | escape }}
             {%- else -%}
               <div class="w-full h-full bg-sand"></div>
             {%- endif -%}
@@ -26,8 +26,8 @@
             <h2 class="font-display text-2xl font-normal text-deep">{{ model.name | escape }}</h2>
             <p class="font-body text-xs uppercase tracking-widest text-mid mt-1">{{ model.height | escape }}{% if model.height != blank and model.size_worn != blank %} &mdash; {% endif %}{{ model.size_worn | escape }}</p>
             <p class="font-body text-sm text-mid leading-relaxed mt-2 line-clamp-3">{{ model.bio | escape }}</p>
-            {%- if model.instagram_handle != blank -%}
-              <a href="https://instagram.com/{{ model.instagram_handle | remove: '@' | escape }}" class="font-body text-xs uppercase tracking-widest text-coral hover:text-deep transition-colors mt-2 inline-block" rel="noopener noreferrer" target="_blank">@{{ model.instagram_handle | remove: '@' | escape }}</a>
+            {%- if model.instagram != blank -%}
+              <a href="https://instagram.com/{{ model.instagram | remove: '@' | escape }}" class="font-body text-xs uppercase tracking-widest text-coral hover:text-deep transition-colors mt-2 inline-block" rel="noopener noreferrer" target="_blank">@{{ model.instagram | remove: '@' | escape }}</a>
             {%- endif -%}
           </div>
         </div>

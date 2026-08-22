@@ -3,13 +3,19 @@
   .social-feed-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
+{%- comment -%}
+  The whole section is suppressed when there are no posts. Rendering a heading over
+  an empty strip reads as broken; a shopper cannot tell an unfinished site from a
+  failed one.
+{%- endcomment -%}
+{%- assign posts = shop.metaobjects.social_post.values -%}
+{%- if posts.size > 0 or request.design_mode -%}
 <section class="bg-cream py-12 md:py-16">
   <div class="max-w-screen-xl mx-auto px-4">
     <h2 class="font-display text-3xl md:text-4xl text-deep text-center mb-8">
       {{ section.settings.heading }}
     </h2>
 
-    {%- assign posts = shop.metaobjects.social_post.values -%}
 
     {%- if posts.size > 0 -%}
       <div class="social-feed-scroll flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4" style="-webkit-overflow-scrolling: touch;">
@@ -35,10 +41,19 @@
         {%- endfor -%}
       </div>
     {%- else -%}
-      <p class="text-mid font-body text-sm text-center col-span-4">Add social posts in Shopify admin under Content &rarr; Metaobjects &rarr; Social Post.</p>
+      {%- comment -%}
+        Setup instructions are for the owner, not the shopper. This message was
+        rendering on the live home page because the social_post metaobject
+        definition does not exist on the store at all — so every visitor was being
+        told to go and edit the Shopify admin. Only show it in the theme editor.
+      {%- endcomment -%}
+      {%- if request.design_mode -%}
+        <p class="text-mid font-body text-sm text-center col-span-4">Add social posts in Shopify admin under Content &rarr; Metaobjects &rarr; Social Post.</p>
+      {%- endif -%}
     {%- endif -%}
   </div>
 </section>
+{%- endif -%}
 
 {% schema %}
 {
