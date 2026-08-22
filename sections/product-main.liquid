@@ -70,7 +70,12 @@
 
       {%- comment -%} PRICE {%- endcomment -%}
       <div class="mt-3">
-        <span class="font-body text-sm font-semibold tracking-wide text-deep">{{ product.price | money }}</span>
+        {%- comment -%}
+          product.price is the MINIMUM variant price. On products whose variants
+          differ in price this understated what the customer would be charged, so
+          the id lets pdp.js rewrite it as the selection changes.
+        {%- endcomment -%}
+        <span id="pdp-price" class="font-body text-sm font-semibold tracking-wide text-deep">{{ product.price | money }}</span>
         {%- if product.compare_at_price > product.price -%}
           <span class="font-body text-xs text-mid line-through ml-2">{{ product.compare_at_price | money }}</span>
         {%- endif -%}

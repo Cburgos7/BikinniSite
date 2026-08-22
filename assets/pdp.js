@@ -20,19 +20,96 @@ let selectedVariantId = null;
 // the #product-variants-json script tag exists when it is read (WR-05).
 let variantsData = [];
 
+// Which option position holds colour and which holds size, resolved from the
+// rendered option names. Products vary: most are Color + Size, 363 of 663 are
+// colour-only, and reading positions rather than assuming them is what lets one
+// code path serve both.
+let colorKey = null;
+let sizeKey = null;
+let hasSizeOption = false;
+
 /**
- * Find a variant matching current size and/or color selection.
+ * Find the variant matching the current selection.
+ *
+ * Previously a null selection was treated as "any", so an unset colour matched
+ * the first variant of ANY colour — the page could say Baby Pink and add Black.
+ * Matching is now exact on every option the product actually has.
+ *
  * @param {string|null} size
  * @param {string|null} color
  * @returns {object|undefined}
  */
 const findVariant = (size, color) => {
   return variantsData.find((v) => {
-    const opts = v.options || [];
-    const sizeMatch = size ? opts.some((o) => o === size) : true;
-    const colorMatch = color ? opts.some((o) => o === color) : true;
-    return sizeMatch && colorMatch;
+    if (colorKey && v[colorKey] !== color) return false;
+    if (hasSizeOption && sizeKey && v[sizeKey] !== size) return false;
+    return true;
   });
+};
+
+/** Format Shopify's integer cents as USD. */
+const formatMoney = (cents) =>
+  '$' + (Number(cents) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+/**
+ * Single source of truth for variant state.
+ *
+ * The add-to-cart button ships disabled and was only ever re-enabled by the size
+ * handler, so the 363 products with no size option could never be bought — the
+ * handler bound to elements that did not exist. Price, availability and the armed
+ * variant are now all recomputed here, and this runs once on load so a product is
+ * purchasable before the shopper touches anything.
+ */
+const syncVariant = () => {
+  const addToCartBtn = document.getElementById('pdp-add-to-cart');
+  const unavailableMsg = document.getElementById('size-unavailable-msg');
+  const priceEl = document.getElementById('pdp-price');
+  const variant = findVariant(selectedSize, selectedColor);
+
+  if (variant && priceEl && variant.price != null) {
+    priceEl.textContent = formatMoney(variant.price);
+  }
+
+  const sellable = Boolean(variant && variant.available);
+  selectedVariantId = sellable ? variant.id : null;
+
+  if (addToCartBtn) {
+    addToCartBtn.disabled = !sellable;
+    addToCartBtn.dataset.variantId = sellable ? String(variant.id) : '';
+    addToCartBtn.classList.toggle('cursor-not-allowed', !sellable);
+    addToCartBtn.classList.toggle('opacity-60', !sellable);
+    addToCartBtn.classList.toggle('cursor-pointer', sellable);
+    addToCartBtn.classList.toggle('hover:opacity-90', sellable);
+    if (sellable) {
+      addToCartBtn.textContent = 'Add to Cart';
+    } else if (variant) {
+      addToCartBtn.textContent = 'Sold Out';
+    } else {
+      // No such combination was ever made — saying "sold out" implies it might
+      // come back, which is false.
+      addToCartBtn.textContent = 'Unavailable';
+    }
+  }
+
+  if (unavailableMsg) {
+    if (sellable) {
+      unavailableMsg.textContent = '';
+      unavailableMsg.classList.add('hidden');
+    } else {
+      unavailableMsg.textContent = variant
+        ? `${selectedSize || 'This option'} is sold out`
+        : 'That combination is not available in this colour';
+      unavailableMsg.classList.remove('hidden');
+    }
+  }
+
+  document.querySelectorAll('[data-bis-variant]').forEach((el) => {
+    el.classList.add('hidden');
+  });
+  if (variant && !variant.available) {
+    const bisEl = document.getElementById(`bis-${variant.id}`);
+    if (bisEl) bisEl.classList.remove('hidden');
+  }
 };
 
 /**
@@ -123,19 +200,38 @@ const initColorSwatches = () => {
       });
       btn.classList.add('ring-2', 'ring-offset-1', 'ring-deep');
 
-      // Find variant matching new color (and current size if set)
-      const variant = findVariant(selectedSize, selectedColor);
-      if (variant) {
-        selectedVariantId = variant.id;
-        if (addToCartBtn) addToCartBtn.dataset.variantId = selectedVariantId;
-
-        // Update main gallery image to first image of matching variant
-        if (mainImageWrap && variant.featured_image?.src) {
-          const mainImg = mainImageWrap.querySelector('img');
-          if (mainImg) mainImg.src = variant.featured_image.src;
+      // If the newly chosen colour does not come in the current size, fall back
+      // to a size it does come in rather than leaving the previous colour's
+      // variant armed — that is how the wrong colour reached the cart.
+      if (hasSizeOption && !findVariant(selectedSize, selectedColor)) {
+        const firstForColor = variantsData.find(
+          (v) => v[colorKey] === selectedColor && v.available
+        ) || variantsData.find((v) => v[colorKey] === selectedColor);
+        if (firstForColor) {
+          selectedSize = firstForColor[sizeKey];
+          markSelectedSize(selectedSize);
         }
       }
+
+      const variant = findVariant(selectedSize, selectedColor);
+      if (variant && mainImageWrap && variant.featured_image?.src) {
+        const mainImg = mainImageWrap.querySelector('img');
+        if (mainImg) mainImg.src = variant.featured_image.src;
+      }
+      syncVariant();
     });
+  });
+};
+
+/** Paint the active state on the size button matching `size`. */
+const markSelectedSize = (size) => {
+  document.querySelectorAll('[data-size-swatch]').forEach((s) => {
+    const isActive = s.dataset.sizeValue === size;
+    s.classList.toggle('border-deep', isActive);
+    s.classList.toggle('bg-deep', isActive);
+    s.classList.toggle('text-cream', isActive);
+    s.classList.toggle('border-deep/30', !isActive);
+    s.classList.toggle('text-deep', !isActive);
   });
 };
 
@@ -144,83 +240,16 @@ const initColorSwatches = () => {
  */
 const initSizeSwatches = () => {
   const sizeBtns = document.querySelectorAll('[data-size-swatch]');
-  const addToCartBtn = document.getElementById('pdp-add-to-cart');
-  const unavailableMsg = document.getElementById('size-unavailable-msg');
 
   sizeBtns.forEach((btn) => {
-    // Skip disabled (sold-out) sizes
-    if (btn.disabled) return;
-
     btn.addEventListener('click', () => {
+      // Sizes that exist in another colour are no longer skipped outright: the
+      // click reselects and syncVariant() decides whether it is buyable, so the
+      // shopper gets an honest message instead of a dead button.
+      if (btn.disabled) return;
       selectedSize = btn.dataset.sizeValue;
-
-      // Update active state
-      sizeBtns.forEach((s) => {
-        s.classList.remove('border-deep', 'bg-deep', 'text-cream');
-        if (!s.disabled) {
-          s.classList.add('border-deep/30', 'text-deep');
-        }
-      });
-      btn.classList.remove('border-deep/30', 'text-deep');
-      btn.classList.add('border-deep', 'bg-deep', 'text-cream');
-
-      // Find matching variant
-      const variant = findVariant(selectedSize, selectedColor);
-
-      if (variant && variant.available) {
-        selectedVariantId = variant.id;
-
-        // Enable add-to-cart button
-        if (addToCartBtn) {
-          addToCartBtn.disabled = false;
-          addToCartBtn.textContent = 'Add to Cart';
-          addToCartBtn.classList.remove('cursor-not-allowed', 'opacity-60');
-          addToCartBtn.classList.add('cursor-pointer', 'hover:opacity-90');
-          addToCartBtn.dataset.variantId = selectedVariantId;
-        }
-
-        // Hide unavailability message
-        if (unavailableMsg) {
-          unavailableMsg.textContent = '';
-          unavailableMsg.classList.add('hidden');
-        }
-      } else {
-        selectedVariantId = null;
-
-        // Show sold-out message
-        if (unavailableMsg) {
-          unavailableMsg.textContent = selectedSize + ' is sold out';
-          unavailableMsg.classList.remove('hidden');
-        }
-
-        // Disable add-to-cart
-        if (addToCartBtn) {
-          addToCartBtn.disabled = true;
-          addToCartBtn.textContent = 'Sold Out';
-          addToCartBtn.classList.add('cursor-not-allowed', 'opacity-60');
-          addToCartBtn.classList.remove('cursor-pointer', 'hover:opacity-90');
-          addToCartBtn.dataset.variantId = '';
-        }
-
-        // Show back-in-stock form for this variant (if rendered in template)
-        const variant = findVariant(selectedSize, selectedColor);
-        if (variant) {
-          // Hide all BIS forms first
-          document.querySelectorAll('[data-bis-variant]').forEach((el) => {
-            el.classList.add('hidden');
-          });
-          const bisEl = document.getElementById(`bis-${variant.id}`);
-          if (bisEl) bisEl.classList.remove('hidden');
-        }
-      }
-
-      // If variant is available, ensure all BIS forms are hidden
-      const resolvedVariant = findVariant(selectedSize, selectedColor);
-      if (resolvedVariant && resolvedVariant.available) {
-        document.querySelectorAll('[data-bis-variant]').forEach((el) => {
-          el.classList.add('hidden');
-        });
-      }
+      markSelectedSize(selectedSize);
+      syncVariant();
     });
   });
 };
@@ -341,12 +370,60 @@ export default function init() {
     variantsData = JSON.parse(
       document.getElementById('product-variants-json')?.textContent || '[]'
     );
+
+    // Resolve which option position holds colour and which holds size from the
+    // rendered swatches, rather than assuming Color is always option1. Products
+    // with no size option get hasSizeOption = false, which is what allows them to
+    // be purchasable at all.
+    const firstColorSwatch = document.querySelector('[data-color-swatch]');
+    const firstSizeSwatch = document.querySelector('[data-size-swatch]');
+    const sample = variantsData[0] || {};
+    ['option1', 'option2', 'option3'].forEach((key) => {
+      const value = sample[key];
+      if (value == null) return;
+      if (firstColorSwatch && !colorKey) {
+        const known = [...document.querySelectorAll('[data-color-swatch]')].some(
+          (b) => b.dataset.colorValue === value
+        );
+        if (known) { colorKey = key; return; }
+      }
+      if (firstSizeSwatch && !sizeKey) {
+        const known = [...document.querySelectorAll('[data-size-swatch]')].some(
+          (b) => b.dataset.sizeValue === value
+        );
+        if (known) sizeKey = key;
+      }
+    });
+    hasSizeOption = Boolean(sizeKey && firstSizeSwatch);
+
+    // Seed the selection from the first sellable variant so the page opens on a
+    // real, buyable combination instead of an unset state the shopper cannot see.
+    const opening = variantsData.find((v) => v.available) || variantsData[0];
+    if (opening) {
+      if (colorKey) selectedColor = opening[colorKey];
+      if (hasSizeOption) selectedSize = opening[sizeKey];
+    }
+
     initGallery();
     initLightbox();
     initColorSwatches();
     initSizeSwatches();
     initAddToCart();
     initAccordions();
+
+    // Paint the seeded selection and arm the button.
+    if (colorKey) {
+      const label = document.getElementById('selected-color-label');
+      if (label && selectedColor) label.textContent = selectedColor;
+      document.querySelectorAll('[data-color-swatch]').forEach((s) => {
+        const active = s.dataset.colorValue === selectedColor;
+        s.classList.toggle('ring-2', active);
+        s.classList.toggle('ring-offset-1', active);
+        s.classList.toggle('ring-deep', active);
+      });
+    }
+    if (hasSizeOption && selectedSize) markSelectedSize(selectedSize);
+    syncVariant();
   });
 }
 
