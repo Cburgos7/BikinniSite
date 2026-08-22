@@ -1,3 +1,91 @@
+{%- comment -%}
+  Testimonials — auto-rotating customer quotes.
+
+  WHERE THE OWNER EDITS THESE: Shopify admin -> Content -> Metaobjects ->
+  Testimonials. Add, edit or delete an entry there and the home page picks it up
+  on the next page load — no theme change and no deploy. An entry has to be saved
+  as Active; a Draft entry is invisible to Liquid.
+
+  Section blocks are still supported as an explicit override, the same fallback
+  shape category-grid.liquid, featured-products.liquid and hero.liquid use: if
+  this section has blocks with a quote filled in, those win; otherwise the
+  metaobject entries are used. That keeps a one-off campaign quote possible from
+  the theme editor without pushing it into the owner's real testimonial list.
+
+  Renders nothing when there is no content in either place. FTC 16 CFR Part 465
+  forbids fabricated testimonials, so an empty carousel is the only safe default —
+  this section must never ship invented copy to fill the space.
+{%- endcomment -%}
+
+{%- assign block_count = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.settings.quote != blank -%}
+    {%- assign block_count = block_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%}
+  Metaobject values go through capture before the json filter. `entry.quote` is a
+  MetaobjectField object rather than a string, and handing an object to `json`
+  serialises the wrapper instead of the text; capture forces it to its rendered
+  string first.
+
+  The payload is built in one pass and counted as it goes, so the server-rendered
+  first slide, the dot count and the JS data can never disagree.
+{%- endcomment -%}
+{%- assign testimonial_count = 0 -%}
+{%- capture testimonial_json -%}
+[
+  {%- if block_count > 0 -%}
+    {%- for block in section.blocks -%}
+      {%- if block.settings.quote == blank -%}{%- continue -%}{%- endif -%}
+      {%- if testimonial_count > 0 -%},{%- endif -%}
+      {%- assign testimonial_count = testimonial_count | plus: 1 -%}
+      {"quote":{{ block.settings.quote | json }},"author":{{ block.settings.author | default: '' | json }},"location":{{ block.settings.location | default: '' | json }}}
+    {%- endfor -%}
+  {%- else -%}
+    {%- for entry in shop.metaobjects.testimonial.values -%}
+      {%- capture mo_quote -%}{{ entry.quote }}{%- endcapture -%}
+      {%- if mo_quote == blank -%}{%- continue -%}{%- endif -%}
+      {%- capture mo_author -%}{{ entry.author }}{%- endcapture -%}
+      {%- capture mo_location -%}{{ entry.location }}{%- endcapture -%}
+      {%- if testimonial_count > 0 -%},{%- endif -%}
+      {%- assign testimonial_count = testimonial_count | plus: 1 -%}
+      {"quote":{{ mo_quote | json }},"author":{{ mo_author | json }},"location":{{ mo_location | json }}}
+    {%- endfor -%}
+  {%- endif -%}
+]
+{%- endcapture -%}
+
+{%- comment -%}
+  Slide one is rendered server-side so the section is readable before the module
+  runs. It has to come from the same source the payload did, hence the repeat.
+{%- endcomment -%}
+{%- assign first_quote = '' -%}
+{%- assign first_author = '' -%}
+{%- assign first_location = '' -%}
+{%- if block_count > 0 -%}
+  {%- for block in section.blocks -%}
+    {%- if block.settings.quote != blank -%}
+      {%- assign first_quote = block.settings.quote -%}
+      {%- assign first_author = block.settings.author | default: '' -%}
+      {%- assign first_location = block.settings.location | default: '' -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for entry in shop.metaobjects.testimonial.values -%}
+    {%- capture mo_quote -%}{{ entry.quote }}{%- endcapture -%}
+    {%- if mo_quote != blank -%}
+      {%- assign first_quote = mo_quote -%}
+      {%- capture first_author -%}{{ entry.author }}{%- endcapture -%}
+      {%- capture first_location -%}{{ entry.location }}{%- endcapture -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if testimonial_count > 0 -%}
 <section id="testimonial-section" class="bg-sand py-16 md:py-20"
   data-section-type="testimonials">
 
@@ -16,9 +104,7 @@
         id="testimonial-quote"
         class="font-display text-2xl md:text-3xl font-normal italic leading-relaxed text-deep transition-opacity duration-500"
       >
-        {%- if section.blocks.size > 0 -%}
-          {{ section.blocks[0].settings.quote }}
-        {%- endif -%}
+        {{- first_quote | escape -}}
       </blockquote>
 
       <span class="font-display text-6xl leading-none text-gold select-none">&rdquo;</span>
@@ -27,14 +113,16 @@
         id="testimonial-author"
         class="font-body text-xs font-semibold tracking-widest uppercase text-deep mt-4 transition-opacity duration-500"
       >
-        {%- if section.blocks.size > 0 -%}
-          {{ section.blocks[0].settings.author }}
-          {%- if section.blocks[0].settings.location != blank -%}
-            &middot;
-            <span class="font-body text-xs text-mid font-normal normal-case tracking-normal">
-              {{ section.blocks[0].settings.location }}
-            </span>
-          {%- endif -%}
+        {{- first_author | escape -}}
+        {%- comment -%}
+          No trailing dash on this tag: the space it keeps is what puts a gap
+          before the separator, matching the " · " the carousel JS writes for
+          slides two onward.
+        {%- endcomment -%}
+        {%- if first_location != blank %} &middot;
+          <span class="font-body text-xs text-mid font-normal normal-case tracking-normal">
+            {{- first_location | escape -}}
+          </span>
         {%- endif -%}
       </p>
 
@@ -44,18 +132,14 @@
     <div
       id="testimonial-dots"
       class="flex justify-center gap-2 mt-8"
-      data-count="{{ section.blocks.size }}"
+      data-count="{{ testimonial_count }}"
     ></div>
 
   </div>
 
-  <!-- JSON data handoff: block data passed to JS, all fields escaped via Liquid json filter (T-03-14) -->
+  <!-- JSON data handoff: quote data passed to JS, all fields escaped via Liquid json filter (T-03-14) -->
   <script type="application/json" id="testimonial-data">
-    {%- if section.blocks.size > 0 -%}
-      [{% for block in section.blocks %}{"quote":{{ block.settings.quote | json }},"author":{{ block.settings.author | json }},"location":{{ block.settings.location | default: '' | json }}}{% unless forloop.last %},{% endunless %}{% endfor %}]
-    {%- else -%}
-      []
-    {%- endif -%}
+    {{- testimonial_json -}}
   </script>
 
   <!-- ES module: single inline module imports and calls init() (modules are deferred by default) -->
@@ -65,6 +149,17 @@
   </script>
 
 </section>
+{%- elsif request.design_mode -%}
+  {%- comment -%}
+    Editor-only placeholder. The owner needs to know why the section looks empty,
+    but a shopper should never see scaffolding copy on the live home page.
+  {%- endcomment -%}
+  <section class="bg-sand py-16 md:py-20">
+    <div class="max-w-screen-xl mx-auto px-4 text-center">
+      <p class="font-body text-sm text-mid">No testimonials yet. Add them in Shopify admin under Content &rarr; Metaobjects &rarr; Testimonials, or add a Testimonial block here to override.</p>
+    </div>
+  </section>
+{%- endif -%}
 
 {% schema %}
 {
@@ -75,6 +170,10 @@
       "id": "heading",
       "label": "Section heading",
       "default": "What She Said"
+    },
+    {
+      "type": "paragraph",
+      "content": "Quotes come from Content > Metaobjects > Testimonials. Only add blocks below if you want to override that list for this page."
     }
   ],
   "blocks": [
@@ -82,6 +181,10 @@
       "type": "testimonial",
       "name": "Testimonial",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "Adding any block with a quote replaces the whole Testimonials metaobject list on this section. Delete all blocks to go back to it."
+        },
         {
           "type": "textarea",
           "id": "quote",
