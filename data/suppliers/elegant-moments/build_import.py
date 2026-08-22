@@ -317,24 +317,21 @@ def titleize(text, style):
     return head[:1].upper() + head[1:] if head else f"Style {style}"
 
 
-# Below this retail price an order stops covering its own fixed costs: the
-# supplier's $3.50 per-ORDER drop-ship fee, their $4-12 postage (unquotable until
-# the parcel is packed), and payment processing.
+# An order has to cover costs the item itself never sees: the supplier's $3.50
+# per-ORDER drop-ship fee, their $4-12 postage (unquotable until the parcel is
+# packed), and payment processing. On top of that the store runs an influencer
+# programme paying 15% commission on orders carrying a 10%-off code.
 #
-# $14.95 covered a FULL-PRICE order. It does not survive a discount code — with any
-# 10% code live, whether an influencer's, a welcome popup or a Klaviyo flow,
-# break-even moves to $17.05. The floor therefore has to clear the discount, not
-# just the base cost.
+# The customer discount is the expensive half, not the commission: it cuts revenue
+# AND the base the commission is calculated on. At 2.75x with no discount a
+# floor-priced item affords 15.7% commission; add 10% off and that collapses to
+# 6.7%. So markup and floor were raised together -- neither lever is enough alone.
 #
-# Affiliate commission is deliberately NOT priced in here. Pricing a single item to
-# survive 10% off plus 15% commission needs $23.84, which drags 44% of the catalogue
-# onto one price point and erases the difference between a $4 thigh-high and a $10
-# bodystocking. Commission is instead gated to baskets of $50+ merchandise, where
-# the per-order costs are already amortised and every scenario stays positive. The
-# affordable commission rate is a property of the basket, not of the product: the
-# fee and postage are per order while a percentage commission is per dollar.
-# See .planning/research/REFERRALS.md.
-DEFAULT_PRICE_FLOOR = 17.95
+# At 2.75x with a $21.95 floor, the worst case in the catalogue (cheapest item,
+# dearest postage, discount and commission both applied) still affords 15.8%
+# commission, so the programme pays on EVERY order rather than only above a
+# minimum basket. See .planning/research/REFERRALS.md.
+DEFAULT_PRICE_FLOOR = 21.95
 
 
 def retail_price(wholesale, markup, floor=0.0):
@@ -496,7 +493,7 @@ def main():
                     help="minimum retail price; below this a single-item order "
                          "loses money after the drop-ship fee, postage and "
                          "payment processing (default %(default)s, 0 disables)")
-    ap.add_argument("--markup", type=float, default=2.5,
+    ap.add_argument("--markup", type=float, default=2.75,
                     help="retail multiplier on wholesale cost (default 2.5)")
     ap.add_argument("--image-base", default="",
                     help="base URL for product images; when empty, Image Src is "
