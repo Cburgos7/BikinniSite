@@ -1,7 +1,7 @@
 {%- comment -%}
   Snippet: product-card
   Receives: product (Shopify product object)
-  Renders: portrait card with image, badges, wishlist toggle, quick-add, color swatches, title, price
+  Renders: portrait card with image, badges, quick-add, color swatches, title, price
 {%- endcomment -%}
 
 {%- comment -%}
@@ -50,32 +50,17 @@
         {%- endif -%}
       </div>
 
-      {%- comment -%} WISHLIST TOGGLE {%- endcomment -%}
-      <div class="absolute top-3 right-3 z-10">
-        {%- if customer != blank -%}
-          <button
-            type="button"
-            class="text-deep/40 hover:text-coral transition-colors"
-            aria-label="Add {{ product.title | escape }} to wishlist"
-            data-product-id="{{ product.id }}"
-            data-wishlist-toggle
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </button>
-        {%- else -%}
-          <a
-            href="/account/login?return_url={{ product.url | url_encode }}"
-            class="text-deep/40 hover:text-coral transition-colors"
-            aria-label="Add {{ product.title | escape }} to wishlist"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </a>
-        {%- endif -%}
-      </div>
+      {%- comment -%}
+        A wishlist heart used to sit here, top-right. It was never implemented:
+        `data-wishlist-toggle` appeared in this file and in no JavaScript at all,
+        so a signed-in shopper clicked it and nothing happened, while a signed-out
+        one was sent to a login page and returned to the same dead control. The
+        store also offers no accounts to hang a saved list on. Removed rather than
+        left promising a feature that does not exist.
+
+        If a wishlist is wanted later, localStorage is the fit — it needs no
+        account, so it survives the guest-checkout model this store runs on.
+      {%- endcomment -%}
 
       {%- comment -%} QUICK-ADD FORM {%- endcomment -%}
       {%- assign first_variant = product.first_available_variant -%}

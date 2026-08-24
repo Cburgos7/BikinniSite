@@ -4,8 +4,8 @@ module.exports = {
     './layout/**/*.liquid',
     './sections/**/*.liquid',
     './snippets/**/*.liquid',
+    // Covers templates/customers/ too, if account templates ever come back.
     './templates/**/*.liquid',
-    './templates/customers/**/*.liquid',
   ],
   theme: {
     extend: {

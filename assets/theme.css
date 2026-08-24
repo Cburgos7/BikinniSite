@@ -1317,9 +1317,6 @@ video {
 .text-center {
   text-align: center;
 }
-.text-right {
-  text-align: right;
-}
 .font-body {
   font-family: Barlow Condensed, Arial, sans-serif;
 }
@@ -1389,9 +1386,6 @@ video {
 }
 .uppercase {
   text-transform: uppercase;
-}
-.capitalize {
-  text-transform: capitalize;
 }
 .normal-case {
   text-transform: none;
