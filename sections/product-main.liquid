@@ -199,10 +199,23 @@
         {%- endunless -%}
       {%- endfor -%}
 
-      {%- comment -%} METAFIELD ACCORDIONS {%- endcomment -%}
+      {%- comment -%}
+        METAFIELD ACCORDIONS
+
+        Each accordion is already guarded on its own metafield, but the wrapper
+        was not: with all four values blank -- which is every product in the
+        catalogue today -- the PDP still emitted an empty div carrying `mt-8
+        border-t`, so a stray rule and 2rem of dead space sat under the buy box
+        on every page. Gate the wrapper on the same four values so that nothing
+        is drawn until there is something to put inside it.
+      {%- endcomment -%}
+      {%- assign care = product.metafields.custom.care_instructions -%}
+      {%- assign fabric = product.metafields.custom.fabric_composition -%}
+      {%- assign coverage = product.metafields.custom.coverage_level -%}
+      {%- assign model_sizing = product.metafields.custom.model_sizing -%}
+      {%- if care != blank or fabric != blank or coverage != blank or model_sizing != blank -%}
       <div class="mt-8 border-t border-deep/10" id="pdp-accordions">
 
-        {%- assign care = product.metafields.custom.care_instructions -%}
         {%- if care != blank -%}
           <div class="border-b border-deep/10" data-accordion>
             <button
@@ -223,7 +236,6 @@
           </div>
         {%- endif -%}
 
-        {%- assign fabric = product.metafields.custom.fabric_composition -%}
         {%- if fabric != blank -%}
           <div class="border-b border-deep/10" data-accordion>
             <button
@@ -244,7 +256,6 @@
           </div>
         {%- endif -%}
 
-        {%- assign coverage = product.metafields.custom.coverage_level -%}
         {%- if coverage != blank -%}
           <div class="border-b border-deep/10" data-accordion>
             <button
@@ -265,7 +276,6 @@
           </div>
         {%- endif -%}
 
-        {%- assign model_sizing = product.metafields.custom.model_sizing -%}
         {%- if model_sizing != blank -%}
           <div class="border-b border-deep/10" data-accordion>
             <button
@@ -287,6 +297,7 @@
         {%- endif -%}
 
       </div>
+      {%- endif -%}
 
     </div>
   </div>
