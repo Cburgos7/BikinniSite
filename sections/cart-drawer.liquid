@@ -131,9 +131,17 @@
   </div>
 
   <!-- Footer -->
+  {%- comment -%}
+    The drawer is `inset-y-0`, so this footer is pinned to the very bottom of the
+    viewport. On a notched iPhone the bottom ~34px of that area is the home
+    indicator, which swallows taps, and the checkout button's lower edge lands
+    inside it. The extra padding is added on top of py-4 rather than replacing it
+    so the layout is unchanged on devices that report a zero inset.
+  {%- endcomment -%}
   <div
     id="cart-footer"
     class="px-6 py-4 border-t border-sand {% if cart.item_count == 0 %}hidden{% endif %}"
+    style="padding-bottom: calc(1rem + env(safe-area-inset-bottom));"
   >
     <div class="flex items-center justify-between">
       <span class="font-body text-sm text-mid uppercase tracking-widest">Subtotal</span>
