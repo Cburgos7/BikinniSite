@@ -41,13 +41,21 @@
       ></div>
     </div>
     <p id="shipping-bar-text" class="font-body text-sm text-deep mt-1">
-      {%- assign threshold = section.settings.free_shipping_threshold -%}
-      {%- assign cart_total_dollars = cart.total_price | divided_by: 100.0 -%}
-      {%- if cart_total_dollars >= threshold -%}
+      {%- comment -%}
+        The money filters take CENTS. Comparing and subtracting in dollars and
+        then handing the dollar figure to money_without_currency divided it by
+        100 a second time, so the $75.00 threshold printed as "$0.75" on every
+        page with an empty cart. Do the whole calculation in cents instead; the
+        data-threshold attribute above stays in dollars because cart-drawer.js
+        reads it that way.
+      {%- endcomment -%}
+      {%- assign threshold = section.settings.free_shipping_threshold | default: 75 -%}
+      {%- assign threshold_cents = threshold | times: 100 -%}
+      {%- if cart.total_price >= threshold_cents -%}
         You've unlocked free shipping!
       {%- else -%}
-        {%- assign remaining = threshold | minus: cart_total_dollars -%}
-        You're ${{ remaining | money_without_currency }} away from free shipping!
+        {%- assign remaining_cents = threshold_cents | minus: cart.total_price -%}
+        You're ${{ remaining_cents | money_without_currency }} away from free shipping!
       {%- endif -%}
     </p>
   </div>
