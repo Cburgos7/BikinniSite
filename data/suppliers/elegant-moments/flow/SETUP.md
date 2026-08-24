@@ -14,9 +14,21 @@ already has been.
 
 | Piece | State |
 |---|---|
-| `custom.supplier_style` variant metafield | **Created and populated on all 1,522 live variants** |
+| `custom.supplier_style` variant metafield | **Created and populated on all 1,522 live variants**, admin access `PUBLIC_READ_WRITE` so Flow can read it |
 | Email body template | `supplier-order-email.liquid` in this folder |
 | Correctness tests | `render_test.py` — 27 checks, all passing |
+
+### Feasibility, checked against Shopify's own docs
+
+No blockers. Verified 2026-08-24:
+
+| Question | Answer |
+|---|---|
+| Is Flow available on this store? | **Yes** — free, and available on Basic since Shopify extended it beyond higher tiers |
+| Can it email a supplier at another company? | **Yes** — the documented limit is that the address can't be a *variable*; a static external address is fine |
+| Can it also copy us? | **Yes** — comma-separate a second recipient. There is no Cc field |
+| Can it read our style metafield? | Definition exists with admin `PUBLIC_READ_WRITE`. **Variable path still unverified in Flow** — see step 9 |
+| Does the plan limit us? | Only `Send HTTP request` (Grow+). Not used here |
 
 Re-run the backfill after every product import, or new variants arrive with no
 style and their order lines will print `DO NOT SHIP`:
@@ -97,22 +109,48 @@ returned on a chargeback.
 
 ### 5. Action: **Send internal email**
 
-- **To:** `dropship@elegantmomentslingerie.com`
-- **Cc:** your own orders mailbox — see step 6
+- **To:** `dropship@elegantmomentslingerie.com, <your own orders mailbox>`
 - **Subject:** `Drop-ship order {{ order.name }} — Velvet Tide`
 - **Body:** everything in `supplier-order-email.liquid` below the SUBJECT
   comment block. Do not paste the `{%- comment -%}` header; it is documentation.
 
-### 6. Fill in the two placeholders
+> **There is no Cc field on this action.** Shopify's reference documents `To`
+> only. Use a second comma-separated recipient instead — "to send emails to
+> multiple people, separate their email addresses with a comma" — which achieves
+> the same thing. Your copy is what you paste tracking numbers from, so do not
+> skip it.
 
-- **Dropship account number** — replace `«ACCOUNT NUMBER — see SETUP.md step 6»`
-  in the body with your Elegant Moments account number.
-- **Cc address** — put a mailbox you control here. It costs nothing, gives you a
-  per-order copy, and is where Elegant Moments' replies land when they hit
-  Reply. Their tracking numbers and out-of-stock notices both arrive this way.
+> **The recipient must be typed literally, not built from a variable.** Shopify:
+> *"You can't use variables to customize the email address to which the message
+> is sent."* That restriction does not affect us — the supplier address never
+> changes — but it does mean you cannot make the destination conditional later.
+>
+> Some summaries read that limitation as "internal email is staff-only". It is
+> not. The constraint is on *variables*, not on the recipient's domain; a static
+> external address is fine.
 
-> Blocked on task #12 — the legal pages still carry a personal Gmail. Settle the
-> business address once and use it here too.
+### 6. Fill in the account number
+
+Replace `«ACCOUNT NUMBER — see SETUP.md step 6»` in the body with your Elegant
+Moments account number.
+
+### 6b. Check the sender address
+
+Flow sends from your store's **sender email address** (Settings → Notifications),
+which today is `jcarlson2003@gmail.com`.
+
+That works — but it will arrive at Elegant Moments as
+`jcarlson2003@gmail.com via shopifyemail.com`, because authenticating a sender
+domain means adding CNAME and DMARC records, and nobody can add DNS records to
+`gmail.com`. Replies still reach you: Shopify forwards them to the sender
+address. So the tracking-number path is intact either way.
+
+Two reasons to move to a domain mailbox before you go live (task #12):
+
+- A wholesale supplier receiving orders from a personal Gmail "via
+  shopifyemail.com" is more likely to be filtered as spam, and Flow's email
+  action gives **no delivery receipt** — a filtered order is silent.
+- It is the same address the legal pages need, so settle it once.
 
 ### 7. Action: **Add order tags** → `em-sent`
 
