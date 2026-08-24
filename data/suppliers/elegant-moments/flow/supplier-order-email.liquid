@@ -1,0 +1,128 @@
+{%- comment -%}
+  Elegant Moments drop-ship order email — body for the Shopify Flow
+  "Send internal email" action.
+
+  Paste everything below the SUBJECT block into the action's message body.
+  SETUP.md has the rest of the workflow: trigger, conditions, sender, and the
+  tag that stops an order being sent twice.
+
+  ── The style number is DATA, not a derivation ───────────────────────────────
+
+  It comes from the variant metafield custom.supplier_style, written by
+  scripts/backfill-supplier-style.py from the STYLE column of the supplier's own
+  liveinventory.csv.
+
+  Do not be tempted to derive it from the SKU. The Phase 7 research proposed
+  `sku | split: "-" | first`, and that is wrong for 466 of our 1,522 live
+  variants (31%):
+
+      SKU          that rule gives   actual supplier STYLE
+      L1249BL      L1249BL           L1249      trailing colour code
+      L2316P       L2316P            L2316
+      L2316XP      L2316XP           L2316X     the X IS style, the P is not
+      L1237SALE    L1237SALE         L1237
+      82509        82509             85209      supplier's own transposition
+
+  L2316P -> L2316 but L2316XP -> L2316X. A trailing letter is sometimes part of
+  the style and sometimes a colour code, and nothing in the SKU distinguishes
+  them. No string rule exists. Neither does the product title work: 220 of 673
+  titles name a style number that no orderable variant actually has.
+
+  If the metafield is ever empty the block below prints a DO NOT SHIP line
+  rather than a guess. A visible stall is recoverable; a wrong garment in a
+  discreet unmarked parcel is not.
+
+  ── Why colour and size come from selectedOptions ────────────────────────────
+
+  Not from variant.title. Colours like "Black/Red" and sizes like "O/S" and
+  "1X/2X" both contain slashes, so "Black/Red / Q/S" cannot be split on "/"
+  unambiguously. The fallback splits on " / " (space-slash-space), which IS
+  safe: no option value in the catalogue contains that sequence, verified
+  across all 127 distinct values by render_test.py.
+
+  ── Formatting ───────────────────────────────────────────────────────────────
+
+  Dot leaders rather than column alignment, deliberately. If Flow renders the
+  body as HTML, runs of spaces collapse and a padded table loses its columns;
+  literal dots survive. A person keys this into an order-entry screen field by
+  field, so one labelled field per line beats a table either way.
+
+  STYLE and SIZE sit on separate lines so "2987X" can never be read as
+  "style 2987, size X".
+{%- endcomment -%}
+
+{%- comment -%} ═══ SUBJECT LINE (paste into Flow's Subject field) ═══════════
+Drop-ship order {{ order.name }} — Velvet Tide
+{%- endcomment -%}
+
+DROP SHIP ORDER — VELVET TIDE
+Our order reference: {{ order.name }}
+Dropship account: «ACCOUNT NUMBER — see SETUP.md step 6»
+
+Please ship the items below directly to the customer.
+Bill the card we hold on file. Do not include a packing list.
+
+============================================================
+ITEMS
+============================================================
+{% for li in order.lineItems %}
+{%- comment -%}
+  Captured before the selectedOptions loop below. Liquid restores the outer
+  forloop on endfor, but reading forloop.index after a nested loop is a subtle
+  dependency and this costs nothing to make explicit.
+{%- endcomment -%}
+{%- assign itemNo = forloop.index -%}
+{%- assign sku = li.sku | strip -%}
+{%- assign style = li.variant.metafields.custom.supplier_style | strip -%}
+{%- assign colorValue = "" -%}
+{%- assign sizeValue = "" -%}
+{%- for opt in li.variant.selectedOptions -%}
+  {%- if opt.name == "Color" -%}{%- assign colorValue = opt.value -%}{%- endif -%}
+  {%- if opt.name == "Size" -%}{%- assign sizeValue = opt.value -%}{%- endif -%}
+{%- endfor -%}
+{%- comment -%}
+  Fallback if Flow does not expose selectedOptions on the line-item variable.
+  Order is Color then Size, matching how the products were built; verified that
+  variant.title is exactly the option values joined by " / " for all 1,522 live
+  variants.
+{%- endcomment -%}
+{%- if colorValue == "" and sizeValue == "" -%}
+  {%- assign parts = li.variant.title | split: " / " -%}
+  {%- assign colorValue = parts[0] -%}
+  {%- assign sizeValue = parts[1] -%}
+{%- endif -%}
+  ITEM {{ itemNo }}
+{% if style == "" %}    STYLE ....... ** MISSING — DO NOT SHIP THIS LINE, WE WILL FOLLOW UP **
+{% else %}    STYLE ....... {{ style }}
+{% endif %}    COLOR ....... {{ colorValue | default: "—" }}
+{% if sizeValue == "" %}    SIZE ........ One size (no size option on this item)
+{% else %}    SIZE ........ {{ sizeValue }}
+{% endif %}    QTY ......... {{ li.quantity }}
+    (our ref: {{ li.product.title }} / SKU {{ sku | default: "—" }})
+{% endfor %}
+============================================================
+SHIP TO
+============================================================
+
+    NAME ........ {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}
+{% if order.shippingAddress.company != blank %}    COMPANY ..... {{ order.shippingAddress.company }}
+{% endif %}    ADDRESS ..... {{ order.shippingAddress.address1 }}
+{% if order.shippingAddress.address2 != blank %}                  {{ order.shippingAddress.address2 }}
+{% endif %}    CITY ........ {{ order.shippingAddress.city }}
+    STATE ....... {{ order.shippingAddress.provinceCode }}
+    ZIP ......... {{ order.shippingAddress.zip }}
+    COUNTRY ..... {{ order.shippingAddress.countryCodeV2 }}
+    PHONE ....... {{ order.shippingAddress.phone | default: "not provided" }}
+
+============================================================
+
+Ship method: Standard.
+Tracking: please reply to this email with the tracking number and carrier.
+
+If any item is unavailable, reply and tell us which. Please HOLD the whole
+order until we confirm — do not part-ship, and do not substitute.
+
+This order was sent once, automatically. If you receive it twice, the second
+copy is an error: ship reference {{ order.name }} only once.
+
+Velvet Tide

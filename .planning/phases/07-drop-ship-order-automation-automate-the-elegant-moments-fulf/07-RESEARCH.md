@@ -265,7 +265,7 @@ EM tracking reply  ──►  velvet-tide-2@mail.usemechanic.com
 | Flow → external email | `Send internal email` sends from your configured sender address to one or more comma-separated recipients. **Recipients cannot be a variable** — they must be static, which is fine here (always `dropship@`). [CITED: help.shopify.com/manual/shopify-flow/reference/actions/send-email] |
 | Flow attachments | **Not supported.** No attachment option exists on the action. [VERIFIED: help center action reference] |
 | Flow Liquid over line items | `{% for li in order.lineItems %} {{ li.sku }} {{ li.quantity }} {% endfor %}`. Direct iteration — **no GraphQL `edges`/`node` wrapper**. camelCase field names because Flow reads the GraphQL Admin API. Arrays cannot be printed directly. [CITED: help.shopify.com/manual/shopify-flow/getting-started/concepts/variables] |
-| Flow `Send HTTP request` | Available on **Grow, Advanced, Plus** — this store qualifies. 30-second response timeout. 2xx/3xx = success. On 4xx/5xx/429 you choose retry-for-24h / fail / ignore. Response readable as `sendHttpRequest`. [CITED: help.shopify.com/manual/shopify-flow/reference/actions/send-http-request] |
+| Flow `Send HTTP request` | Available on **Grow, Advanced, Plus**. ⛔ **CORRECTED 2026-08-24: this store is on BASIC and does NOT qualify.** Stage 1 is unaffected (`Send internal email` works on Basic); this only rules out the "call our own endpoint" variant. 30-second response timeout. 2xx/3xx = success. On 4xx/5xx/429 you choose retry-for-24h / fail / ignore. Response readable as `sendHttpRequest`. [CITED: help.shopify.com/manual/shopify-flow/reference/actions/send-http-request] |
 | Flow scheduled trigger | `Scheduled time` recurs hourly/daily/weekly/monthly, minimum 10-minute interval; pair with `Get order data` (runs the Order query, **max 100 items**). [CITED: help.shopify.com/manual/shopify-flow/reference/triggers/scheduled-time] |
 | Correct trigger | Use **`Order risk analyzed`**, not `Order created`. "Fraud analysis takes some time to process. Workflows that start with Order risk analyzed do not run immediately after an order is created." Only fires for Shopify's own risk assessments, not third-party. [CITED: help.shopify.com/manual/shopify-flow/reference/triggers/order-risk-analyzed] |
 | Risk API status | `OrderRisk` and `order.riskLevel` are **deprecated** since 2024-04 in favour of the Risk Assessments API (`OrderRiskAssessment`, `RiskAssessmentResult` with `PENDING`/`NONE` granularity). [CITED: shopify.dev/changelog — deprecation of order risk APIs] |
@@ -320,6 +320,33 @@ exact variable path.
 ---
 
 ## Q2 — Style-Number Presentation
+
+> ## ⛔ CORRECTED 2026-08-24 — the rule below is WRONG
+>
+> This section concluded that the supplier style is the SKU with any `-SIZE`
+> suffix stripped. It was derived from our own built CSV. Checked against the
+> **supplier's own `STYLE` column** in `liveinventory.csv`, it is wrong for
+> **466 of 1,522 live variants (31%)**:
+>
+> | SKU | this section says | actual supplier STYLE |
+> |---|---|---|
+> | `L1249BL` | `L1249BL` | `L1249` |
+> | `L2316P` | `L2316P` | `L2316` |
+> | `L2316XP` | `L2316XP` | `L2316X` |
+> | `L1237SALE` | `L1237SALE` | `L1237` |
+> | `82509` | `82509` | `85209` |
+>
+> `L2316P → L2316` but `L2316XP → L2316X`: a trailing letter is sometimes part
+> of the style and sometimes a colour code, and nothing in the SKU distinguishes
+> them. **No string rule exists.** The section's own warning about the title was
+> right, and understated — 220 of 673 titles name a style no variant has.
+>
+> **What was built instead:** the supplier's STYLE is stored per variant in
+> `custom.supplier_style` by `scripts/backfill-supplier-style.py` and printed
+> directly. Nothing is derived. See `data/suppliers/elegant-moments/flow/`.
+>
+> Everything below is kept for the reasoning about slash-ambiguous option values
+> and the email line format, which was correct and is still in use.
 
 ### The actual data (read from the built catalogue)
 
@@ -949,8 +976,10 @@ Scope Stage 2 strictly to them.
 but the plus variant's actual supplier style is `2987X`. Every plus-size order ships the wrong
 garment.
 **Why it happens:** The title looks authoritative and is the most obvious field to reach for.
-**How to avoid:** Derive style from `li.sku | split: "-" | first`. Never from the title, never from
-tags (which list both styles).
+**How to avoid:** ~~Derive style from `li.sku | split: "-" | first`.~~ **CORRECTED 2026-08-24 —
+do not derive at all.** That rule is wrong for 31% of live variants; see the correction box at the
+top of Q2. Print `li.variant.metafields.custom.supplier_style`, which carries the supplier's own
+STYLE value. Never from the title, never from tags (which list both styles), never from the SKU.
 **Warning signs:** Plus-size customers reporting the wrong item; returns clustered on
 `Extended Sizing`-tagged products.
 
