@@ -51,7 +51,7 @@ Next: Supply real integration credentials, run `06-HUMAN-CHECKPOINT.md`, deploy 
 | 260818-s63 | Prepare Elegant Moments images (784 imgs, 448MB→81MB), merge plus-size twins (330 products), build Shopify Admin API push; blocked on API credentials | 2026-08-19 | 53c9daf, cba42b9, 4bd5b59, 43ee7c5 | [260818-s63-prepare-elegant-moments-images-and-build](./quick/260818-s63-prepare-elegant-moments-images-and-build/) |
 | 260818-sew | Correct advertised size range from XXS–3XL to the real S–4X; real supplier measurements in size guide + One Size table | 2026-08-19 | 3997a4e, 4a35492 | [260818-sew-correct-size-range-from-xxs-3xl-to-real-](./quick/260818-sew-correct-size-range-from-xxs-3xl-to-real-/) |
 | 260818-sjc | Load Shopify credentials from gitignored .env; verified live product+image push works; front-image ordering fix | 2026-08-19 | 84d1615 | [260818-sjc-load-shopify-credentials-from-gitignored](./quick/260818-sjc-load-shopify-credentials-from-gitignored/) |
-| 260824-wq7 | Remove the dead customer-account surface: 5 unreachable customer templates, the unimplemented wishlist heart, the header account icon | 2026-08-24 | 0eb1cb0 | [260824-wq7-remove-dead-customer-account-surface](./quick/260824-wq7-remove-dead-customer-account-surface/) |
+| 260824-wq7 | Remove the dead customer-account surface: 5 unreachable customer templates, the unimplemented wishlist heart, the header account icon | 2026-08-24 | 033f77c | [260824-wq7-remove-dead-customer-account-surface](./quick/260824-wq7-remove-dead-customer-account-surface/) |
 
 ## Decisions Log
 
