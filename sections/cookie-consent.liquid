@@ -1,5 +1,21 @@
+{%- comment -%}
+  z-[45] deliberately, NOT z-[100].
+
+  This banner is fixed to the bottom of the viewport on every page. At z-[100] it
+  outranked every overlay in the theme, including the cart drawer (z-[70]). On a
+  375x667 phone the banner occupies the bottom 90px and the drawer's PROCEED TO
+  CHECKOUT button sits at y 592-648 — entirely underneath it. document.elementFromPoint
+  at the button's centre returned the banner, and a real tap did nothing: the store
+  could not be checked out from on a phone until the shopper happened to dismiss
+  cookies first.
+
+  45 keeps the banner above ordinary page content and the filter-drawer overlay
+  (z-40) while sitting below the filter drawer and header (z-50), the cart overlay
+  and mobile nav (z-[60]), and the cart drawer itself (z-[70]). Consent is
+  important; it is not more important than being able to pay.
+{%- endcomment -%}
 <div id="cookie-consent-banner"
-  class="fixed bottom-0 left-0 right-0 z-[100] bg-deep text-cream transform translate-y-0 transition-transform duration-300"
+  class="fixed bottom-0 left-0 right-0 z-[45] bg-deep text-cream transform translate-y-0 transition-transform duration-300"
   role="complementary"
   aria-label="Cookie consent">
   <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between px-6 py-3 gap-3">
