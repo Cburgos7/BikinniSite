@@ -1,10 +1,16 @@
 let searchOpen = false;
 
+/**
+ * The bar used to carry `hidden lg:flex`, so removing `hidden` below 1024px
+ * left it at display:none and the toggle appeared to do nothing. It now carries
+ * `hidden` alone and gets `flex` applied here, which makes it visible at every
+ * width. Both classes have to move together or the desktop layout collapses.
+ */
 const openSearch = (navLinks, searchBar, input) => {
   searchOpen = true;
   navLinks.classList.add('opacity-0', 'pointer-events-none');
   searchBar.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-  searchBar.classList.add('opacity-100');
+  searchBar.classList.add('flex', 'opacity-100');
   input.value = '';
   input.focus();
 };
@@ -15,7 +21,10 @@ const closeSearch = (navLinks, searchBar, toggle) => {
   searchBar.classList.remove('opacity-100');
   // Delay hiding to allow fade-out transition
   setTimeout(() => {
-    if (!searchOpen) searchBar.classList.add('hidden');
+    if (!searchOpen) {
+      searchBar.classList.add('hidden');
+      searchBar.classList.remove('flex');
+    }
   }, 200);
   navLinks.classList.remove('opacity-0', 'pointer-events-none');
   toggle.focus();
@@ -34,12 +43,13 @@ export default function init() {
     toggle.addEventListener('click', () => openSearch(navLinks, searchBar, input));
     closeBtn.addEventListener('click', () => closeSearch(navLinks, searchBar, toggle));
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const query = encodeURIComponent(input.value.trim());
-        if (query) {
-          window.location.href = `/search?q=${query}`;
-        }
+    // #nav-search-bar is a GET form pointed at /search, so Enter and a phone
+    // keyboard's "Search" key both submit natively. All that is left to do is
+    // refuse an empty query, which would otherwise land on a bare results page.
+    searchBar.addEventListener('submit', (e) => {
+      if (!input.value.trim()) {
+        e.preventDefault();
+        input.focus();
       }
     });
 

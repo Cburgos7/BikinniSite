@@ -55,29 +55,51 @@
     </nav>
 
     <!-- Inline search bar (hidden by default, shown when search toggled) -->
-    <div
+    {%- comment -%}
+      The toggle button next to it renders at every width, but this bar used
+      to be `hidden lg:flex`, so below 1024px tapping search did nothing at all.
+      It is now hidden by `hidden` alone (inline-search.js adds `flex` when it
+      opens), and on small screens it spans the header row -- inset-y-0 plus
+      left-4/right-4 with bg-deep -- so it covers the hamburger, the centred
+      logo and the icon row rather than colliding with them. Absolute insets
+      resolve against <header>, which is the nearest positioned ancestor, and an
+      absolutely positioned box paints above the static icon row that follows it
+      in the DOM. From lg up the insets are released and the original centred,
+      fixed-width bar is restored.
+
+      It is also a real GET form now. A phone keyboard's "Go"/"Search" key is not
+      guaranteed to reach a bare keydown listener, and submitting is the only
+      path that works with JS still loading -- so the native submit carries the
+      query and inline-search.js no longer has to.
+    {%- endcomment -%}
+    <form
       id="nav-search-bar"
-      class="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200"
+      action="{{ routes.search_url }}"
+      method="get"
+      role="search"
+      class="hidden absolute inset-y-0 left-4 right-4 bg-deep lg:inset-y-auto lg:left-1/2 lg:right-auto lg:bg-transparent lg:-translate-x-1/2 items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200"
       aria-label="Site search"
     >
       <input
         id="nav-search-input"
         type="search"
+        name="q"
         placeholder="Search…"
-        class="bg-transparent border-b border-cream text-cream font-body text-sm tracking-wider placeholder:text-mid focus:outline-none w-64 py-1"
-        autofocus
+        enterkeyhint="search"
+        class="bg-transparent border-b border-cream text-cream font-body text-sm tracking-wider placeholder:text-mid focus:outline-none flex-1 min-w-0 lg:flex-none lg:w-64 py-1"
         aria-label="Search products"
       >
       <button
         id="nav-search-close"
-        class="text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral"
+        type="button"
+        class="flex-shrink-0 text-cream hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-coral"
         aria-label="Close search"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-    </div>
+    </form>
 
     <!-- Right icons: search, account, cart -->
     <div class="flex items-center gap-3 ml-auto lg:ml-0">
