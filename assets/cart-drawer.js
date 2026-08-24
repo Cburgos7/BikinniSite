@@ -173,15 +173,23 @@ export default function init() {
     };
 
     /**
-     * Bind quantity and remove button handlers on #cart-items
-     * Uses event delegation so it survives innerHTML re-renders.
+     * Bind quantity and remove button handlers on #cart-items.
+     *
+     * This is bound EXACTLY ONCE, on the real #cart-items element, and is never
+     * rebound. The previous version cloned #cart-items and swapped the clone in
+     * on every render to shed old listeners. That worked the first time and then
+     * threw forever after: the closure still pointed at the original node, which
+     * the first swap had already detached, so `cartItems.parentNode` was null and
+     * `parentNode.replaceChild` blew up with a TypeError.
+     *
+     * Because renderCart() called this as its last statement, that TypeError
+     * propagated out of renderCart, which meant the `cart:updated` handler never
+     * reached openDrawer() — adding a product silently did nothing visible, and
+     * a shopper could never get to the checkout button. Rebinding was never
+     * necessary in the first place: renderCart only rewrites innerHTML, so the
+     * container element survives and a delegated listener on it survives with it.
      */
     const bindCartItemEvents = () => {
-      if (!cartItems) return;
-      // Remove old listener by replacing the node (simplest delegation approach)
-      const newItems = cartItems.cloneNode(true);
-      cartItems.parentNode.replaceChild(newItems, cartItems);
-      // Re-query after replace
       const itemsContainer = document.getElementById('cart-items');
       if (!itemsContainer) return;
 
@@ -299,11 +307,13 @@ export default function init() {
         }
       }
 
-      // Rebind events after re-render
-      bindCartItemEvents();
+      // No rebinding here on purpose. The click handler is delegated from
+      // #cart-items, which innerHTML does not replace, so it keeps working
+      // across renders. Calling it again is what used to throw and abort the
+      // caller mid-flight.
     };
 
-    // Initial event binding
+    // Initial (and only) event binding
     bindCartItemEvents();
 
     /**
@@ -342,14 +352,19 @@ export default function init() {
      * Fetch the current cart state, re-render drawer, and open it.
      */
     document.addEventListener('cart:updated', () => {
+      // Open first, render second — and never let rendering decide whether the
+      // drawer opens. Previously openDrawer() sat after renderCart() inside the
+      // same .then(), so one throw inside renderCart swallowed the whole chain
+      // into .catch() and the drawer stayed closed. The item was in the cart,
+      // but the shopper had no way to see it or reach checkout. Opening up front
+      // means the worst case is a drawer showing stale line items, not a silent
+      // dead end on the only revenue path in the store.
+      openDrawer();
       fetch('/cart.js', {
         headers: { 'Content-Type': 'application/json' },
       })
         .then((res) => res.json())
-        .then((cart) => {
-          renderCart(cart);
-          openDrawer();
-        })
+        .then((cart) => renderCart(cart))
         .catch((err) => console.error('[cart-drawer] cart:updated fetch failed', err));
     });
   });
