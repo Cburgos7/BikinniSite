@@ -330,6 +330,57 @@ export default function init() {
     }
 
     /**
+     * QUICK-ADD FROM COLLECTION CARDS
+     *
+     * product-card.liquid renders a real <form action="/cart/add" method="post">
+     * so the card still works without JS. Left alone, though, submitting it does
+     * a full page POST and dumps the shopper on /cart/add — away from the grid
+     * they were browsing, with no drawer and no confirmation.
+     *
+     * Delegated from document because the grid is re-rendered by filtering, and
+     * routed through the same cart:updated event the PDP uses so the drawer opens
+     * and re-renders identically no matter where the item was added from.
+     *
+     * Anything unexpected falls back to form.submit(), which performs the plain
+     * POST the markup always described. Calling submit() directly does not fire
+     * this handler again, so there is no recursion.
+     */
+    document.addEventListener('submit', (e) => {
+      const form = e.target.closest('form[action="/cart/add"]');
+      if (!form) return;
+      const btn = form.querySelector('[data-quick-add]');
+      if (!btn) return;
+
+      const idInput = form.querySelector('input[name="id"]');
+      const variantId = parseInt(idInput ? idInput.value : '', 10);
+      if (!isFinite(variantId)) return; // let the browser POST it the old way
+
+      e.preventDefault();
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: variantId, quantity: 1 }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('quick-add failed: ' + res.status);
+          return res.json();
+        })
+        .then(() => {
+          btn.disabled = false;
+          btn.textContent = label;
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        })
+        .catch((err) => {
+          console.error('[cart-drawer] quick-add', err);
+          form.submit();
+        });
+    });
+
+    /**
      * Listen for upromote:ref-captured dispatched by upromote.js.
      * Applies the affiliate discount code to the cart drawer checkout button href.
      * This covers the case where upromote.js fires before or after the drawer renders.

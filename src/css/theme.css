@@ -22,6 +22,24 @@
   #custom-cursor { display: none !important; }
 }
 
+/*
+ * Quick-add — reveal on touch/mobile.
+ *
+ * The button is `translate-y-full group-hover:translate-y-0`, so it is parked one
+ * full height BELOW the card's `overflow-hidden` image box and only slides into
+ * view on hover. A phone has no hover, so on mobile the button sat permanently
+ * outside the clip: measured at y 388.7-428.7 against a clip ending at 388.7,
+ * elementFromPoint at its centre returned the colour-swatch row behind it, and a
+ * real tap added nothing to the cart. Every collection card shipped a dead
+ * control on the devices most shoppers use.
+ *
+ * Hover-capable pointers keep the slide-up reveal; coarse pointers get the button
+ * where it belongs, pinned to the bottom of the image.
+ */
+@media (pointer: coarse) {
+  [data-quick-add] { transform: none !important; }
+}
+
 /* Scroll reveal utility */
 [data-reveal] {
   opacity: 0;
