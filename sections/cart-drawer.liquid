@@ -11,7 +11,27 @@
   role="dialog"
   aria-modal="true"
   aria-label="Cart"
-  class="fixed inset-y-0 right-0 z-[70] w-96 max-w-full bg-cream flex flex-col transform translate-x-full transition-transform duration-300"
+  {%- comment -%}
+    Height is 100dvh, not inset-y-0.
+
+    inset-y-0 sizes to the LAYOUT viewport, which on iOS Safari extends behind the
+    browser toolbar. The drawer therefore ran taller than the screen and its
+    footer — with PROCEED TO CHECKOUT in it — sat below the visible area, so the
+    store could not be checked out from on a phone. The cookie banner sitting at
+    z-[45], below this drawer's z-[70], was a separate earlier fix and was never
+    the cause: a lower banner still rendered visible underneath the drawer's
+    bottom edge, which is exactly what proved the drawer was overflowing the
+    screen rather than being overlapped.
+
+    dvh tracks the visual viewport as the toolbar shows and hides.
+
+    inset-y-0 is kept as the fallback rather than h-screen. Tailwind emits
+    .h-[100dvh] BEFORE .h-screen, so at equal specificity the 100vh rule would
+    win and silently undo this. With top and bottom both pinned, a browser that
+    understands dvh applies height and ignores bottom; one that does not drops
+    the declaration and falls back to the inset. No cascade race either way.
+  {%- endcomment -%}
+  class="fixed inset-y-0 right-0 z-[70] w-96 max-w-full h-[100dvh] bg-cream flex flex-col transform translate-x-full transition-transform duration-300"
 >
 
   <!-- Header row -->
@@ -140,7 +160,11 @@
   {%- endcomment -%}
   <div
     id="cart-footer"
-    class="px-6 py-4 border-t border-sand {% if cart.item_count == 0 %}hidden{% endif %}"
+    {%- comment -%}
+      shrink-0 stops the footer being squeezed by the flex-1 items list, and the
+      safe-area padding keeps the checkout button clear of the iOS home indicator.
+    {%- endcomment -%}
+    class="shrink-0 px-6 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-sand bg-cream {% if cart.item_count == 0 %}hidden{% endif %}"
     style="padding-bottom: calc(1rem + env(safe-area-inset-bottom));"
   >
     <div class="flex items-center justify-between">

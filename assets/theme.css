@@ -561,6 +561,9 @@ video {
 .pointer-events-none {
   pointer-events: none;
 }
+.visible {
+  visibility: visible;
+}
 .invisible {
   visibility: hidden;
 }
@@ -807,12 +810,18 @@ video {
 .h-8 {
   height: 2rem;
 }
+.h-\[100dvh\] {
+  height: 100dvh;
+}
 .h-fit {
   height: -moz-fit-content;
   height: fit-content;
 }
 .h-full {
   height: 100%;
+}
+.h-screen {
+  height: 100vh;
 }
 .max-h-\[600px\] {
   max-height: 600px;
@@ -1289,6 +1298,9 @@ video {
 }
 .pb-4 {
   padding-bottom: 1rem;
+}
+.pb-\[calc\(1rem\+env\(safe-area-inset-bottom\)\)\] {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 .pt-1 {
   padding-top: 0.25rem;
