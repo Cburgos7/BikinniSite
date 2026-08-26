@@ -1,0 +1,17 @@
+{
+  "_comment": "Copy to order_config.json and fill in. order_config.json is gitignored - this repo is PUBLIC.",
+  "account_number": "«YOUR ELEGANT MOMENTS ACCOUNT NUMBER»",
+  "sender_email": "chris.velvettide@premierle.com",
+  "ship_to": {
+    "firstName": "«FIRST»",
+    "lastName": "«LAST»",
+    "company": "",
+    "address1": "«STREET»",
+    "address2": "",
+    "city": "«CITY»",
+    "provinceCode": "«ST»",
+    "zip": "«ZIP»",
+    "countryCodeV2": "US",
+    "phone": "«PHONE»"
+  }
+}

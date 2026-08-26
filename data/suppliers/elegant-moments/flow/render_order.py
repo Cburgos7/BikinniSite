@@ -24,11 +24,14 @@ USAGE
     # refresh the local variant snapshot from the live store first
     python render_order.py --sku 2990BP --refresh
 
-SHIP-TO
--------
-Reads ship_to.json beside this script if present, otherwise prints clearly
-marked placeholders for you to fill in. Create it from ship_to.example.json.
-That file is gitignored — it is a real postal address.
+CONFIGURATION
+-------------
+Reads order_config.json beside this script: the Elegant Moments account number
+and the ship-to address. Copy order_config.example.json and fill it in.
+
+**That file is gitignored and must stay that way — this repo is public on
+GitHub.** The account number identifies us to the supplier's billing, and the
+address is a real one.
 """
 import argparse
 import csv
@@ -41,7 +44,7 @@ SUP = HERE.parent
 TEMPLATE = HERE / "supplier-order-email.liquid"
 INVENTORY = SUP / "source" / "liveinventory.csv"
 SNAPSHOT = SUP / "out" / "live_variants_full.json"
-SHIP_TO = HERE / "ship_to.json"
+CONFIG = HERE / "order_config.json"
 
 sys.path.insert(0, str(HERE))
 from render_test import render  # noqa: E402  (the Liquid subset interpreter)
@@ -155,16 +158,28 @@ def main():
         })
 
     address = dict(PLACEHOLDER_ADDRESS)
-    if SHIP_TO.exists():
-        address.update(json.loads(SHIP_TO.read_text(encoding="utf-8")))
+    account, sender = None, None
+    if CONFIG.exists():
+        cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+        address.update(cfg.get("ship_to") or {})
+        account = (cfg.get("account_number") or "").strip() or None
+        sender = (cfg.get("sender_email") or "").strip() or None
+        if not account:
+            notes.append(f"{CONFIG.name} has no account_number — the supplier "
+                         f"cannot bill the order without it")
     else:
-        notes.append(f"no {SHIP_TO.name} — address left as placeholders")
+        notes.append(f"no {CONFIG.name} — account number and address left as "
+                     f"placeholders. Copy order_config.example.json")
 
-    body = render(TEMPLATE.read_text(encoding="utf-8"),
-                  {"order": {"name": args.ref, "lineItems": items,
-                             "shippingAddress": address}})
+    scope = {"order": {"name": args.ref, "lineItems": items,
+                       "shippingAddress": address}}
+    if account:
+        scope["account"] = account
+    body = render(TEMPLATE.read_text(encoding="utf-8"), scope)
 
     print("=" * 62)
+    if sender:
+        print("FROM:    %s" % sender)
     print("TO:      dropship@elegantmomentslingerie.com")
     print("SUBJECT: Drop-ship order %s — Velvet Tide" % args.ref)
     print("=" * 62)

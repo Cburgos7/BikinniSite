@@ -131,26 +131,48 @@ returned on a chargeback.
 
 ### 6. Fill in the account number
 
-Replace `«ACCOUNT NUMBER — see SETUP.md step 6»` in the body with your Elegant
-Moments account number.
+The body carries `{{ account }}` with a placeholder default, because **this repo
+is public on GitHub** and the account number identifies us to Elegant Moments'
+billing. Flow workflows are not stored in the repo, so type the number straight
+into the action body there.
 
-### 6b. Check the sender address
+For manual sends, `render_order.py` reads it from `order_config.json`, which is
+gitignored. Copy `order_config.example.json` if you need to recreate it.
 
-Flow sends from your store's **sender email address** (Settings → Notifications),
-which today is `jcarlson2003@gmail.com`.
+### 6b. Set the sender address
 
-That works — but it will arrive at Elegant Moments as
-`jcarlson2003@gmail.com via shopifyemail.com`, because authenticating a sender
-domain means adding CNAME and DMARC records, and nobody can add DNS records to
-`gmail.com`. Replies still reach you: Shopify forwards them to the sender
-address. So the tracking-number path is intact either way.
+Settings → Notifications → **sender email**. This is *not* settable through the
+Admin API — `emailSenderConfiguration` does not exist on `Shop` — so it is a
+manual change.
 
-Two reasons to move to a domain mailbox before you go live (task #12):
+Target: `chris.velvettide@premierle.com`. The store is still on
+`jcarlson2003@gmail.com` as of 2026-08-24.
 
-- A wholesale supplier receiving orders from a personal Gmail "via
-  shopifyemail.com" is more likely to be filtered as spam, and Flow's email
-  action gives **no delivery receipt** — a filtered order is silent.
-- It is the same address the legal pages need, so settle it once.
+**Then authenticate the domain, or the mail goes out looking borrowed.** DNS for
+`premierle.com`, checked 2026-08-24:
+
+| Record | Value | Verdict |
+|---|---|---|
+| MX | `mx00.ionos.com`, `mx01.ionos.com` | Real mailbox, hosted at IONOS |
+| SPF | `v=spf1 include:_spf-us.ionos.com ~all` | Exists, but **does not include Shopify** |
+| DMARC | `v=DMARC1; p=none;` | Exists — meets Shopify's minimum |
+
+The good news is that this domain **can** be authenticated, which `gmail.com`
+never could — you have DNS control at IONOS, since SPF and DMARC are already
+set. Add Shopify's CNAME records (Settings → Notifications → authenticate) to
+the IONOS DNS zone. Shopify's CNAMEs cover DKIM and SPF together.
+
+Until that is done, Shopify sends on your behalf and the supplier sees the mail
+as `via shopifyemail.com`. Replies still reach the sender address either way, so
+tracking numbers are not at risk — but unauthenticated mail from a domain that
+publishes SPF and DMARC is markedly more likely to be filtered, and **Flow's
+email action returns no delivery receipt**. A filtered order is a silent one.
+
+> ⚠️ **The sender address is store-wide, not Flow-only.** It is the From on
+> customer order confirmations too. Customers will see `premierle.com` on mail
+> from a shop called Velvet Tide — a mismatch worth a decision before launch.
+> Related: task #13, the Soleil Noir / Velvet Tide brand split, and task #12,
+> the personal Gmail still on the legal pages.
 
 ### 7. Action: **Add order tags** → `em-sent`
 

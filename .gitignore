@@ -18,5 +18,5 @@ data/suppliers/*/out/
 # Same licence restriction, and it runs to hundreds of MB of their photography.
 Files_Site/
 
-# Real postal address for manual supplier orders
-data/suppliers/elegant-moments/flow/ship_to.json
+# Supplier account number and a real postal address. This repo is PUBLIC.
+data/suppliers/elegant-moments/flow/order_config.json

@@ -57,7 +57,24 @@ Drop-ship order {{ order.name }} — Velvet Tide
 
 DROP SHIP ORDER — VELVET TIDE
 Our order reference: {{ order.name }}
-Dropship account: «ACCOUNT NUMBER — see SETUP.md step 6»
+{% comment %}
+  A variable, not a literal, because this repo is PUBLIC on GitHub and the
+  account number is what identifies us to the supplier's billing.
+
+  In Flow: type the number directly into this line in the action body — Flow
+  workflows are not stored in the repo.
+  For manual sends: render_order.py supplies it from order_config.json, which
+  is gitignored.
+
+  The opening tag here deliberately has no leading hyphen: a whitespace-
+  stripping open would swallow the newline that ends the line above and run the
+  reference and the account number together. The closing tag does strip, to
+  remove the newline this comment would otherwise leave behind.
+
+  Do not write Liquid tag delimiters inside a comment body — naming the closing
+  tag in prose ends the comment early and silently deletes the line below.
+{% endcomment -%}
+Dropship account: {{ account | default: "«ACCOUNT NUMBER — type it here in Flow; order_config.json for manual sends»" }}
 
 Please ship the items below directly to the customer.
 Bill the card we hold on file. Do not include a packing list.
@@ -122,11 +139,14 @@ Tracking: please reply to this email with the tracking number and carrier.
 If any item is unavailable, reply and tell us which. Please HOLD the whole
 order until we confirm — do not part-ship, and do not substitute.
 
-{%- comment -%}
+{% comment %}
   Deliberately not "sent automatically" — render_order.py sends this same
   template by hand until the Flow workflow is live, and the wording has to be
   true in both cases.
-{%- endcomment -%}
+
+  Non-stripping open, stripping close, for the whitespace reason explained at
+  the account line above.
+{% endcomment -%}
 This order has been sent once. If you receive it twice, the second copy is an
 error: ship reference {{ order.name }} only once.
 

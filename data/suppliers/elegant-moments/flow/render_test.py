@@ -596,6 +596,27 @@ def main():
     check("blank company omitted", "COMPANY" not in t)
     check("order reference present", "#1001" in t)
 
+    # ── 9. Whitespace control ───────────────────────────────────────────────
+    # An inline {%- comment -%} strips the newline that ends the line above it,
+    # silently welding two lines together. This bit twice while the template
+    # was being written -- once joining the order reference to the account
+    # number, once joining "do not substitute." to the paragraph after it.
+    print("\n[9] inline comments have not eaten line breaks")
+    t9 = render(src, order([line_item("2990BP", "2990", "Baby Pink/Black",
+                                      None, "Satin leg garters")],
+                           name="WS-001"))
+    lines = t9.splitlines()
+    check("order reference is alone on its line",
+          any(ln.strip() == "Our order reference: WS-001" for ln in lines))
+    check("account line is alone on its line",
+          any(ln.startswith("Dropship account:") for ln in lines))
+    check("duplicate-guard paragraph starts its own line",
+          any(ln.startswith("This order has been sent once") for ln in lines),
+          next((ln for ln in lines if "sent once" in ln), "<absent>")[:70])
+    check("no sentence welded to the next line",
+          not re.search(r"[a-z]\.[A-Z]", t9),
+          repr(next(iter(re.findall(r".{20}[a-z]\.[A-Z].{20}", t9)), "")))
+
     if args.show:
         print("\n" + "=" * 60 + "\nSAMPLE\n" + "=" * 60)
         print(t)
