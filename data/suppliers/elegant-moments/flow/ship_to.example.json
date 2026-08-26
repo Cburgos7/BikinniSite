@@ -1,0 +1,12 @@
+{
+  "firstName": "Chris",
+  "lastName": "Burgos",
+  "company": "",
+  "address1": "123 Example St",
+  "address2": "",
+  "city": "Minneapolis",
+  "provinceCode": "MN",
+  "zip": "55401",
+  "countryCodeV2": "US",
+  "phone": "+1 612 555 0100"
+}

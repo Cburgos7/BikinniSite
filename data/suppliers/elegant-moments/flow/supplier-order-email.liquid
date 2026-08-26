@@ -122,7 +122,12 @@ Tracking: please reply to this email with the tracking number and carrier.
 If any item is unavailable, reply and tell us which. Please HOLD the whole
 order until we confirm — do not part-ship, and do not substitute.
 
-This order was sent once, automatically. If you receive it twice, the second
-copy is an error: ship reference {{ order.name }} only once.
+{%- comment -%}
+  Deliberately not "sent automatically" — render_order.py sends this same
+  template by hand until the Flow workflow is live, and the wording has to be
+  true in both cases.
+{%- endcomment -%}
+This order has been sent once. If you receive it twice, the second copy is an
+error: ship reference {{ order.name }} only once.
 
 Velvet Tide
