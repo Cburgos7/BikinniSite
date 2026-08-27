@@ -47,7 +47,7 @@ SNAPSHOT = SUP / "out" / "live_variants_full.json"
 CONFIG = HERE / "order_config.json"
 
 sys.path.insert(0, str(HERE))
-from render_test import render  # noqa: E402  (the Liquid subset interpreter)
+from render_test import render, _tokenize, _strip_ws  # noqa: E402
 
 PLACEHOLDER_ADDRESS = {
     "firstName": "«FIRST NAME»", "lastName": "«LAST NAME»", "company": "",
@@ -107,10 +107,42 @@ def load_inventory():
         return {r["SKU"].strip(): r for r in csv.DictReader(fh)}
 
 
+def flow_body(src, account):
+    """The template as it should be pasted into Flow's message body.
+
+    Strips the documentation comments and inlines the account number, leaving
+    every other Liquid tag untouched so Flow evaluates it against a real order.
+    Whitespace control is applied first, so the spacing matches exactly what
+    render_order.py produces — the supplier sees one layout either way.
+    """
+    out, depth = [], 0
+    for kind, payload, raw in _strip_ws(_tokenize(src)):
+        if kind == "tag":
+            word = payload.split(None, 1)[0]
+            if word == "comment":
+                depth += 1
+                continue
+            if word == "endcomment":
+                depth -= 1
+                continue
+        if depth:
+            continue
+        if kind == "text":
+            out.append(payload)
+        elif kind == "out" and payload.split("|")[0].strip() == "account":
+            out.append(account)
+        else:
+            out.append(raw)
+    return "".join(out).lstrip("\n")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--sku", action="append", required=True, metavar="SKU[:QTY]",
+    ap.add_argument("--sku", action="append", metavar="SKU[:QTY]",
                     help="repeatable; QTY defaults to 1")
+    ap.add_argument("--flow-body", action="store_true",
+                    help="print the body to paste into the Shopify Flow action, "
+                         "comments stripped and account number inlined")
     ap.add_argument("--ref", default="MANUAL-001", help="our order reference")
     ap.add_argument("--refresh", action="store_true",
                     help="re-pull the variant snapshot from the live store")
@@ -118,6 +150,20 @@ def main():
 
     if args.refresh:
         refresh()
+
+    if args.flow_body:
+        account = ""
+        if CONFIG.exists():
+            account = (json.loads(CONFIG.read_text(encoding="utf-8"))
+                       .get("account_number") or "").strip()
+        if not account:
+            sys.exit(f"no account_number in {CONFIG.name} — Flow needs it "
+                     f"inlined, since workflows are not stored in this repo")
+        print(flow_body(TEMPLATE.read_text(encoding="utf-8"), account))
+        return 0
+
+    if not args.sku:
+        sys.exit("--sku is required (or use --flow-body)")
     variants = load_variants()
     inventory = load_inventory()
 

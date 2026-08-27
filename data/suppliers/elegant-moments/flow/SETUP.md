@@ -109,10 +109,38 @@ returned on a chargeback.
 
 ### 5. Action: **Send internal email**
 
-- **To:** `dropship@elegantmomentslingerie.com, <your own orders mailbox>`
+- **To:** see the box below — **not the supplier on your first run**
 - **Subject:** `Drop-ship order {{ order.name }} — Velvet Tide`
-- **Body:** everything in `supplier-order-email.liquid` below the SUBJECT
-  comment block. Do not paste the `{%- comment -%}` header; it is documentation.
+- **Body:** generate it, rather than copying by hand out of the template:
+
+  ```bash
+  python data/suppliers/elegant-moments/flow/render_order.py --flow-body
+  ```
+
+  That strips the documentation comments, inlines the account number, and
+  leaves every other Liquid tag for Flow to evaluate.
+
+> ### ⚠️ Point the first run at yourself
+>
+> Two variable paths in the body cannot be tested outside Flow:
+> `li.variant.metafields.custom.supplier_style` and
+> `li.variant.selectedOptions`. If either comes back empty, the email says
+> `** MISSING — DO NOT SHIP THIS LINE **`.
+>
+> That is the template working as designed — a visible stall beats a wrong
+> garment — but it is not what you want as your first ever contact with a
+> supplier's order desk.
+>
+> So set **To:** to your own address alone for the first order:
+>
+> ```
+> chris.velvettide@premierle.com
+> ```
+>
+> Place a real order, read what arrives, and only then add
+> `dropship@elegantmomentslingerie.com` as a second comma-separated recipient.
+> If the first email is correct you can simply forward it — the supplier order
+> still goes out the same day, and nothing is lost by checking first.
 
 > **There is no Cc field on this action.** Shopify's reference documents `To`
 > only. Use a second comma-separated recipient instead — "to send emails to
