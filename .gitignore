@@ -20,3 +20,4 @@ Files_Site/
 
 # Supplier account number and a real postal address. This repo is PUBLIC.
 data/suppliers/elegant-moments/flow/order_config.json
+data/suppliers/elegant-moments/flow/FLOW-BODY.generated.txt
