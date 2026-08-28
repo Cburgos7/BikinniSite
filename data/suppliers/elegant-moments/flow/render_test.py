@@ -371,20 +371,26 @@ ADDRESS = {
 }
 
 
-def line_item(sku, style, color, size, title, qty=1, with_options=True):
-    opts = []
-    if with_options:
-        opts.append({"name": "Color", "value": color})
-        if size is not None:
-            opts.append({"name": "Size", "value": size})
-    vtitle = " / ".join([color] + ([size] if size is not None else []))
+def line_item(sku, style, color, size, title, qty=1, extra_metafields=()):
+    """One order line, shaped the way Flow exposes it.
+
+    `metafields` is a LIST of namespace/key/value records, not a nested dict.
+    Flow rejects metafield dot notation, so the template loops; the fixture has
+    to match or the test would be verifying a shape that cannot occur.
+    """
+    opts = [{"name": "Color", "value": color}]
+    if size is not None:
+        opts.append({"name": "Size", "value": size})
+    metafields = list(extra_metafields) + [
+        {"namespace": "custom", "key": "supplier_style", "value": style},
+    ]
     return {
         "sku": sku, "quantity": qty,
         "product": {"title": title},
         "variant": {
-            "title": vtitle,
+            "title": " / ".join([color] + ([size] if size is not None else [])),
             "selectedOptions": opts,
-            "metafields": {"custom": {"supplier_style": style}},
+            "metafields": metafields,
         },
     }
 
@@ -553,15 +559,30 @@ def main():
             check(f"  and not the SKU-derived {naive}",
                   field(t, "STYLE") != naive)
 
-    # ── 5. selectedOptions fallback matches the primary path ────────────────
-    print("\n[5] variant.title fallback when selectedOptions is unavailable")
-    for color, size in [("Black/Red", "Q/S"), ("Red", "O/S"), ("Black", "1X/2X")]:
-        a = render(src, order([line_item("2987X", "2987X", color, size, "Thong",
-                                         with_options=True)]))
-        b = render(src, order([line_item("2987X", "2987X", color, size, "Thong",
-                                         with_options=False)]))
-        check(f"fallback identical for {color} / {size}", a == b,
-              f"colour {field(b, 'COLOR')!r} size {field(b, 'SIZE')!r}")
+    # ── 5. The metafield is found by looping, not by path ───────────────────
+    # Flow rejects `li.variant.metafields.custom.supplier_style` outright, so
+    # the template iterates. These guard the iteration: the right record has to
+    # win regardless of position, and a near-miss must not be mistaken for it.
+    print("\n[5] supplier_style is picked out of the metafield list")
+    noise = [
+        {"namespace": "custom", "key": "fabric_composition", "value": "Nylon"},
+        {"namespace": "other", "key": "supplier_style", "value": "WRONG-NS"},
+        {"namespace": "custom", "key": "supplier_style_note", "value": "WRONG-KEY"},
+    ]
+    t = render(src, order([line_item("L2316XP", "L2316X", "Purple", "Q/S",
+                                     "Leather teddy", extra_metafields=noise)]))
+    check("correct record found among decoys",
+          field(t, "STYLE") == "L2316X", repr(field(t, "STYLE")))
+    check("wrong namespace ignored", "WRONG-NS" not in t)
+    check("similar key ignored", "WRONG-KEY" not in t)
+
+    t = render(src, order([{
+        "sku": "9999", "quantity": 1, "product": {"title": "No metafields"},
+        "variant": {"title": "Red", "metafields": [],
+                    "selectedOptions": [{"name": "Color", "value": "Red"}]},
+    }]))
+    check("empty metafield list stalls rather than guessing",
+          "DO NOT SHIP" in (field(t, "STYLE") or ""), repr(field(t, "STYLE")))
 
     # ── 6. Degenerate data fails loudly ─────────────────────────────────────
     print("\n[6] missing data produces a stall, not a guess")

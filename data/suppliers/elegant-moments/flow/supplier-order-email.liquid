@@ -90,7 +90,18 @@ ITEMS
 {%- endcomment -%}
 {%- assign itemNo = forloop.index -%}
 {%- assign sku = li.sku | strip -%}
-{%- assign style = li.variant.metafields.custom.supplier_style | strip -%}
+{%- comment -%}
+  Looped, not addressed by path. Flow rejects metafield dot notation outright:
+  li.variant.metafields.custom.supplier_style fails validation with
+  "custom" is invalid. Shopify's own guidance is that Flow "doesn't support dot
+  notation for metafields ... instead, you must loop over the metafields".
+{%- endcomment -%}
+{%- assign style = "" -%}
+{%- for mf in li.variant.metafields -%}
+  {%- if mf.namespace == "custom" and mf.key == "supplier_style" -%}
+    {%- assign style = mf.value | strip -%}
+  {%- endif -%}
+{%- endfor -%}
 {%- assign colorValue = "" -%}
 {%- assign sizeValue = "" -%}
 {%- for opt in li.variant.selectedOptions -%}
@@ -98,16 +109,15 @@ ITEMS
   {%- if opt.name == "Size" -%}{%- assign sizeValue = opt.value -%}{%- endif -%}
 {%- endfor -%}
 {%- comment -%}
-  Fallback if Flow does not expose selectedOptions on the line-item variable.
-  Order is Color then Size, matching how the products were built; verified that
-  variant.title is exactly the option values joined by " / " for all 1,522 live
-  variants.
+  There used to be a variant.title fallback here, splitting on " / " and reading
+  parts[0] and parts[1]. Removed: Flow rejects index access too — "Flow doesn't
+  support using indexes to access items in a list" — and it flagged both
+  parts[0] and parts[1] by name.
+
+  No loss. The fallback existed only in case selectedOptions was unavailable in
+  Flow, and Flow's validator accepted selectedOptions while rejecting the other
+  two, which settles the question the fallback was insuring against.
 {%- endcomment -%}
-{%- if colorValue == "" and sizeValue == "" -%}
-  {%- assign parts = li.variant.title | split: " / " -%}
-  {%- assign colorValue = parts[0] -%}
-  {%- assign sizeValue = parts[1] -%}
-{%- endif -%}
   ITEM {{ itemNo }}
 {% if style == "" %}    STYLE ....... ** MISSING — DO NOT SHIP THIS LINE, WE WILL FOLLOW UP **
 {% else %}    STYLE ....... {{ style }}
