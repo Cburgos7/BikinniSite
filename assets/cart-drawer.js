@@ -119,8 +119,8 @@ export default function init() {
     // Read threshold from data attribute
     const barContainer = document.querySelector('[data-threshold]');
     const threshold = barContainer
-      ? parseInt(barContainer.dataset.threshold, 10) || 75
-      : 75;
+      ? parseInt(barContainer.dataset.threshold, 10) || 70
+      : 70;
 
     const openDrawer = () => {
       drawer.classList.remove('translate-x-full');

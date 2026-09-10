@@ -69,7 +69,7 @@
         data-threshold attribute above stays in dollars because cart-drawer.js
         reads it that way.
       {%- endcomment -%}
-      {%- assign threshold = section.settings.free_shipping_threshold | default: 75 -%}
+      {%- assign threshold = section.settings.free_shipping_threshold | default: 70 -%}
       {%- assign threshold_cents = threshold | times: 100 -%}
       {%- if cart.total_price >= threshold_cents -%}
         You've unlocked free shipping!
@@ -191,7 +191,7 @@
       "type": "number",
       "id": "free_shipping_threshold",
       "label": "Free shipping threshold ($)",
-      "default": 75
+      "default": 70
     }
   ],
   "presets": [{ "name": "Cart Drawer" }]

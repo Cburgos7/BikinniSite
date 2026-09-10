@@ -11,6 +11,18 @@
 <div id="ticker-section" class="bg-deep py-3 overflow-hidden">
   <div id="ticker-track" class="flex whitespace-nowrap" style="animation: marquee 30s linear infinite;">
 
+    {%- comment -%}
+      The free-shipping figure was hardcoded as $75 in both copies below, while
+      Settings → Shipping actually gives free shipping at $70. It was the only
+      place stating the threshold that a merchant could not correct from the
+      theme editor.
+
+      It now comes from a setting, defaulting to the real $70. Shopify does not
+      expose shipping-rate configuration to Liquid, so this still has to be kept
+      in step with the shipping zone by hand — but there is now one field to
+      change per section rather than a string buried in markup.
+    {%- endcomment -%}
+    {%- assign free_ship = section.settings.free_shipping_threshold | default: 70 -%}
     {%- assign ticker_content = section.settings.ticker_text | default: '' -%}
     {%- if ticker_content != blank -%}
       <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
@@ -21,11 +33,11 @@
       </span>
     {%- else -%}
       <span class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
-        Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing S–4X<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over $75
+        Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing S–4X<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over ${{ free_ship }}
       </span>
       {%- comment -%} Second copy for seamless loop {%- endcomment -%}
       <span aria-hidden="true" class="font-body text-sm font-semibold tracking-widest uppercase text-cream px-8">
-        Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing S–4X<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over $75
+        Dare to Bare<span class="text-gold mx-3"> · </span>Inclusive Sizing S–4X<span class="text-gold mx-3"> · </span>New Drops Weekly<span class="text-gold mx-3"> · </span>US-Based<span class="text-gold mx-3"> · </span>Free Shipping Over ${{ free_ship }}
       </span>
     {%- endif -%}
 
@@ -41,6 +53,13 @@
       "id": "ticker_text",
       "label": "Ticker text",
       "info": "Leave blank to use default brand promises."
+    },
+    {
+      "type": "number",
+      "id": "free_shipping_threshold",
+      "label": "Free shipping threshold ($)",
+      "info": "Must match Settings → Shipping and delivery. Shopify does not expose the real rate to the theme, so this is kept in step by hand.",
+      "default": 70
     }
   ],
   "presets": [{ "name": "Ticker / Marquee" }]
