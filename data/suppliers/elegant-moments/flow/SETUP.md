@@ -135,6 +135,52 @@ returned on a chargeback.
 > operator by using is not equal to". `Equal to` also beats `Does not include`
 > here because the latter is a substring test — a later tag such as
 > `em-sent-retry` would match `em-sent` and silently block a legitimate send.
+>
+> **Enter the value as a plain chip, not in code mode.** The field has a `</>`
+> toggle. In code mode the value renders as `["em-sent"]` and is compared as
+> that literal string, brackets and quotes included, which never equals the tag
+> `em-sent` — so `None of` is always true and the guard silently passes
+> everything. The summary card must read `Tags is equal to em-sent`. If it shows
+> brackets, it is wrong.
+
+### Verifying the guard — the empty-tag test proves nothing
+
+Testing against an untagged order cannot distinguish a working guard from a
+broken one: with no tags, `None of` is vacuously true either way, so the
+condition passes for the right reason and the wrong reason alike.
+
+Tag a test order first, then test against it:
+
+```bash
+# adds em-sent to the most recent order
+python - <<'EOF'
+import os, sys
+sys.path.insert(0, "data/suppliers/elegant-moments")
+import push_products as pp
+pp.load_env_file("data/suppliers/elegant-moments/.env")
+a = pp.Admin(pp.STORE, pp.mint_token(pp.STORE, os.environ["SHOPIFY_CLIENT_ID"],
+                                     os.environ["SHOPIFY_CLIENT_SECRET"]))
+o = a.query('{ orders(first:1, sortKey:CREATED_AT, reverse:true, query:"status:any")'
+            '{ nodes{ id name tags } } }')["orders"]["nodes"][0]
+a.query('mutation($id: ID!, $tags: [String!]!){ tagsAdd(id: $id, tags: $tags)'
+        '{ userErrors{ message } } }', {"id": o["id"], "tags": ["em-sent"]})
+print(o["name"], "tagged em-sent")
+EOF
+```
+
+The condition must then evaluate **False**. If it comes out True, the value is
+in code mode — see above.
+
+### A test run does not send anything
+
+Shopify: *"Actions that change something outside the workflow run, such as Add
+order tags or Send Internal Email, will not run"* in a test. Tests evaluate
+conditions and render Liquid against **real store data**, but send no email and
+write no tags.
+
+So an empty inbox after a test is expected and means nothing. Read the
+highlighted path and the condition's True/False branch instead — and use a real
+order to confirm delivery.
 
 > The risk condition's exact field name is unverified. Shopify moved from
 > `OrderRiskLevel` to `RiskAssessmentResult` in 2024-04 and the Flow picker's
