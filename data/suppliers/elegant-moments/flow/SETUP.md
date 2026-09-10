@@ -16,18 +16,31 @@ already has been.
 |---|---|
 | `custom.supplier_style` variant metafield | **Created and populated on all 1,522 live variants**, admin access `PUBLIC_READ_WRITE` so Flow can read it |
 | Email body template | `supplier-order-email.liquid` in this folder |
-| Correctness tests | `render_test.py` — 27 checks, all passing |
+| Correctness tests | `render_test.py` — 44 checks, all passing |
 
-### Feasibility, checked against Shopify's own docs
+### Proven end to end on order #1001
 
-No blockers. Verified 2026-08-24:
+Test order #1001 (2026-09-10, `test: true`, `fullyPaid: true`) ran the whole
+path: paid order → Flow → email delivered to `chris.velvettide@premierle.com`
+carrying `STYLE 2990`, `COLOR Baby Pink/Black`, `SIZE One size`. The style came
+from the metafield on a real order, which is the thing that could not be tested
+any other way.
+
+Two findings from that run, both now fixed:
+
+- **Flow sends HTML, so the newlines collapsed.** The entire ITEMS block arrived
+  on one line. `--flow-body` now wraps the body in `<pre>` and escapes every
+  output. Repaste the body if yours predates this.
+- **A risk assessment *does* run on test orders** (`riskLevel: NONE`,
+  `provider: null` — Shopify's own). The earlier worry that `Order risk
+  analyzed` would never fire for a test order was unfounded.
 
 | Question | Answer |
 |---|---|
 | Is Flow available on this store? | **Yes** — free, and available on Basic since Shopify extended it beyond higher tiers |
 | Can it email a supplier at another company? | **Yes** — the documented limit is that the address can't be a *variable*; a static external address is fine |
 | Can it also copy us? | **Yes** — comma-separate a second recipient. There is no Cc field |
-| Can it read our style metafield? | Definition exists with admin `PUBLIC_READ_WRITE`. **Variable path still unverified in Flow** — see step 9 |
+| Can it read our style metafield? | **Yes, confirmed on #1001** — by looping over `li.variant.metafields`. Dot notation is rejected outright |
 | Does the plan limit us? | Only `Send HTTP request` (Grow+). Not used here |
 
 Re-run the backfill after every product import, or new variants arrive with no
@@ -227,8 +240,11 @@ workflow fire, and check the Cc copy:
 - [ ] Every `STYLE` line shows a style number, none show `MISSING`
 - [ ] `COLOR` and `SIZE` are populated and not merged into one field
 - [ ] Order at least one plus-size item and check its style ends in `X`
-- [ ] Line breaks survived. If the email arrived as one run-on paragraph, Flow
-      rendered the body as HTML: wrap the whole body in `<pre>` and resend
+- [ ] Line breaks survived. **Order #1001 proved they do not by default** —
+      Flow sends HTML, where a newline is only whitespace, and the whole ITEMS
+      block arrived on one line. `--flow-body` now emits a `<pre>` wrapper and
+      escapes every output, which fixes it. Regenerate and repaste if your
+      body predates that
 - [ ] The order picked up the `em-sent` tag
 - [ ] Refund the test order — and **untick restock**. Shopify inventory here is
       a supplier snapshot, not stock we hold; restocking oversells the item

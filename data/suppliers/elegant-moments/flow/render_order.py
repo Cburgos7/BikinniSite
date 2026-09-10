@@ -107,13 +107,33 @@ def load_inventory():
         return {r["SKU"].strip(): r for r in csv.DictReader(fh)}
 
 
+PRE_OPEN = ('<pre style="font-family:ui-monospace,Consolas,monospace;'
+            'white-space:pre-wrap;font-size:14px;">')
+PRE_CLOSE = "</pre>"
+
+
 def flow_body(src, account):
     """The template as it should be pasted into Flow's message body.
 
     Strips the documentation comments and inlines the account number, leaving
-    every other Liquid tag untouched so Flow evaluates it against a real order.
-    Whitespace control is applied first, so the spacing matches exactly what
-    render_order.py produces — the supplier sees one layout either way.
+    every other Liquid tag for Flow to evaluate.
+
+    Two things are added that the plain-text path must NOT have, which is why
+    they live here and not in the template:
+
+    1. A <pre> wrapper. Flow sends the body as HTML, where a newline is just
+       whitespace. Order #1001 arrived with the whole ITEMS block collapsed onto
+       one line — "ITEM 1 STYLE ....... 2990 COLOR ....... Baby Pink/Black
+       SIZE ........" — which is unreadable for someone keying it field by
+       field, and is exactly the failure this format exists to avoid. <pre>
+       preserves the newlines and gives a monospace face for free;
+       white-space:pre-wrap keeps long lines wrapping rather than overflowing.
+
+    2. `| escape` on every output. In an HTML body a raw & is at best sloppy and
+       at worst corrupting, and four product titles in the live catalogue carry
+       one ("Vinyl & Velour checkered pattern pasties — Style V9797"). Escaping
+       is applied here rather than in the template because the plain-text path
+       must keep the literal ampersand.
     """
     out, depth = [], 0
     for kind, payload, raw in _strip_ws(_tokenize(src)):
@@ -129,11 +149,15 @@ def flow_body(src, account):
             continue
         if kind == "text":
             out.append(payload)
-        elif kind == "out" and payload.split("|")[0].strip() == "account":
-            out.append(account)
+        elif kind == "out":
+            expr = payload.strip()
+            if expr.split("|")[0].strip() == "account":
+                out.append(account)
+            else:
+                out.append("{{ %s | escape }}" % expr)
         else:
             out.append(raw)
-    return "".join(out).lstrip("\n")
+    return PRE_OPEN + "".join(out).lstrip("\n") + PRE_CLOSE
 
 
 def main():

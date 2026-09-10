@@ -638,6 +638,34 @@ def main():
           not re.search(r"[a-z]\.[A-Z]", t9),
           repr(next(iter(re.findall(r".{20}[a-z]\.[A-Z].{20}", t9)), "")))
 
+    # ── 10. The Flow paste differs from the plain-text send, deliberately ───
+    # Flow sends HTML. Order #1001 arrived with the ITEMS block collapsed onto
+    # one line because newlines are only whitespace in HTML. The <pre> wrapper
+    # and the escaping belong to that path alone — a hand-sent plain-text email
+    # must keep its literal newlines and its literal ampersands.
+    print("\n[10] the Flow body is wrapped and escaped; plain text is not")
+    from render_order import flow_body  # imported here: render_order imports us
+
+    fb = flow_body(src, "C054727")
+    check("wrapped in <pre>",
+          fb.startswith("<pre ") and fb.rstrip().endswith("</pre>"))
+    check("whitespace preserved by pre-wrap", "white-space:pre-wrap" in fb)
+    check("account inlined, placeholder gone",
+          "C054727" in fb and "ACCOUNT NUMBER" not in fb)
+    check("documentation comments stripped",
+          "{% comment %}" not in fb and "{%- comment" not in fb)
+    check("every remaining output is escaped",
+          fb.count("{{") == fb.count("| escape }}"),
+          f"{fb.count('{{')} outputs, {fb.count('| escape }}')} escaped")
+    check("no Flow-invalid index access", "parts[" not in fb)
+    check("no Flow-invalid metafield dot path", "metafields.custom" not in fb)
+
+    plain = render(src, order([line_item("V9797", "V9797", "Black", "O/S",
+                                         "Vinyl & Velour pasties")]))
+    check("plain text keeps the literal ampersand",
+          "Vinyl & Velour" in plain and "&amp;" not in plain)
+    check("plain text is not wrapped in <pre>", "<pre" not in plain)
+
     if args.show:
         print("\n" + "=" * 60 + "\nSAMPLE\n" + "=" * 60)
         print(t)
