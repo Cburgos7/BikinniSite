@@ -51,17 +51,35 @@ Four findings from those five orders:
 - **A risk assessment *does* run on test orders** (`riskLevel: NONE`,
   `provider: null` — Shopify's own), so `Order risk analyzed` fires normally.
 
+### The outbound path is complete
+
+Order **#1006** closed the last gap: Flow applied `em-sent` itself. The full
+chain is now proven on live data —
+
+```
+Order risk analyzed  →  fully paid AND not already em-sent
+                     →  Send internal email  (correctly formatted)
+                     →  Add order tags: em-sent
+```
+
+`#1006  paid=True  tags=['em-sent']`, applied by the workflow rather than by
+hand. The duplicate guard is live rather than decorative: a re-run of the same
+order now fails the condition and cannot send twice.
+
 ### Still outstanding
 
-- [ ] **`Add order tags` → `em-sent` action.** Not yet in the workflow: #1002
-      through #1005 all came back with `tags=[]`, so the duplicate guard is
-      inert — the condition passes every time because nothing ever marks an
-      order as sent. This is the last piece of the outbound path.
-- [ ] Add `dropship@elegantmomentslingerie.com` as a second comma-separated
-      recipient, once the tag action is confirmed working.
-- [ ] Clear `em-sent` from #1001 — it was set by hand to test the guard.
-- [ ] Before real customers: deactivate the **Test payment gateway** and confirm
-      a real payment provider is live.
+- [ ] **Add `dropship@elegantmomentslingerie.com`** as a second comma-separated
+      recipient in the email action's To field. Until this is done the orders
+      only reach us. This is the switch that turns the automation on.
+- [ ] Before real customers: **deactivate the Test payment gateway** and confirm
+      a real payment provider is live. The store currently accepts only fake
+      cards — every order #1001–#1006 is `test: true`.
+- [ ] Authenticate `premierle.com` as a Shopify sender (CNAME + DMARC at IONOS).
+      Mail currently goes out via `shopifyemail.com`; Flow gives no delivery
+      receipt, so a filtered order fails silently.
+
+Test orders #1001–#1006 can be left in place or archived; they are flagged
+`test: true` and do not affect reporting.
 
 | Question | Answer |
 |---|---|
