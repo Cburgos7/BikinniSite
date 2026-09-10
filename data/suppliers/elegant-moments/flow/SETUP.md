@@ -111,7 +111,30 @@ returned on a chargeback.
 |---|---|
 | `Order → Financial status` **is** `Paid` | The $3.50 fee and postage are unrecoverable if payment later fails |
 | Risk assessment **is not** `High` | See above |
-| `Order → Tags` **does not contain** `em-sent` | Duplicate guard — their PDF warns that duplicates get shipped and billed twice |
+| **`None of`** `order / tags` **`Equal to`** `em-sent` | Duplicate guard — their PDF warns that duplicates get shipped and billed twice |
+
+> ⚠️ **The list operator matters more than the comparison.** Flow offers `All
+> of`, `At least one of` and `None of` for list fields, and they differ on an
+> empty list:
+>
+> | Operator | Empty list |
+> |---|---|
+> | `All of` | true (vacuous) |
+> | `At least one of` | **false** |
+> | `None of` | true |
+>
+> `At least one of order/tags does not include em-sent` looks right and is
+> wrong twice over. On an untagged order — which is *every* new order — there is
+> no item to satisfy "at least one", so it evaluates false and **no email is ever
+> sent**. And on `["em-sent", "vip"]` the tag `vip` does not include `em-sent`,
+> so "at least one" is satisfied and a **duplicate goes out**, which is the exact
+> thing the guard exists to prevent.
+>
+> Use `None of ... Equal to`. It is Shopify's documented idiom for an absent tag,
+> and their reference warns that "a common mistake is to try to negate the
+> operator by using is not equal to". `Equal to` also beats `Does not include`
+> here because the latter is a substring test — a later tag such as
+> `em-sent-retry` would match `em-sent` and silently block a legitimate send.
 
 > The risk condition's exact field name is unverified. Shopify moved from
 > `OrderRiskLevel` to `RiskAssessmentResult` in 2024-04 and the Flow picker's
