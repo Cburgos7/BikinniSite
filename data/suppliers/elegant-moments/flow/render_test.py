@@ -643,28 +643,51 @@ def main():
     # one line because newlines are only whitespace in HTML. The <pre> wrapper
     # and the escaping belong to that path alone — a hand-sent plain-text email
     # must keep its literal newlines and its literal ampersands.
-    print("\n[10] the Flow body is wrapped and escaped; plain text is not")
-    from render_order import flow_body  # imported here: render_order imports us
+    print("\n[10] the Flow body is indented into a Markdown code block")
+    # Imported here rather than at module scope: render_order imports us.
+    from render_order import flow_body, INDENT as INDENT_EXPECTED
 
     fb = flow_body(src, "C054727")
-    check("wrapped in <pre>",
-          fb.startswith("<pre ") and fb.rstrip().endswith("</pre>"))
-    check("whitespace preserved by pre-wrap", "white-space:pre-wrap" in fb)
+    check("no HTML — the <pre> attempt stopped delivery entirely",
+          "<pre" not in fb and "</pre>" not in fb)
+    check("no escaping — a code block wants the literal ampersand",
+          "| escape" not in fb)
+    check("leads with a blank line so Markdown opens a code block",
+          fb.startswith("\n" + "    "))
     check("account inlined, placeholder gone",
           "C054727" in fb and "ACCOUNT NUMBER" not in fb)
     check("documentation comments stripped",
           "{% comment %}" not in fb and "{%- comment" not in fb)
-    check("every remaining output is escaped",
-          fb.count("{{") == fb.count("| escape }}"),
-          f"{fb.count('{{')} outputs, {fb.count('| escape }}')} escaped")
     check("no Flow-invalid index access", "parts[" not in fb)
     check("no Flow-invalid metafield dot path", "metafields.custom" not in fb)
+
+    # The real test: RENDER the Flow body and check the resulting email, not
+    # the template. Lines emitted inside the line-item loop are the ones that
+    # collapsed on orders #1001-#1003, and they only pick up the indent if the
+    # newline inside the loop body carries it.
+    rendered = render(fb, order([
+        line_item("2990BP", "2990", "Baby Pink/Black", None, "Satin leg garters"),
+        line_item("2987X", "2987X", "Red", "Q/S", "Lace thong", qty=2),
+    ], name="#1004"))
+    offenders = [ln for ln in rendered.splitlines()
+                 if ln.strip() and not ln.startswith(INDENT_EXPECTED)]
+    check("every rendered line is indented into the code block",
+          not offenders, f"{len(offenders)} unindented, e.g. {offenders[:3]}")
+    check("both item blocks survived the loop",
+          rendered.count("ITEM 1") == 1 and rendered.count("ITEM 2") == 1)
+    check("item fields are on separate lines, not run together",
+          not re.search(r"ITEM 1.*STYLE", rendered),
+          repr(next((l for l in rendered.splitlines() if "ITEM 1" in l), ""))[:80])
+    for label, want in [("STYLE", "2990"), ("COLOR", "Baby Pink/Black")]:
+        check(f"{label} still correct after indenting",
+              any(ln.strip().startswith(label) and want in ln
+                  for ln in rendered.splitlines()))
 
     plain = render(src, order([line_item("V9797", "V9797", "Black", "O/S",
                                          "Vinyl & Velour pasties")]))
     check("plain text keeps the literal ampersand",
           "Vinyl & Velour" in plain and "&amp;" not in plain)
-    check("plain text is not wrapped in <pre>", "<pre" not in plain)
+    check("plain text is left unindented", plain.startswith("DROP SHIP ORDER"))
 
     if args.show:
         print("\n" + "=" * 60 + "\nSAMPLE\n" + "=" * 60)

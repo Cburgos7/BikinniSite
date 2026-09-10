@@ -107,33 +107,39 @@ def load_inventory():
         return {r["SKU"].strip(): r for r in csv.DictReader(fh)}
 
 
-PRE_OPEN = ('<pre style="font-family:ui-monospace,Consolas,monospace;'
-            'white-space:pre-wrap;font-size:14px;">')
-PRE_CLOSE = "</pre>"
+INDENT = "    "
 
 
 def flow_body(src, account):
     """The template as it should be pasted into Flow's message body.
 
-    Strips the documentation comments and inlines the account number, leaving
-    every other Liquid tag for Flow to evaluate.
+    Strips the documentation comments, inlines the account number, and indents
+    every line by four spaces. Everything else is left for Flow to evaluate.
 
-    Two things are added that the plain-text path must NOT have, which is why
-    they live here and not in the template:
+    WHY THE INDENT
+    --------------
+    Flow renders the message body as Markdown. Three orders' worth of received
+    email say so, and every one of the observations lines up:
 
-    1. A <pre> wrapper. Flow sends the body as HTML, where a newline is just
-       whitespace. Order #1001 arrived with the whole ITEMS block collapsed onto
-       one line — "ITEM 1 STYLE ....... 2990 COLOR ....... Baby Pink/Black
-       SIZE ........" — which is unreadable for someone keying it field by
-       field, and is exactly the failure this format exists to avoid. <pre>
-       preserves the newlines and gives a monospace face for free;
-       white-space:pre-wrap keeps long lines wrapping rather than overflowing.
+      * "DROP SHIP ORDER — VELVET TIDE / Our order reference: #1003 / Dropship
+        account: C054727" arrived as a single line. Three consecutive
+        unindented lines, joined into one paragraph.
+      * The whole ITEMS block arrived as one line, for the same reason.
+      * The SHIP TO block arrived correctly, one field per line and in a
+        monospace face — because it is the one block preceded by a blank line
+        and indented four spaces. That is a Markdown code block.
 
-    2. `| escape` on every output. In an HTML body a raw & is at best sloppy and
-       at worst corrupting, and four product titles in the live catalogue carry
-       one ("Vinyl & Velour checkered pattern pasties — Style V9797"). Escaping
-       is applied here rather than in the template because the plain-text path
-       must keep the literal ampersand.
+    So the newlines were never being lost to HTML. They were being eaten by
+    paragraph reflow, and the one block that survived was surviving because it
+    was already indented.
+
+    An earlier attempt wrapped the body in <pre>, on the theory that Flow sent
+    raw HTML. That stopped the email arriving at all. Indentation is both the
+    smaller change and the one the evidence actually supports.
+
+    No `| escape` either: that was added for an HTML body that does not exist.
+    Inside a Markdown code block an ampersand is literal, and escaping would
+    have printed "Vinyl &amp; Velour" to the supplier.
     """
     out, depth = [], 0
     for kind, payload, raw in _strip_ws(_tokenize(src)):
@@ -149,15 +155,19 @@ def flow_body(src, account):
             continue
         if kind == "text":
             out.append(payload)
-        elif kind == "out":
-            expr = payload.strip()
-            if expr.split("|")[0].strip() == "account":
-                out.append(account)
-            else:
-                out.append("{{ %s | escape }}" % expr)
+        elif kind == "out" and payload.split("|")[0].strip() == "account":
+            out.append(account)
         else:
             out.append(raw)
-    return PRE_OPEN + "".join(out).lstrip("\n") + PRE_CLOSE
+
+    body = "".join(out).lstrip("\n")
+    # Indent after every newline as well as the first line. Newlines inside the
+    # line-item loop are part of the loop body, so each iteration is indented
+    # too — which is the case that matters, since ITEMS is the block that broke.
+    body = INDENT + body.replace("\n", "\n" + INDENT)
+    # A code block needs a blank line before it or Markdown treats the first
+    # indented line as a lazy continuation of whatever precedes it.
+    return "\n" + body
 
 
 def main():
