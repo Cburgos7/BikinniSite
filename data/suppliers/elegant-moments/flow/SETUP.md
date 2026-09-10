@@ -18,22 +18,50 @@ already has been.
 | Email body template | `supplier-order-email.liquid` in this folder |
 | Correctness tests | `render_test.py` — 44 checks, all passing |
 
-### Proven end to end on order #1001
+### Proven end to end — orders #1001 to #1005 (2026-09-10)
 
-Test order #1001 (2026-09-10, `test: true`, `fullyPaid: true`) ran the whole
-path: paid order → Flow → email delivered to `chris.velvettide@premierle.com`
-carrying `STYLE 2990`, `COLOR Baby Pink/Black`, `SIZE One size`. The style came
-from the metafield on a real order, which is the thing that could not be tested
-any other way.
+Paid order → Flow → email at `chris.velvettide@premierle.com`, correctly
+formatted, one field per line:
 
-Two findings from that run, both now fixed:
+```
+    ITEM 1
+        STYLE ....... 2990
+        COLOR ....... Baby Pink/Black
+        SIZE ........ One size (no size option on this item)
+        QTY ......... 1
+        (our ref: Satin leg garters — Style 2990 / SKU 2990BP)
+```
 
-- **Flow sends HTML, so the newlines collapsed.** The entire ITEMS block arrived
-  on one line. `--flow-body` now wraps the body in `<pre>` and escapes every
-  output. Repaste the body if yours predates this.
+`2990` came from the variant metafield on a live order, which is the one thing
+no offline test could establish — the SKU is `2990BP` and the `BP` is a colour
+code, so any derivation would have ordered a style that does not exist.
+
+Four findings from those five orders:
+
+- **Flow renders the body as Markdown, not HTML.** Consecutive unindented lines
+  reflow into a single paragraph — that is what collapsed the ITEMS block on
+  #1001–#1003. `SHIP TO` survived throughout because it was the one block
+  preceded by a blank line and indented four spaces, i.e. already a code block.
+  `--flow-body` now indents the whole message. **Wrapping it in `<pre>` instead
+  stopped delivery entirely** — do not reach for HTML here.
+- **Metafield dot notation is rejected.** Loop over `li.variant.metafields` and
+  match on namespace and key.
+- **Index access is rejected.** `parts[0]` fails validation; the `variant.title`
+  fallback was deleted rather than rewritten.
 - **A risk assessment *does* run on test orders** (`riskLevel: NONE`,
-  `provider: null` — Shopify's own). The earlier worry that `Order risk
-  analyzed` would never fire for a test order was unfounded.
+  `provider: null` — Shopify's own), so `Order risk analyzed` fires normally.
+
+### Still outstanding
+
+- [ ] **`Add order tags` → `em-sent` action.** Not yet in the workflow: #1002
+      through #1005 all came back with `tags=[]`, so the duplicate guard is
+      inert — the condition passes every time because nothing ever marks an
+      order as sent. This is the last piece of the outbound path.
+- [ ] Add `dropship@elegantmomentslingerie.com` as a second comma-separated
+      recipient, once the tag action is confirmed working.
+- [ ] Clear `em-sent` from #1001 — it was set by hand to test the guard.
+- [ ] Before real customers: deactivate the **Test payment gateway** and confirm
+      a real payment provider is live.
 
 | Question | Answer |
 |---|---|
