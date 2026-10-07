@@ -33,19 +33,43 @@
 
   {{ content_for_header }}
 
-  {%- if settings.klaviyo_company_id != blank -%}
+  {%- comment -%}
+    Third-party IDs are resolved once here, and a value still carrying the word
+    PLACEHOLDER is treated as unset.
+
+    Every guard below tested `!= blank`, and a placeholder is not blank — it is
+    a non-empty string that happens to be nonsense. So the live storefront was
+    loading cdn.upromote.me/js/affiliate.min.js with
+    data-merchant-id="UPROMOTE_MERCHANT_ID_PLACEHOLDER", and Klaviyo with a
+    fake company_id, on every page view: two third-party requests that could
+    never work, and an affiliate integration that looked wired up while
+    tracking nothing.
+
+    Same failure as the Cloudinary cloud name, which also shipped as
+    "..._PLACEHOLDER" and passed a blank check. Worth remembering as a class:
+    an unset credential should be empty, never a sentinel string, or every
+    `!= blank` guard in the theme silently inverts.
+  {%- endcomment -%}
+  {%- assign klaviyo_id = settings.klaviyo_company_id -%}
+  {%- if klaviyo_id contains 'PLACEHOLDER' -%}{%- assign klaviyo_id = '' -%}{%- endif -%}
+  {%- assign ga4_id = settings.ga4_measurement_id -%}
+  {%- if ga4_id contains 'PLACEHOLDER' -%}{%- assign ga4_id = '' -%}{%- endif -%}
+  {%- assign upromote_id = settings.upromote_merchant_id -%}
+  {%- if upromote_id contains 'PLACEHOLDER' -%}{%- assign upromote_id = '' -%}{%- endif -%}
+
+  {%- if klaviyo_id != blank -%}
     <script async type="text/javascript"
-      src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id={{ settings.klaviyo_company_id }}">
+      src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id={{ klaviyo_id }}">
     </script>
   {%- endif -%}
 
-  {%- if settings.ga4_measurement_id != blank -%}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.ga4_measurement_id }}"></script>
+  {%- if ga4_id != blank -%}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_id }}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '{{ settings.ga4_measurement_id }}', { send_page_view: true });
+      gtag('config', '{{ ga4_id }}', { send_page_view: true });
     </script>
 
     <script id="ga4-page-data" type="application/json">
@@ -85,10 +109,10 @@
     </script>
   {%- endif -%}
 
-  {%- if settings.upromote_merchant_id != blank -%}
+  {%- if upromote_id != blank -%}
     <script async
       src="https://cdn.upromote.me/js/affiliate.min.js"
-      data-merchant-id="{{ settings.upromote_merchant_id | escape }}">
+      data-merchant-id="{{ upromote_id | escape }}">
     </script>
   {%- endif -%}
 </head>
@@ -97,8 +121,8 @@
   class="bg-cream text-deep font-body pt-16"
   data-customer-email="{{ customer.email | escape }}"
   data-customer-id="{{ customer.id }}"
-  data-klaviyo-company-id="{{ settings.klaviyo_company_id | escape }}"
-  data-ga4-id="{{ settings.ga4_measurement_id | escape }}"
+  data-klaviyo-company-id="{{ klaviyo_id | escape }}"
+  data-ga4-id="{{ ga4_id | escape }}"
 >
   <!-- Custom cursor (hidden on touch devices) -->
   <div id="custom-cursor"
@@ -121,20 +145,30 @@
 
   <script type="module" src="{{ 'custom-cursor.js' | asset_url }}"></script>
 
-  {%- if settings.klaviyo_company_id != blank -%}
+  {%- if klaviyo_id != blank -%}
     <script type="module" src="{{ 'klaviyo.js' | asset_url }}"></script>
   {%- endif -%}
 
-  {%- if settings.ga4_measurement_id != blank -%}
-    <script type="module" src="{{ 'ref-capture.js' | asset_url }}"></script>
-    <script type="module" src="{{ 'ga4.js' | asset_url }}"></script>
-  {%- endif -%}
+  {%- comment -%}
+    Referral capture is deliberately NOT gated on the UpPromote merchant ID.
 
-  {%- if settings.upromote_merchant_id != blank -%}
-    {%- unless settings.ga4_measurement_id != blank -%}
-      <script type="module" src="{{ 'ref-capture.js' | asset_url }}"></script>
-    {%- endunless -%}
-    <script type="module" src="{{ 'upromote.js' | asset_url }}"></script>
+    ref-capture.js reads ?ref=CODE and upromote.js appends it to checkout links
+    as ?discount=CODE. That is plain Shopify discounting — it needs a discount
+    code to exist, not an app. Gating it on the merchant ID meant that with no
+    UpPromote account the referral links did nothing at all, when they could
+    have been carrying attribution the moment a code was created.
+
+    Both are inert without a ?ref= in the URL: getInfluencerCode() returns null
+    and upromote.js returns early before touching the DOM.
+
+    Only the vendor script above is gated, because that one genuinely needs a
+    real merchant ID.
+  {%- endcomment -%}
+  <script type="module" src="{{ 'ref-capture.js' | asset_url }}"></script>
+  <script type="module" src="{{ 'upromote.js' | asset_url }}"></script>
+
+  {%- if ga4_id != blank -%}
+    <script type="module" src="{{ 'ga4.js' | asset_url }}"></script>
   {%- endif -%}
 
   {% section 'cookie-consent' %}
