@@ -2,7 +2,7 @@
  * upromote.js
  * UpPromote affiliate referral capture and checkout URL wiring.
  *
- * Reads referral state exclusively via getInfluencerCode() from ref-capture.js —
+ * Reads referral state exclusively via getReferralCode() from ref-capture.js —
  * does NOT re-read URLSearchParams or sessionStorage for the ref param directly.
  *
  * On DOMContentLoaded:
@@ -14,7 +14,7 @@
  *      the discount to dynamically-updated checkout URLs.
  */
 
-import { getInfluencerCode } from './ref-capture.js';
+import { getReferralCode } from './ref-capture.js';
 
 /**
  * Append discount param to a checkout URL string.
@@ -34,7 +34,11 @@ function applyDiscountToHref(href, code) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const code = getInfluencerCode();
+  // getReferralCode, not getInfluencerCode: this value becomes a Shopify
+  // discount code, and a utm_campaign name is not one. UpPromote can append
+  // UTM parameters to its affiliate links, so the looser getter would send
+  // ?discount=<campaign name> to checkout.
+  const code = getReferralCode();
 
   if (!code) return;
 

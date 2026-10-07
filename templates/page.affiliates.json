@@ -2,7 +2,9 @@
   "sections": {
     "main": {
       "type": "page-affiliates",
-      "settings": {}
+      "settings": {
+        "upromote_url": "https://af.uppromote.com/t2wts0-9b/register"
+      }
     }
   },
   "order": ["main"]
