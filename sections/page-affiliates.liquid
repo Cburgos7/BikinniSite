@@ -63,12 +63,25 @@
       title="Affiliate Registration"
     ></iframe>
   {%- else -%}
+    {%- comment -%}
+      This used to be an "Apply Now" button with href="#", which went nowhere.
+      A page that advertises commission tiers and then dead-ends on the one
+      control that matters is worse than a page that simply says "email us" —
+      a creator who clicks and lands on the same page assumes the programme is
+      not real, and there is no second chance at that impression.
+
+      Until the UpPromote registration URL is set above, the fallback is a real
+      mailto that reaches a mailbox we actually read.
+    {%- endcomment -%}
     <div class="mt-12 text-center">
+      <p class="font-body text-sm text-mid">
+        Applications are open by email while our partner portal is being set up.
+      </p>
       <a
-        href="#"
-        class="inline-block bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 px-8 hover:opacity-90 transition-opacity"
+        href="mailto:{{ section.settings.contact_email }}?subject=Affiliate%20application"
+        class="inline-block bg-deep text-cream font-body text-xs tracking-widest uppercase py-4 px-8 mt-4 hover:opacity-90 transition-opacity"
       >
-        Apply Now
+        Email Us To Apply
       </a>
     </div>
   {%- endif -%}
@@ -96,6 +109,13 @@
       "id": "upromote_url",
       "label": "UpPromote registration URL",
       "info": "Paste the UpPromote hosted registration page URL — it will embed as an iframe"
+    },
+    {
+      "type": "text",
+      "id": "contact_email",
+      "label": "Fallback application email",
+      "info": "Used only until the UpPromote registration URL above is set.",
+      "default": "chris.velvettide@premierle.com"
     }
   ],
   "presets": [
